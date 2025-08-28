@@ -3,7 +3,7 @@
 # File Name : spatial_split.R
 # Created By : awright
 # Creation Date : 10-07-2023
-# Last Modified : Tue 02 Apr 2024 09:16:30 AM UTC
+# Last Modified : Mon Aug 25 11:41:49 2025
 #
 #=========================================
 
@@ -14,6 +14,7 @@ inputs<-commandArgs(TRUE)
 
 #Interpret the command line options {{{
 badval<- -999
+ID_only<-FALSE
 while (length(inputs)!=0) {
   #Check for valid specification {{{
   while (length(inputs)!=0 && inputs[1]=='') { inputs<-inputs[-1] }  
@@ -54,6 +55,11 @@ while (length(inputs)!=0) {
     x.name<-inputs[1]
     inputs<-inputs[-1]
     #/*fold*/}}}
+  } else if (inputs[1]=='--id_only') { 
+    #Return ids only /*fold*/ {{{
+    inputs<-inputs[-1]
+    ID_only<-TRUE
+    #/*fold*/}}}
   } else {
     stop(paste("Unknown option",inputs[1]))
   }
@@ -61,22 +67,28 @@ while (length(inputs)!=0) {
 #}}}
 
 #Check that length of the output files is correct {{{
-if (length(output.cats)!=nsplit) { 
-  stop("Output file list must be of length nsplit") 
-} 
+if (!ID_only) { 
+  if (length(output.cats)!=nsplit) { 
+    stop("Output file list must be of length nsplit") 
+  } 
+}
 #}}}
 
 #Read the input catalogue for col names {{{
-cat<-helpRfuncs::read.file(input.cat,nrow=10)
+cols<-helpRfuncs::read.colnames(input.cat)
 #}}}
 
 #Check that the x.name varaible is in the catalogue 
-if (!x.name %in% colnames(cat)) {  
+if (!x.name %in% cols) {  
   stop(paste(x.name,"variable is not in provided catalogue!")) 
 }
 
 #Read the input catalogue {{{
-cat<-helpRfuncs::read.file(input.cat)
+if (ID_only) { 
+  cat<-helpRfuncs::read.file(input.cat,cols=x.name)
+} else { 
+  cat<-helpRfuncs::read.file(input.cat)
+} 
 #}}}
 
 #Set up the cut object (for faster splitting) {{{
@@ -120,25 +132,31 @@ cat('bin occupation:\n')
 print(table(bins))
 
 #For each split, output the catalogue {{{
-written<-FALSE
-for (i in seq(1,nsplit)) { 
-  #Select the relevant sources {{{
-  out<-cat[which(bins==i),]
-  #}}}
-  cat(paste('bin',i,x.name,'stats:\n'))
-  print(summary(out[[x.name]]))
-
-  if (nrow(out)==0) { 
-    cat(paste("WARNING: split",i,"contains no sources?!\n"))
-  } else { 
-    #Write the file {{{
-    helpRfuncs::write.file(file=output.cats[i],out)
+if (ID_only) { 
+  out<-cat
+  out$splitvar<-bins
+  helpRfuncs::write.file(file=output.cats[1],out)
+} else { 
+  written<-FALSE
+  for (i in seq(1,nsplit)) { 
+    #Select the relevant sources {{{
+    out<-cat[which(bins==i),]
     #}}}
-    written<-TRUE
+    cat(paste('bin',i,x.name,'stats:\n'))
+    print(summary(out[[x.name]]))
+  
+    if (nrow(out)==0) { 
+      cat(paste("WARNING: split",i,"contains no sources?!\n"))
+    } else { 
+      #Write the file {{{
+      helpRfuncs::write.file(file=output.cats[i],out)
+      #}}}
+      written<-TRUE
+    }
+  } 
+  if (!written) { 
+    stop("Nothing was written to disk?!") 
   }
-} 
-if (!written) { 
-  stop("Nothing was written to disk?!") 
 }
 #}}}
 

@@ -755,11 +755,18 @@ function _parse_blockvars {
         #>&2 echo "${_var} -> ${_prompt}" 
       fi 
       #Loop over variable values (i.e. allow for block variable to contain multiple entries)
-      outstring=''
-      for _value in ${_filelist}
-      do 
-        outstring="${outstring} ${string/@BV:${_var}@/${_value}}"
-      done 
+      if [[ ${string} =~ ",@BV:${_var}@" ]] || [[ ${string} =~ "@BV:${_var}@," ]]
+      then 
+        #Do not vectorise substitution 
+        outstring="${string/@BV:${_var}@/${_filelist}}"
+      else 
+        #Vectorise the substitution 
+        outstring=''
+        for _value in ${_filelist}
+        do 
+          outstring="${outstring} ${string/@BV:${_var}@/${_value}}"
+        done 
+      fi 
       string=`echo ${outstring//\"/}`
       string=`echo ${string//\'/}`
       count=$((count+1))
@@ -770,6 +777,7 @@ function _parse_blockvars {
         break
       fi 
     done 
+    string="${string//,/ }"
     _outlist="${_outlist} ${string}"
     shift 
   done 
@@ -780,17 +788,21 @@ function _parse_blockvars {
 #Write the blockvars {{{
 function _write_blockvars { 
   #Get the variables 
-  if [ "${2:0:4}" == "@BV:" ] || [ "${2:0:4}" == "@DB:" ]
+  inp=$2
+  if [[ "$2" =~ "@BV:".*."@" ]]
+  then 
+    inp=`_parse_blockvars ${2}` 
+    if [ "$2" != "${inp}" ]
+    then 
+      echo -n " -> #${inp}#"
+    fi 
+  fi 
+  if [ "${inp:0:4}" == "@DB:" ]
   then 
     #The variable assignment is a reference: assign the referred value 
-    _target=${2:4}
+    _target=${inp:4}
     _target=${_target%@}
-    if [ "${2:0:4}" == "@BV:" ]
-    then 
-      _filelist=`_read_blockvars ${_target}`
-    else 
-      _filelist=`_read_datablock ${_target}`
-    fi 
+    _filelist=`_read_datablock ${_target}`
     #Remove variable name and brackets 
     _filelist=${_filelist#*=}
     _prompt=${_filelist#\{}
@@ -798,9 +810,9 @@ function _write_blockvars {
     _prompt=${_prompt//,/ }
     if [ "${_prompt}" == "" ] || [ "${_prompt}" == "@BV:${_target}@" ]
     then 
-      _filelist="{${2// /,}}"
+      _filelist="{${inp// /,}}"
     else 
-      if [ "${2:0:4}" == "@DB:" ] 
+      if [ "${inp:0:4}" == "@DB:" ] 
       then 
         #Make full file paths from block files 
         _filelist=''
@@ -817,7 +829,7 @@ function _write_blockvars {
     fi 
   else  
     #Add what we want to write
-    _filelist="${2// /,}"
+    _filelist="${inp// /,}"
     _filelist="{${_filelist/^,/}}"
   fi 
   #Update the VARS items 

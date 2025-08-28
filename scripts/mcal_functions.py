@@ -3,7 +3,7 @@
 # File Name : mcal_functions.py
 # Created By : awright
 # Creation Date : 25-05-2023
-# Last Modified : Mon 18 Mar 2024 09:55:11 PM CET
+# Last Modified : Thu 17 Jul 2025 11:32:55 AM CEST
 #
 #=========================================
 
@@ -39,6 +39,11 @@ def flexible_read(filepath,as_df=True):
         print("reading as feather")
         ldac_cat=None
         cata = pd.read_feather(filepath)
+    elif file_extension == 'parquet':
+        #Read parquet with pandas 
+        print("reading as parquet")
+        ldac_cat=None
+        cata = pd.read_parquet(filepath)
     elif file_extension == 'fits' or file_extension == 'cat':
         #If FITS, try ldac first 
         try:

@@ -3,7 +3,7 @@
 # File Name : specz_som.sh
 # Created By : awright
 # Creation Date : 21-03-2023
-# Last Modified : Tue 31 Oct 2023 02:12:05 PM CET
+# Last Modified : Mon Jul 21 12:22:12 2025
 #
 #=========================================
 
@@ -19,15 +19,22 @@ then
 else
   calibweightname='-ct @BV:CALIBWEIGHTNAME@'
 fi 
+#Add sparse option if requested 
+if [ "@BV:SPARSEFRAC@" == "" ]
+then 
+  sparsefrac=''
+else
+  sparsefrac='--sparse.som @BV:SPARSEFRAC@'
+fi 
 #Notify
 _message "@BLU@ > Constructing a SOM for @DEF@${outname}@DEF@"
 @P_RSCRIPT@ @RUNROOT@/INSTALL/SOM_DIR/R/SOM_DIR.R \
   -r none \
   -t @DB:DATAHEAD@ \
-  --toroidal --topo hexagonal \
+  @BV:TOROIDAL@ --topo @BV:TOPOLOGY@ @BV:UNWHITEN_FEATURES@ \
   --som.dim @BV:SOMDIM@ -np -fn Inf \
-  --data.threshold 0 40 \
-  ${calibweightname} \
+  --data.threshold @BV:DATATHRESHOLD@ \
+  ${calibweightname} ${sparsefrac} \
   --data.missing -99 @BV:ADDITIONALFLAGS@ \
   -sc @BV:NTHREADS@ --som.iter @BV:NITER@ --only.som \
   -o @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/DATAHEAD/ -of ${outname} \

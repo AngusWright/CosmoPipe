@@ -1,6 +1,13 @@
 ppython=@PYTHON3BIN@
 pythonbin=${ppython%/*}
 
+if [ "@BLINDING@" != "UNBLIND" ] 
+then 
+  blinding=_@BV:BLIND@
+else 
+  blinding=
+fi 
+
 _message " >@BLU@ Running posterior maximisation!\n   Start time:@DEF@ `date +'%a %H:%M'`@BLU@)\n@DEF@"
 _message " >@BLU@ Status can be monitored in the logfile located here:\n@RED@ `ls -tr @RUNROOT@/@LOGPATH@/step_*_maximise_posterior.log | tail -n 1` @DEF@\n"
 
@@ -67,8 +74,8 @@ then
   data_file_mock=@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/@BV:STATISTIC@_mocks/mock${i}.fits
   outfile_root=@RUNROOT@/@STORAGEPATH@/MCMC/output/@SURVEY@_@BLINDING@/@BV:BOLTZMAN@/@BV:STATISTIC@/chain/bestfit/mock/${i}
   
-  MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 OMP_NUM_THREADS=1 ${pythonbin}/cosmosis @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_@BV:STATISTIC@.ini -p DEFAULT.data_file=${data_file_mock} output.filename=${outfile_root}/output_@BV:SAMPLER@_@BV:BLIND@.txt multinest.tolerance=0.2 multinest.live_points=90 multinest.efficiency=1.0 multinest.multinest_outfile_root=${outfile_root}/@BV:SAMPLER@_@BV:BLIND@_ 2>&1
-  inputchain=${outfile_root}/output_@BV:SAMPLER@_@BV:BLIND@.txt
+  MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 OMP_NUM_THREADS=1 ${pythonbin}/cosmosis @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_@BV:STATISTIC@.ini -p DEFAULT.data_file=${data_file_mock} output.filename=${outfile_root}/output_@BV:SAMPLER@${blinding}.txt multinest.tolerance=0.2 multinest.live_points=90 multinest.efficiency=1.0 multinest.multinest_outfile_root=${outfile_root}/@BV:SAMPLER@${blinding}_ 2>&1
+  inputchain=${outfile_root}/output_@BV:SAMPLER@${blinding}.txt
   MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 OMP_NUM_THREADS=1 @PYTHON3BIN@ @RUNROOT@/@SCRIPTPATH@/maximise_posterior.py \
     --inputchain ${inputchain} \
     --inifile ${inifile} \
@@ -85,7 +92,7 @@ then
     fi
   done
 else
-  inputchain=@RUNROOT@/@STORAGEPATH@/MCMC/output/@SURVEY@_@BLINDING@/@BV:BOLTZMAN@/@BV:STATISTIC@/chain/output_@BV:SAMPLER@_@BV:BLIND@${CHAINSUFFIX}.txt
+  inputchain=@RUNROOT@/@STORAGEPATH@/MCMC/output/@SURVEY@_@BLINDING@/@BV:BOLTZMAN@/@BV:STATISTIC@/chain/output_@BV:SAMPLER@${blinding}${CHAINSUFFIX}.txt
   MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 OMP_NUM_THREADS=@BV:NTHREADS@ @PYTHON3BIN@ @RUNROOT@/@SCRIPTPATH@/maximise_posterior.py \
     --inputchain ${inputchain} \
     --inifile ${inifile} \

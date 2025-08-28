@@ -57,6 +57,12 @@ function _inp_data {
 # Output data {{{ 
 function _outputs { 
   #Data outputs (leave blank if none)
+  if [ "@BLINDING@" != "UNBLIND" ] 
+  then 
+    blinding=_@BV:BLIND@
+  else 
+    blinding=
+  fi 
   outlist=''
   #Output is dynamic, depending on the value of BV:COSMOSIS_PATCHLIST
   patchvar="@BV:COSMOSIS_PATCHLIST@"
@@ -71,7 +77,7 @@ function _outputs {
   #}}}
   for patch in ${patchlist}
   do 
-    outlist="${outlist} cosmosis_neff_${patch}_@BV:BLIND@ cosmosis_sigmae_${patch}_@BV:BLIND@ cosmosis_xipm_${patch}_@BV:BLIND@"
+    outlist="${outlist} cosmosis_neff_${patch}${blinding} cosmosis_sigmae_${patch}${blinding} cosmosis_xipm_${patch}${blinding}"
   done 
   echo ${outlist}
 } 

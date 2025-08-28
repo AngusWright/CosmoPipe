@@ -3,9 +3,16 @@
 # File Name : plot_TPD.sh
 # Created By : awright
 # Creation Date : 18-04-2023
-# Last Modified : Thu 23 Jan 2025 01:47:28 PM UTC
+# Last Modified : Mon Jul 21 19:48:02 2025
 #
 #=========================================
+
+if [ "@BLINDING@" != "UNBLIND" ] 
+then 
+  blinding=_@BV:BLIND@
+else 
+  blinding=
+fi 
 
 #If the sampler is not "list", don't try to do anything! 
 if [ "@BV:SAMPLER@" == "list" ] 
@@ -70,10 +77,10 @@ then
     --onlyused \
     --labloc ${labloc} \
     --covariance ${covariance} \
-    --tpds @RUNROOT@/@STORAGEPATH@/MCMC/output/@SURVEY@_@BLINDING@/@BV:BOLTZMAN@/@BV:STATISTIC@/chain/output_list_@BV:LIST_INPUT_SAMPLER@_@BV:BLIND@@BV:CHAINSUFFIX@.txt \
+    --tpds @RUNROOT@/@STORAGEPATH@/MCMC/output/@SURVEY@_@BLINDING@/@BV:BOLTZMAN@/@BV:STATISTIC@/chain/output_list_@BV:LIST_INPUT_SAMPLER@${blinding}@BV:CHAINSUFFIX@.txt \
     --ntomo ${NTOMO} \
     --sampler @BV:LIST_INPUT_SAMPLER@ \
-    --output @RUNROOT@/@STORAGEPATH@/MCMC/output/@SURVEY@_@BLINDING@/@BV:BOLTZMAN@/@BV:STATISTIC@/plots/TPD1_@BV:LIST_INPUT_SAMPLER@_@BV:BLIND@@BV:CHAINSUFFIX@.pdf \
+    --output @RUNROOT@/@STORAGEPATH@/MCMC/output/@SURVEY@_@BLINDING@/@BV:BOLTZMAN@/@BV:STATISTIC@/plots/TPD1_@BV:LIST_INPUT_SAMPLER@${blinding}@BV:CHAINSUFFIX@.pdf \
     --xlabel "${xlabel}" --ylabel "${ylabel}" \
     --xunit  "${xunit}" --yunit  "${yunit}" \
     2>&1 || echo "Ignore failed plot generation" 
@@ -127,11 +134,11 @@ then
     --xused ${xused} \
     --labloc ${labloc} \
     --covariance ${covariance} \
-    --tpds @RUNROOT@/@STORAGEPATH@/MCMC/output/@SURVEY@_@BLINDING@/@BV:BOLTZMAN@/@BV:STATISTIC@/chain/output_list_@BV:LIST_INPUT_SAMPLER@_@BV:BLIND@@BV:CHAINSUFFIX@.txt \
+    --tpds @RUNROOT@/@STORAGEPATH@/MCMC/output/@SURVEY@_@BLINDING@/@BV:BOLTZMAN@/@BV:STATISTIC@/chain/output_list_@BV:LIST_INPUT_SAMPLER@${blinding}@BV:CHAINSUFFIX@.txt \
     --ntomo ${NTOMO} \
     --bmode \
     --sampler @BV:LIST_INPUT_SAMPLER@ \
-    --output @RUNROOT@/@STORAGEPATH@/MCMC/output/@SURVEY@_@BLINDING@/@BV:BOLTZMAN@/@BV:STATISTIC@/plots/TPD2_@BV:LIST_INPUT_SAMPLER@_@BV:BLIND@@BV:CHAINSUFFIX@.pdf \
+    --output @RUNROOT@/@STORAGEPATH@/MCMC/output/@SURVEY@_@BLINDING@/@BV:BOLTZMAN@/@BV:STATISTIC@/plots/TPD2_@BV:LIST_INPUT_SAMPLER@${blinding}@BV:CHAINSUFFIX@.pdf \
     --xlabel "${xlabel}" --ylabel "${ylabel}" \
     --xunit  "${xunit}" --yunit  "${yunit}" \
     2>&1 || echo "Ignore failed plot generation" 

@@ -3,9 +3,16 @@
 # File Name : plot_data_vector.sh
 # Created By : awright
 # Creation Date : 18-11-2023
-# Last Modified : Fri 15 Dec 2023 02:08:32 PM CET
+# Last Modified : Mon Jul 21 19:48:07 2025
 #
 #=========================================
+
+if [ "@BLINDING@" != "UNBLIND" ] 
+then 
+  blinding=_@BV:BLIND@
+else 
+  blinding=
+fi 
 
 #Define the number of data elements 
 case "@BV:STATISTIC@" in 
@@ -57,7 +64,7 @@ do
     --covariance ${covariance} \
     --ntomo ${NTOMO} \
     --type ${ptype} \
-    --output @RUNROOT@/@STORAGEPATH@/MCMC/output/@SURVEY@_@BLINDING@/@BV:BOLTZMAN@/@BV:STATISTIC@/plots/DataVec_Upper_@BV:LIST_INPUT_SAMPLER@_@BV:BLIND@.pdf \
+    --output @RUNROOT@/@STORAGEPATH@/MCMC/output/@SURVEY@_@BLINDING@/@BV:BOLTZMAN@/@BV:STATISTIC@/plots/DataVec_Upper_@BV:LIST_INPUT_SAMPLER@${blinding}.pdf \
     --xlabel "${xlabel}" --ylabel "${!getlab}" 2>&1
 done 
 

@@ -3,9 +3,16 @@
 # File Name : plot_xisys.sh
 # Created By : awright
 # Creation Date : 29-02-2024
-# Last Modified : Thu Jan 16 19:43:53 2025
+# Last Modified : Mon Jul 21 19:48:23 2025
 #
 #=========================================
+
+if [ "@BLINDING@" != "UNBLIND" ] 
+then 
+  blinding=_@BV:BLIND@
+else 
+  blinding=
+fi 
 
 
 #Compute and plot the xisys function 
@@ -34,39 +41,39 @@ NTOMO=`echo @BV:TOMOLIMS@ | awk '{print NF-1}'`
   --xipmvec ${xipmvec} \
   --xipsfvec ${xipsfvec} \
   --xigpsfvec ${xigpsfvec} \
-  --xipm_tpd @RUNROOT@/@STORAGEPATH@/MCMC/output/@SURVEY@_@BLINDING@/@BV:BOLTZMAN@/@BV:STATISTIC@/chain/output_list_@BV:LIST_INPUT_SAMPLER@_@BV:BLIND@.txt \
+  --xipm_tpd @RUNROOT@/@STORAGEPATH@/MCMC/output/@SURVEY@_@BLINDING@/@BV:BOLTZMAN@/@BV:STATISTIC@/chain/output_list_@BV:LIST_INPUT_SAMPLER@${blinding}.txt \
   --covariance ${covariance} \
   --ntomo ${NTOMO} \
   --nmax @BV:NXIPM@ \
   --thetamin @BV:THETAMINXI@ \
   --thetamax @BV:THETAMAXXI@ \
-  --output @RUNROOT@/@STORAGEPATH@/MCMC/output/@SURVEY@_@BLINDING@/@BV:BOLTZMAN@/@BV:STATISTIC@/plots/Xi_PSF_@BV:LIST_INPUT_SAMPLER@_@BV:BLIND@.pdf \
+  --output @RUNROOT@/@STORAGEPATH@/MCMC/output/@SURVEY@_@BLINDING@/@BV:BOLTZMAN@/@BV:STATISTIC@/plots/Xi_PSF_@BV:LIST_INPUT_SAMPLER@${blinding}.pdf \
   2>&1
 #Run the R plotting code 
 @P_RSCRIPT@ @RUNROOT@/@SCRIPTPATH@/plot_xigpsf.R \
   --xipmvec ${xipmvec} \
   --xipsfvec ${xipsfvec} \
   --xigpsfvec ${xigpsfvec} \
-  --xipm_tpd @RUNROOT@/@STORAGEPATH@/MCMC/output/@SURVEY@_@BLINDING@/@BV:BOLTZMAN@/@BV:STATISTIC@/chain/output_list_@BV:LIST_INPUT_SAMPLER@_@BV:BLIND@.txt \
+  --xipm_tpd @RUNROOT@/@STORAGEPATH@/MCMC/output/@SURVEY@_@BLINDING@/@BV:BOLTZMAN@/@BV:STATISTIC@/chain/output_list_@BV:LIST_INPUT_SAMPLER@${blinding}.txt \
   --covariance ${covariance} \
   --ntomo ${NTOMO} \
   --nmax @BV:NXIPM@ \
   --thetamin @BV:THETAMINXI@ \
   --thetamax @BV:THETAMAXXI@ \
-  --output @RUNROOT@/@STORAGEPATH@/MCMC/output/@SURVEY@_@BLINDING@/@BV:BOLTZMAN@/@BV:STATISTIC@/plots/Xi_gPSF_@BV:LIST_INPUT_SAMPLER@_@BV:BLIND@.pdf \
+  --output @RUNROOT@/@STORAGEPATH@/MCMC/output/@SURVEY@_@BLINDING@/@BV:BOLTZMAN@/@BV:STATISTIC@/plots/Xi_gPSF_@BV:LIST_INPUT_SAMPLER@${blinding}.pdf \
   2>&1
 #Run the R plotting code 
 @P_RSCRIPT@ @RUNROOT@/@SCRIPTPATH@/plot_xisys.R \
   --xipmvec ${xipmvec} \
   --xipsfvec ${xipsfvec} \
   --xigpsfvec ${xigpsfvec} \
-  --xipm_tpd @RUNROOT@/@STORAGEPATH@/MCMC/output/@SURVEY@_@BLINDING@/@BV:BOLTZMAN@/@BV:STATISTIC@/chain/output_list_@BV:LIST_INPUT_SAMPLER@_@BV:BLIND@.txt \
+  --xipm_tpd @RUNROOT@/@STORAGEPATH@/MCMC/output/@SURVEY@_@BLINDING@/@BV:BOLTZMAN@/@BV:STATISTIC@/chain/output_list_@BV:LIST_INPUT_SAMPLER@${blinding}.txt \
   --covariance ${covariance} \
   --ntomo ${NTOMO} \
   --nmax @BV:NXIPM@ \
   --thetamin @BV:THETAMINXI@ \
   --thetamax @BV:THETAMAXXI@ \
-  --output @RUNROOT@/@STORAGEPATH@/MCMC/output/@SURVEY@_@BLINDING@/@BV:BOLTZMAN@/@BV:STATISTIC@/plots/Xi_Sys_@BV:LIST_INPUT_SAMPLER@_@BV:BLIND@.pdf \
+  --output @RUNROOT@/@STORAGEPATH@/MCMC/output/@SURVEY@_@BLINDING@/@BV:BOLTZMAN@/@BV:STATISTIC@/plots/Xi_Sys_@BV:LIST_INPUT_SAMPLER@${blinding}.pdf \
   2>&1
 
 

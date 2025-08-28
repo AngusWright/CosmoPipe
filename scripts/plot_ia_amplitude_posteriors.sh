@@ -1,3 +1,10 @@
+if [ "@BLINDING@" != "UNBLIND" ] 
+then 
+  blinding=_@BV:BLIND@
+else 
+  blinding=
+fi 
+
 #Create directory if needed
 if [ ! -d @RUNROOT@/@STORAGEPATH@/MCMC/output/@SURVEY@_@BLINDING@/@BV:BOLTZMAN@/@BV:STATISTIC@/plots ]
 then 
@@ -39,7 +46,7 @@ logM="${PRIOR_LOG10_M_MEAN_1} ${PRIOR_LOG10_M_MEAN_2} ${PRIOR_LOG10_M_MEAN_3} ${
 
 # Uncorrelated massdep priors (deprecated)
 # @PYTHON3BIN@ @RUNROOT@/@SCRIPTPATH@/plot_ia_amplitude_posteriors.py \
-#   --inputbase @STORAGEPATH@/MCMC/output/@SURVEY@_@BLINDING@/@BV:BOLTZMAN@/@BV:STATISTIC@/chain/output_@BV:SAMPLER@_@BV:BLIND@ \
+#   --inputbase @STORAGEPATH@/MCMC/output/@SURVEY@_@BLINDING@/@BV:BOLTZMAN@/@BV:STATISTIC@/chain/output_@BV:SAMPLER@${blinding} \
 #   --output_dir @RUNROOT@/@STORAGEPATH@/MCMC/output/@SURVEY@_@BLINDING@/@BV:BOLTZMAN@/@BV:STATISTIC@/plots/ \
 #   --f_r ${f_r} \
 #   --logM ${logM} \
@@ -49,7 +56,7 @@ logM="${PRIOR_LOG10_M_MEAN_1} ${PRIOR_LOG10_M_MEAN_2} ${PRIOR_LOG10_M_MEAN_3} ${
 
 #@PYTHON3BIN@ @RUNROOT@/@SCRIPTPATH@/plot_ia_amplitude_posteriors_correlated.py \
 @P_RSCRIPT@ @RUNROOT@/@SCRIPTPATH@/plot_ia_amplitude_posteriors_correlated.R \
-  --inputbase @STORAGEPATH@/MCMC/output/@SURVEY@_@BLINDING@/@BV:BOLTZMAN@/@BV:STATISTIC@/chain/output_@BV:SAMPLER@_@BV:BLIND@ \
+  --inputbase @STORAGEPATH@/MCMC/output/@SURVEY@_@BLINDING@/@BV:BOLTZMAN@/@BV:STATISTIC@/chain/output_@BV:SAMPLER@${blinding} \
   --output_dir @RUNROOT@/@STORAGEPATH@/MCMC/output/@SURVEY@_@BLINDING@/@BV:BOLTZMAN@/@BV:STATISTIC@/plots/ \
   --f_r ${f_r} \
   --massdep_cov @BV:MASSDEP_COVARIANCE@ \

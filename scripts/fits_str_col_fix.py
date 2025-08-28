@@ -15,6 +15,9 @@ if len(sys.argv) != 3:
 
 modified=False
 data, ldac_cat = mcf.flexible_read(sys.argv[1],as_df=True)
+filetype = sys.argv[1].split(".")[-1]
+if filetype == 'cat': 
+    filetype = 'fits'
 
 #If the data was read as a data frame (and so is not LDAC)
 if isinstance(data, pd.DataFrame):
@@ -27,6 +30,6 @@ if isinstance(data, pd.DataFrame):
             modified=True
     
     #Write out the new catalogue (if needed) 
-    if modified: 
+    if modified or filetype != 'fits': 
         apd.to_fits(data, sys.argv[2])
 

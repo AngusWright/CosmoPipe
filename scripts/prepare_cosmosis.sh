@@ -3,9 +3,16 @@
 # File Name : prepare_cosmosis.sh
 # Created By : awright
 # Creation Date : 31-03-2023
-# Last Modified : Sat Feb 24 08:55:24 2024
+# Last Modified : Tue Jul 22 13:19:38 2025
 #
 #=========================================
+
+if [ "@BLINDING@" != "UNBLIND" ] 
+then 
+  blinding=_@BV:BLIND@
+else 
+  blinding=
+fi 
 
 #For each of the files in the nz directory 
 headfiles="@DB:ALLHEAD@"
@@ -32,7 +39,7 @@ do
   do 
     _message " ->@BLU@ Patch @RED@${patch}@DEF@"
     #Get all the files in this stat and patch {{{
-    patchinputs=`_read_datablock "${stat}_${patch}_@BV:BLIND@"`
+    patchinputs=`_read_datablock "${stat}_${patch}${blinding}"`
     patchinputs=`_blockentry_to_filelist ${patchinputs}`
     #}}}
     #If there are no files in this patch, skip {{{
@@ -45,16 +52,16 @@ do
     found="TRUE"
     foundlist="${foundlist} ${patch}"
     #Create the ${stat} directory {{{
-    if [ ! -d @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_${stat}_${patch}_@BV:BLIND@ ]
+    if [ ! -d @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_${stat}_${patch}${blinding} ]
     then 
-      mkdir @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_${stat}_${patch}_@BV:BLIND@/
+      mkdir @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_${stat}_${patch}${blinding}/
     fi 
     #}}}
     #Create the output statistic file name {{{
     stat_list=""
     for file in ${patchinputs} 
     do 
-      stat_list="${stat_list} @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/${stat}_${patch}_@BV:BLIND@/${file}"
+      stat_list="${stat_list} @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/${stat}_${patch}${blinding}/${file}"
     done
     stat_file=`echo ${patchinputs} | awk '{print $1}'`
     #}}}
@@ -63,18 +70,18 @@ do
     stat_file=${stat_file%_ZB*}_${stat}.txt 
     #}}}
     #Remove preexisting files {{{
-    if [ -f @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_${stat}_${patch}_@BV:BLIND@/${stat_file} ]
+    if [ -f @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_${stat}_${patch}${blinding}/${stat_file} ]
     then 
       _message " > @BLU@Removing previous cosmosis ${stat} file@DEF@"
-      rm @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_${stat}_${patch}_@BV:BLIND@/${stat_file}
+      rm @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_${stat}_${patch}${blinding}/${stat_file}
       _message " - @RED@Done! (`date +'%a %H:%M'`)@DEF@\n"
     fi 
     #}}}
     #Construct the output file, maintaining order {{{
-    paste ${stat_list} > @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_${stat}_${patch}_@BV:BLIND@/${stat_file}
+    paste ${stat_list} > @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_${stat}_${patch}${blinding}/${stat_file}
     #}}}
     #Add the stat file to the datablock {{{
-    _write_datablock "cosmosis_${stat}_${patch}_@BV:BLIND@" "${stat_file}"
+    _write_datablock "cosmosis_${stat}_${patch}${blinding}" "${stat_file}"
     #}}}
     _message "@RED@ - Done! (`date +'%a %H:%M'`)@DEF@\n"
   done 
@@ -137,7 +144,7 @@ then
         filestr="${appendstr}${appendstr2}_ggcorr.txt"
         #}}}
         #Get the file {{{
-        file=`echo ${headfiles} | sed 's/ /\n/g' | grep "_${patch}_" | grep ${filestr} || echo `
+        file=`echo ${headfiles} | sed 's/ /\n/g' | grep "[\^_]${patch}_" | grep ${filestr} || echo `
         #}}}
         #Check if the output file exists {{{
         if [ "${file}" == "" ] 
@@ -146,15 +153,15 @@ then
         fi 
         #}}}
         #Create the xipm directory {{{
-        if [ ! -d @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_xipm_${patch}_@BV:BLIND@ ]
+        if [ ! -d @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_xipm_${patch}${blinding} ]
         then 
-          mkdir @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_xipm_${patch}_@BV:BLIND@/
+          mkdir @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_xipm_${patch}${blinding}/
         fi 
         #}}}
         #Copy the file {{{
         _message " > @BLU@ Patch @DEF@${patch}@BLU@ ZBIN @DEF@${ZBIN1}@BLU@x@DEF@${ZBIN2}"
         cp ${file} \
-          @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_xipm_${patch}_@BV:BLIND@/XI_@SURVEY@_${patch}_nBins_${NTOMO}_Bin${ZBIN1}_Bin${ZBIN2}.ascii
+          @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_xipm_${patch}${blinding}/XI_@SURVEY@_${patch}_nBins_${NTOMO}_Bin${ZBIN1}_Bin${ZBIN2}.ascii
         _message " - @RED@ Done! (`date +'%a %H:%M'`)@DEF@\n"
         #}}}
         #Save the file to the output list {{{
@@ -164,7 +171,7 @@ then
       #}}}
     done
     #Update the datablock {{{
-    _write_datablock "cosmosis_xipm_${patch}_@BV:BLIND@" "${outlist}"
+    _write_datablock "cosmosis_xipm_${patch}${blinding}" "${outlist}"
     outall="${outall} ${outlist}"
     #}}}
     #}}}

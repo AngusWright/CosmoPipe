@@ -3,7 +3,7 @@
 # File Name : equalN_split.sh
 # Created By : awright
 # Creation Date : 04-07-2023
-# Last Modified : Thu Apr 11 13:20:58 2024
+# Last Modified : Mon Aug 25 11:59:51 2025
 #
 #=========================================
 
@@ -26,7 +26,7 @@ splitfile=${output//.${outext}/_splits.${outext}}
 @P_RSCRIPT@ @RUNROOT@/@SCRIPTPATH@/column_split.R \
   -i @DB:DATAHEAD@ \
   -v @BV:SPLITVAR@ \
-  --id_only -o ${splitfile} 4>&1 
+  --id_only -o ${splitfile} 2>&1 
 
 
 #Merge the split variable column with ldac 

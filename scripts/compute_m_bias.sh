@@ -3,10 +3,16 @@
 # File Name : compute_m_bias.sh
 # Created By : awright
 # Creation Date : 08-05-2023
-# Last Modified : Mon Mar 18 15:48:04 2024
+# Last Modified : Mon Jul 21 19:47:17 2025
 #
 #=========================================
 
+if [ "@BLINDING@" != "UNBLIND" ] 
+then 
+  blinding=_@BV:BLIND@
+else 
+  blinding=
+fi 
 #For each file in the datahead, make a shape recal surface
 allhead="@DB:ALLHEAD@"
 allsurf="@DB:m_surface@"
@@ -159,9 +165,9 @@ do
   #}}}
 
   #If needed, create the output directory {{{
-  if [ ! -d @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/mbias_${patch}_@BV:BLIND@ ]
+  if [ ! -d @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/mbias_${patch}${blinding} ]
   then 
-    mkdir @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/mbias_${patch}_@BV:BLIND@ 
+    mkdir @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/mbias_${patch}${blinding} 
   fi 
   #}}}
 
@@ -189,32 +195,32 @@ do
   then 
     #If there are multiple realisations {{{
     #If needed, create the output cov directory {{{
-    if [ ! -d @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/mcov_${patch}_@BV:BLIND@ ]
+    if [ ! -d @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/mcov_${patch}${blinding} ]
     then 
-      mkdir @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/mcov_${patch}_@BV:BLIND@ 
+      mkdir @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/mcov_${patch}${blinding} 
     fi 
     #}}}
     #Run the m prior construction for each bin {{{
     @P_RSCRIPT@ @RUNROOT@/@SCRIPTPATH@/compute_m_priors.R -i ${filelist} \
       --binstrings ${binstrings} \
       --corr @BV:MBIASCORR@ \
-      --biasout @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/mbias_${patch}_@BV:BLIND@/m_${patch}_@BV:BLIND@_biases.txt \
-      --uncout @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/mbias_${patch}_@BV:BLIND@/m_${patch}_@BV:BLIND@_uncertainty.txt \
-      --covout @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/mcov_${patch}_@BV:BLIND@/m_${patch}_@BV:BLIND@_covariance.txt 2>&1
+      --biasout @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/mbias_${patch}${blinding}/m_${patch}${blinding}_biases.txt \
+      --uncout @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/mbias_${patch}${blinding}/m_${patch}${blinding}_uncertainty.txt \
+      --covout @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/mcov_${patch}${blinding}/m_${patch}${blinding}_covariance.txt 2>&1
     #}}}
     #Create the correlation file {{{
-    echo "@BV:MBIASCORR@" > @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/mbias_${patch}_@BV:BLIND@/m_${patch}_@BV:BLIND@_correlation.txt 
+    echo "@BV:MBIASCORR@" > @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/mbias_${patch}${blinding}/m_${patch}${blinding}_correlation.txt 
     #}}}
     #Add covariance file to the data block {{{
-    _write_datablock mcov_${patch}_@BV:BLIND@ "m_${patch}_@BV:BLIND@_covariance.txt"
+    _write_datablock mcov_${patch}${blinding} "m_${patch}${blinding}_covariance.txt"
     #}}}
     #}}}
   elif [ ${nfile} -eq ${NTOMO} ]
   then 
     #Output the m-bias values for this patch into the mbias block {{{
-    tail -qn 1 ${filelist} | awk -F, '{printf $1" "}' > @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/mbias_${patch}_@BV:BLIND@/m_${patch}_@BV:BLIND@_biases.txt
-    tail -qn 1 ${filelist} | awk -F, '{printf $2" "}' > @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/mbias_${patch}_@BV:BLIND@/m_${patch}_@BV:BLIND@_uncertainty.txt
-    echo "@BV:MBIASCORR@" > @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/mbias_${patch}_@BV:BLIND@/m_${patch}_@BV:BLIND@_correlation.txt 
+    tail -qn 1 ${filelist} | awk -F, '{printf $1" "}' > @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/mbias_${patch}${blinding}/m_${patch}${blinding}_biases.txt
+    tail -qn 1 ${filelist} | awk -F, '{printf $2" "}' > @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/mbias_${patch}${blinding}/m_${patch}${blinding}_uncertainty.txt
+    echo "@BV:MBIASCORR@" > @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/mbias_${patch}${blinding}/m_${patch}${blinding}_correlation.txt 
     #}}}
   else 
     #There are fewer m files than tomographic bins?! {{{
@@ -225,10 +231,10 @@ do
   #}}}
 
   #Add files to output list
-  mfiles="m_${patch}_@BV:BLIND@_biases.txt m_${patch}_@BV:BLIND@_uncertainty.txt m_${patch}_@BV:BLIND@_correlation.txt"
+  mfiles="m_${patch}${blinding}_biases.txt m_${patch}${blinding}_uncertainty.txt m_${patch}${blinding}_correlation.txt"
 
   #Update the datablock contents file 
-  _write_datablock mbias_${patch}_@BV:BLIND@ "${mfiles}"
+  _write_datablock mbias_${patch}${blinding} "${mfiles}"
 
 done
 

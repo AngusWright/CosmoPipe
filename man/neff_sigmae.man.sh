@@ -57,10 +57,16 @@ function _inp_var {
 # Input data {{{ 
 function _inp_data { 
   #Data inputs (leave blank if none)
+  if [ "@BLINDING@" != "UNBLIND" ] 
+  then 
+    blinding=_@BV:BLIND@
+  else 
+    blinding=
+  fi 
   outlist=''
   for patch in @BV:PATCHLIST@ @ALLPATCH@ 
   do 
-    outlist="${outlist} mbias_${patch}_@BV:BLIND@"
+    outlist="${outlist} mbias_${patch}${blinding}"
   done 
   echo ALLHEAD ${outlist}
 } 
@@ -69,10 +75,16 @@ function _inp_data {
 # Output data {{{ 
 function _outputs { 
   #Data outputs (leave blank if none)
+  if [ "@BLINDING@" != "UNBLIND" ] 
+  then 
+    blinding=_@BV:BLIND@
+  else 
+    blinding=
+  fi 
   outlist=''
   for patch in @BV:PATCHLIST@ @ALLPATCH@ @ALLPATCH@comb
   do 
-    outlist="${outlist} cov_inp_${patch}_@BV:BLIND@ neff_${patch}_@BV:BLIND@ sigmae_${patch}_@BV:BLIND@" 
+    outlist="${outlist} cov_inp_${patch}${blinding} neff_${patch}${blinding} sigmae_${patch}${blinding}" 
   done 
   echo ${outlist}
 } 

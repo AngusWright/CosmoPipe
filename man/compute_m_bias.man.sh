@@ -57,10 +57,16 @@ function _inp_data {
 # Output data {{{ 
 function _outputs { 
   #Data outputs (leave blank if none)
+  if [ "@BLINDING@" != "UNBLIND" ] 
+  then 
+    blinding=_@BV:BLIND@
+  else 
+    blinding=
+  fi 
   outlist=''
   for patch in @BV:PATCHLIST@ @ALLPATCH@ 
   do 
-    outlist="${outlist} mbias_${patch}_@BV:BLIND@ mcov_${patch}_@BV:BLIND@"
+    outlist="${outlist} mbias_${patch}${blinding} mcov_${patch}${blinding}"
   done 
   echo DATAHEAD ${outlist}
 } 

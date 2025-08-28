@@ -3,7 +3,7 @@
 # File Name : add_epsf_variance.sh
 # Created By : awright
 # Creation Date : 04-07-2023
-# Last Modified : Fri Apr 12 05:40:01 2024
+# Last Modified : Mon Aug 25 11:59:45 2025
 #
 #=========================================
 
@@ -19,7 +19,7 @@ varfile=${output//.${outext}/_psfvar.${outext}}
 @P_RSCRIPT@ @RUNROOT@/@SCRIPTPATH@/epsf_variance.R \
   -i @DB:DATAHEAD@ \
   -v @BV:PSFE1NAME@ @BV:PSFE2NAME@ \
-  -o ${varfile} 4>&1 
+  -o ${varfile} 2>&1 
 
 
 #Merge the variance columns with ldac 

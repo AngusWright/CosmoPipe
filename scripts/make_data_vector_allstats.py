@@ -186,6 +186,7 @@ elif statistic == 'xipm':
         for bin2 in range(bin1,nBins_source):
             tomoxcorrstr="_"+ZBstr[bin1]+"_"+ZBstr[bin2]+'_'+label+'_binned.asc'
             match=np.array([tomoxcorrstr in i for i in XipmDataFiles])
+            print(match)
             fileNameInput=XipmDataFiles[match][0]
             input_files.append(fileNameInput)
     datavector_no_m_bias, datavector_with_m_bias  = make_2pt_vector(input_files,m_corr_e, xipm = True)

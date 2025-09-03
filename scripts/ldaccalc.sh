@@ -71,13 +71,30 @@ colcheck=`echo ${cols} | sed 's/ /\n/g' | grep -ci "${calccol}" || echo `
 
 if [ ${colcheck} -ne 0 ]
 then 
-  _message "@RED@ - ERROR! Column name to add already exists!@DEF@\n"
-  _message "@BLU@columns:@DEF@\n"
-  _message "${cols}\n"
-  _message "@BLU@ldaccalc colname:@DEF@"
-  _message "${calccol}\n"
-  exit 1
-else 
+  #_message "@BLU@ - @RED@Done! (`date +'%a %H:%M'`)@DEF@\n"
+  _message "@RED@ Warning! Column name to add already exists!@DEF@\n"
+  _message "@BLU@ Removing existing column @DEF@$calccol@DEF@"
+  #Calculate the new column 
+  @RUNROOT@/INSTALL/theli-1.6.1/bin/@MACHINE@/ldacdelkey \
+    -i ${input} \
+    -o ${input}_tmp \
+    -t OBJECTS \
+    -k ${calccol} 2>&1
+  
+  mv ${input}_tmp $input
+  _message "@BLU@ - @RED@Done! (`date +'%a %H:%M'`)@DEF@\n"
+  _message "@BLU@ Resuming@DEF@"
+
+fi 
+
+  #_message "@BLU@ - @RED@Done! (`date +'%a %H:%M'`)@DEF@\n"
+  #_message "@RED@ - ERROR! Column name to add already exists!@DEF@\n"
+  #_message "@BLU@columns:@DEF@\n"
+  #_message "${cols}\n"
+  #_message "@BLU@ldaccalc colname:@DEF@"
+  #_message "${calccol}\n"
+  #exit 1
+#else 
   #Calculate the new column 
   @RUNROOT@/INSTALL/theli-1.6.1/bin/@MACHINE@/ldaccalc \
     -i ${input} \
@@ -98,5 +115,5 @@ else
   
   #Update the datahead
   _replace_datahead "${input}" "${output}"
-fi 
+#fi 
 

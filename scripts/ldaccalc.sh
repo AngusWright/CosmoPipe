@@ -3,7 +3,7 @@
 # File Name : ldackeepcols.sh
 # Created By : awright
 # Creation Date : 12-06-2023
-# Last Modified : Tue 26 Mar 2024 02:45:06 AM CET
+# Last Modified : Fri Aug 29 09:33:39 2025
 #
 #=========================================
 
@@ -12,7 +12,21 @@ input=@DB:DATAHEAD@
 
 #Define the output catalogue name 
 ext=${input##*.}
-output=${input//.${ext}/_calc.${ext}}
+pattern="_calc[[:digit:]]{0,}.${ext}"
+if [[ ${input} =~ ${pattern} ]]
+then 
+  digit=${input##*_calc}
+  digit=${digit/.${ext}}
+  if [ "${digit}" == "" ]
+  then 
+    digit=2
+  else 
+    digit=$((digit+1))
+  fi 
+  output=${input%_calc*}_calc${digit}.${ext}
+else 
+  output=${input//.${ext}/_calc.${ext}}
+fi 
 
 #Notify 
 _message "@DEF@ > @BLU@Adding @BV:CALCCOLNAME@ using condition @BV:CALCCOND@ to catalogue ${input##*/}@DEF@"

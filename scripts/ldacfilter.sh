@@ -3,7 +3,7 @@
 # File Name : ldacfilter.sh
 # Created By : awright
 # Creation Date : 16-05-2023
-# Last Modified : Tue 26 Mar 2024 02:45:09 AM CET
+# Last Modified : Fri Aug 29 10:05:49 2025
 #
 #=========================================
 
@@ -11,25 +11,18 @@
 input="@DB:DATAHEAD@"
 ext=${input##*.}
 #Avoid duplicate "_filt" extensions {{{
-inputbase=${input##*/}
-if [[ "${inputbase}" =~ "_filt" ]]
+pattern="_filt[[:digit:]]{0,}.${ext}"
+if [[ ${input} =~ ${pattern} ]]
 then 
-  count=${inputbase##*_filt}
-  count=${count%.${ext}}
-  if [ "${count}" == "" ] || ! [[ ${count} =~ "^[0-9]+$" ]] 
+  digit=${input##*_filt}
+  digit=${digit/.${ext}}
+  if [ "${digit}" == "" ]
   then 
-    #Check if we randomly matched a different "_filt"
-    if [[ "${inputbase}" =~ "_filt.${ext}" ]]
-    then 
-      count=2
-      output=${input//_filt.${ext}/_filt${count}.${ext}}
-    else 
-      output=${input//.${ext}/_filt.${ext}}
-    fi 
+    digit=2
   else 
-    ncount=$((count+1))
-    output=${input//_filt${count}.${ext}/_filt${ncount}.${ext}}
+    digit=$((digit+1))
   fi 
+  output=${input%_filt*}_filt${digit}.${ext}
 else 
   output=${input//.${ext}/_filt.${ext}}
 fi 

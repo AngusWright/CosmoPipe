@@ -3,7 +3,7 @@
 # File Name : ldackeepcols.sh
 # Created By : awright
 # Creation Date : 12-06-2023
-# Last Modified : Tue 26 Mar 2024 02:45:06 AM CET
+# Last Modified : Fri Aug 29 09:33:39 2025
 #
 #=========================================
 
@@ -12,7 +12,21 @@ input=@DB:DATAHEAD@
 
 #Define the output catalogue name 
 ext=${input##*.}
-output=${input//.${ext}/_calc.${ext}}
+pattern="_calc[[:digit:]]{0,}.${ext}"
+if [[ ${input} =~ ${pattern} ]]
+then 
+  digit=${input##*_calc}
+  digit=${digit/.${ext}}
+  if [ "${digit}" == "" ]
+  then 
+    digit=2
+  else 
+    digit=$((digit+1))
+  fi 
+  output=${input%_calc*}_calc${digit}.${ext}
+else 
+  output=${input//.${ext}/_calc.${ext}}
+fi 
 
 #Notify 
 _message "@DEF@ > @BLU@Adding @BV:CALCCOLNAME@ using condition @BV:CALCCOND@ to catalogue ${input##*/}@DEF@"
@@ -71,13 +85,30 @@ colcheck=`echo ${cols} | sed 's/ /\n/g' | grep -ci "${calccol}" || echo `
 
 if [ ${colcheck} -ne 0 ]
 then 
-  _message "@RED@ - ERROR! Column name to add already exists!@DEF@\n"
-  _message "@BLU@columns:@DEF@\n"
-  _message "${cols}\n"
-  _message "@BLU@ldaccalc colname:@DEF@"
-  _message "${calccol}\n"
-  exit 1
-else 
+  #_message "@BLU@ - @RED@Done! (`date +'%a %H:%M'`)@DEF@\n"
+  _message "@RED@ Warning! Column name to add already exists!@DEF@\n"
+  _message "@BLU@ Removing existing column @DEF@$calccol@DEF@"
+  #Calculate the new column 
+  @RUNROOT@/INSTALL/theli-1.6.1/bin/@MACHINE@/ldacdelkey \
+    -i ${input} \
+    -o ${input}_tmp \
+    -t OBJECTS \
+    -k ${calccol} 2>&1
+  
+  mv ${input}_tmp $input
+  _message "@BLU@ - @RED@Done! (`date +'%a %H:%M'`)@DEF@\n"
+  _message "@BLU@ Resuming@DEF@"
+
+fi 
+
+  #_message "@BLU@ - @RED@Done! (`date +'%a %H:%M'`)@DEF@\n"
+  #_message "@RED@ - ERROR! Column name to add already exists!@DEF@\n"
+  #_message "@BLU@columns:@DEF@\n"
+  #_message "${cols}\n"
+  #_message "@BLU@ldaccalc colname:@DEF@"
+  #_message "${calccol}\n"
+  #exit 1
+#else 
   #Calculate the new column 
   @RUNROOT@/INSTALL/theli-1.6.1/bin/@MACHINE@/ldaccalc \
     -i ${input} \
@@ -98,5 +129,5 @@ else
   
   #Update the datahead
   _replace_datahead "${input}" "${output}"
-fi 
+#fi 
 

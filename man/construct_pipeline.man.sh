@@ -72,7 +72,7 @@ function _read_pipe {
     _stepnum="${2}."
   fi 
   #Check for the number of pipelines with this name, and continue if 0
-  _npipe=`grep -v "^#" ${_PIPELOC} | grep -Fc --ignore-case "${_step}:" | xargs echo `
+  _npipe=`grep -Ev "^[[:space:]]{0,}#" ${_PIPELOC} | grep -Fc --ignore-case "${_step}:" | xargs echo `
   #>&2 echo "Number of pipelines: ${_npipe}"
   if [ "${_npipe}" == "0" ]
   then 
@@ -88,7 +88,7 @@ function _read_pipe {
     exit 1
   fi
   #Create the steps with numbering 
-  grep -v "^#" ${_PIPELOC} | awk -v S="${_stepnum}" -v pipe="${_step}:" -v seen="F" -v count=0 -v SQ="'" -v DQ='"' '{
+  grep -Ev "^[[:space:]]{0,}#" ${_PIPELOC} | awk -v S="${_stepnum}" -v pipe="${_step}:" -v seen="F" -v count=0 -v SQ="'" -v DQ='"' '{
     if ($1 == "" ) next
     if ($1 != pipe && seen == "F") {
       next
@@ -169,7 +169,7 @@ function _read_pipe {
       }
     }
   }' | awk '{printf "%s ", $0}' 
-  #grep -v "^#" ${_PIPELOC} | grep --ignore-case "${1}:" | awk -F: '{print $2}' | \
+  #grep -Ev "^[[:space:]]{0,}#" ${_PIPELOC} | grep --ignore-case "${1}:" | awk -F: '{print $2}' | \
   #  awk -v S=${_stepnum} '{
   #    count=0 
   #    for(i=1; i<=NF; i++) 

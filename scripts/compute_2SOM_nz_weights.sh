@@ -3,7 +3,7 @@
 # File Name : compute_2SOM_nz_weights.sh
 # Created By : awright
 # Creation Date : 18-07-2025
-# Last Modified : Mon Jul 21 08:35:54 2025
+# Last Modified : Tue Sep  2 18:07:02 2025
 #
 #=========================================
 
@@ -18,6 +18,7 @@ transfer="@DB:som_weight_transfer@"
 nwid=`echo ${wide_catalogues} | awk '{print NF}'`
 nspe=`echo ${spec_catalogues} | awk '{print NF}'`
 ntra=`echo ${transfer} | awk '{print NF}'`
+outlist=''
 
 for i in `seq $nwid`
 do 
@@ -50,10 +51,11 @@ do
   _message " -@RED@ Done! (`date +'%a %H:%M'`)@DEF@\n"
   
   mv ${output}_tmp ${output}
+  outlist="${outlist} ${output##*/}"
   
-  _writelist_datahead "${output##*/}" 
 
 done
+_writelist_datahead "${outlist}" 
 
 #Notify
 _message "@BLU@ } @RED@ - Done! (`date +'%a %H:%M'`)@DEF@\n"

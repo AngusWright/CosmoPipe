@@ -3,7 +3,7 @@
 # File Name : calc_xipsf_w_treecorr.sh
 # Created By : awright
 # Creation Date : 29-02-2024
-# Last Modified : Fri Apr 26 12:11:01 2024
+# Last Modified : Sat Sep  6 04:10:52 2025
 #
 #=========================================
 
@@ -17,7 +17,7 @@ do
   filelist=''
   for file in ${headfiles}
   do 
-    if [[ "$file" =~ .*"_${patch}_".* ]] 
+    if [[ "$file" =~ .*"_${patch}_".* ]] || [[ "$file" =~ ^"${patch}_".* ]] || [[ "${file}" =~ .*"_${patch,,}_".* ]] || [[ "${file}" =~ .*"_${patch^^}_".* ]]
     then 
       filelist="${filelist} ${file}" 
     fi 

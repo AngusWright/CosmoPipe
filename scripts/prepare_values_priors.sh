@@ -54,6 +54,8 @@ PRIOR_F_R_6="@BV:PRIOR_F_R_6@"
 
 #BOLTZMANN code
 BOLTZMAN=@BV:BOLTZMAN@
+#delta z model
+DZMODEL="@BV:DZMODEL@"
 #IA model
 IAMODEL="@BV:IAMODEL@"
 
@@ -479,6 +481,7 @@ else
 fi
 #}}}
 
+#Add the SPk priors if needed {{{ 
 if [ "${BOLTZMAN^^}" == "CAMB_SPK" ]
 then
   blockname="[spk]"
@@ -528,6 +531,7 @@ then
     #}}}
   done
 fi
+#}}}
 
 #Update the values with the uncorrelated Dz priors {{{
 echo "[nofz_shifts]" >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_values.ini 
@@ -551,6 +555,34 @@ do
   echo "uncorr_bias_${tomo} = gaussian ${tomoval} 1.0 " >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_priors.ini
 done
 #}}}
+
+if [[ $DZMODEL=~ 'STRETCH' ]]
+then 
+  #Update the values with the uncorrelated Dz priors {{{
+  echo "[nz_source_errors]" >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_values.ini 
+  #Add the tomographic bin stretch priors 
+  tomoval_all="@BV:NZSTRETCH@"
+  tomoerr_all="@BV:NZSTRETCH_UNCERTAINTY@"
+  for tomo in `seq ${NTOMO}`
+  do 
+    tomoval=`echo ${tomoval_all} | awk -v n=${tomo} '{print $n}'`
+    tomoerr=`echo ${tomoerr_all} | awk -v n=${tomo} '{print $n}'`
+    tomolo=`echo $tomoval $tomoerr | awk '{print $1-5*$2}'`
+    tomohi=`echo $tomoval $tomoerr | awk '{print $1+5*$2}'`
+    echo "width_${tomo} = ${tomolo} ${tomoval} ${tomohi} " >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_values.ini
+  done
+  #}}}
+  #Update the priors with the uncorrelated Dz priors {{{
+  echo "[nz_source_errors]" >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_priors.ini 
+  #Add the uncorrelated tomographic bin shifts 
+  for tomo in `seq ${NTOMO}`
+  do 
+    tomoval=`echo ${tomoval_all} | awk -v n=${tomo} '{print $n}'`
+    tomoerr=`echo ${tomoerr_all} | awk -v n=${tomo} '{print $n}'`
+    echo "width_${tomo} = gaussian ${tomoval} ${tomoerr} " >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_priors.ini
+  done
+  #}}}
+fi 
 
 _write_datablock "cosmosis_inputs" "@SURVEY@_values.ini @SURVEY@_priors.ini"
 #}}}

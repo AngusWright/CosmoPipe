@@ -8,6 +8,7 @@
 #=========================================
 #Script to generate a cosmosis .ini, values, & priors file 
 #Prepare the starting items {{{
+DZMODEL="@BV:DZMODEL@"
 IAMODEL="@BV:IAMODEL@"
 CHAINSUFFIX=@BV:CHAINSUFFIX@
 STATISTIC="@BV:STATISTIC@"
@@ -642,26 +643,48 @@ then
   		exit 1
 	fi
   #}}}
+  #Do we want to use stretch as well as shift in the delta z? {{{
+  #Check for the nz stretch priors 
+  if [ "${DZMODEL^^}" == "SHIFT+STRETCH" ] 
+  then 
+    source_nz_model='source_photoz_bias source_photoz_width'
+  elif [ "${DZMODEL^^}" == "SHIFT" ] 
+  then 
+    source_nz_model='source_photoz_bias'
+    source_stretch=''
+  elif [ "${DZMODEL^^}" == "STRETCH" ] 
+  then 
+    source_nz_model='source_photoz_width'
+    source_stretch=''
+  elif [ "${DZMODEL^^}" == "STRETCH+SHIFT" ] 
+  then 
+    source_nz_model='source_photoz_width source_photoz_bias'
+    source_stretch=''
+  else 
+    _message "@RED@ ILLEGAL OPTION IN DZMODEL: must be some combination of SHIFT and STRETCH, separated by a +\n@DEF@"
+    exit 1
+  fi 
+  #}}}
 
 	if [ "${STATISTIC^^}" == "COSEBIS" ] #{{{
 	then
-		COSMOSIS_PIPELINE="sample_S8 correlated_dz_priors load_nz_fits ${boltzmann_pipeline} extrapolate_power source_photoz_bias ${iamodel_pipeline} cosebis scale_cuts likelihood"
+		COSMOSIS_PIPELINE="sample_S8 correlated_dz_priors load_nz_fits ${boltzmann_pipeline} extrapolate_power ${source_nz_model} ${iamodel_pipeline} cosebis scale_cuts likelihood"
 	#}}}
 	elif [ "${STATISTIC^^}" == "COSEBIS_B" ] #{{{
 	then
-		COSMOSIS_PIPELINE="sample_S8 correlated_dz_priors load_nz_fits ${boltzmann_pipeline} extrapolate_power source_photoz_bias ${iamodel_pipeline} cosebis scale_cuts cosebis_b scale_cuts_b likelihood likelihood_b"
+		COSMOSIS_PIPELINE="sample_S8 correlated_dz_priors load_nz_fits ${boltzmann_pipeline} extrapolate_power ${source_nz_model} ${iamodel_pipeline} cosebis scale_cuts cosebis_b scale_cuts_b likelihood likelihood_b"
 	#}}}
 	elif [ "${STATISTIC^^}" == "BANDPOWERS" ] #{{{
 	then 
-		COSMOSIS_PIPELINE="sample_S8 correlated_dz_priors load_nz_fits ${boltzmann_pipeline} extrapolate_power source_photoz_bias ${iamodel_pipeline} bandpowers scale_cuts likelihood"
+		COSMOSIS_PIPELINE="sample_S8 correlated_dz_priors load_nz_fits ${boltzmann_pipeline} extrapolate_power ${source_nz_model} ${iamodel_pipeline} bandpowers scale_cuts likelihood"
 	#}}}
 	elif [ "${STATISTIC^^}" == "BANDPOWERS_B" ] #{{{
 	then 
-		COSMOSIS_PIPELINE="sample_S8 correlated_dz_priors load_nz_fits ${boltzmann_pipeline} extrapolate_power source_photoz_bias ${iamodel_pipeline} bandpowers scale_cuts bandpowers_b scale_cuts_b likelihood likelihood_b"
+		COSMOSIS_PIPELINE="sample_S8 correlated_dz_priors load_nz_fits ${boltzmann_pipeline} extrapolate_power ${source_nz_model} ${iamodel_pipeline} bandpowers scale_cuts bandpowers_b scale_cuts_b likelihood likelihood_b"
   #}}}
 	elif [ "${STATISTIC^^}" == "XIPM" ] #{{{
 	then 
-		COSMOSIS_PIPELINE="sample_S8 correlated_dz_priors load_nz_fits ${boltzmann_pipeline} extrapolate_power source_photoz_bias ${iamodel_pipeline} cl2xi xip_binned xim_binned scale_cuts likelihood"
+		COSMOSIS_PIPELINE="sample_S8 correlated_dz_priors load_nz_fits ${boltzmann_pipeline} extrapolate_power ${source_nz_model} ${iamodel_pipeline} cl2xi xip_binned xim_binned scale_cuts likelihood"
 	fi
   #}}}
 else
@@ -994,6 +1017,17 @@ do
 			interpolation = cubic
 			output_deltaz = T
 			output_section_name = delta_z_out
+			
+			EOF
+			;; #}}}
+    "source_photoz_width") #{{{
+      cat >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_other.ini <<- EOF
+			[$module]
+			file = %(CSL_PATH)s/number_density/photoz_width/photoz_width.py
+			mode = stretch
+			sample = nz_%(redshift_name)s
+			bias_section = nofz_widths
+			interpolation = cubic
 			
 			EOF
 			;; #}}}

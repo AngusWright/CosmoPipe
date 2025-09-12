@@ -3,7 +3,7 @@
 # File Name : ldackeepcols.sh
 # Created By : awright
 # Creation Date : 12-06-2023
-# Last Modified : Fri Aug 29 09:33:39 2025
+# Last Modified : Wed Sep 10 08:38:07 2025
 #
 #=========================================
 
@@ -69,6 +69,7 @@ calccond="@BV:CALCCOND@;"
 #Column name to add: 
 calccol="@BV:CALCCOLNAME@"
 calccom="@BV:CALCCOMM@"
+calctype="@BV:KEYTYPE@" 
 
 #Get the list of all columns 
 cols=`@RUNROOT@/INSTALL/theli-1.6.1/bin/@MACHINE@/ldacdesc -i ${input} -t OBJECTS 2>&1 | grep "Key name" | sed 's@Key name:\(\.\)\{1,\}@@' || echo `
@@ -116,7 +117,7 @@ fi
     -t OBJECTS \
     -c "${calccond}" \
     -n "${calccol}" "${calccom}" \
-    -k FLOAT 2>&1
+    -k ${calctype} 2>&1
 
   _message "@BLU@ - @RED@Done! (`date +'%a %H:%M'`)@DEF@\n"
   

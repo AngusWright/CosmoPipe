@@ -3,7 +3,7 @@
 # File Name : prepare_cosmosis.sh
 # Created By : awright
 # Creation Date : 31-03-2023
-# Last Modified : Sat Feb 24 08:52:14 2024
+# Last Modified : Thu Sep 11 20:01:00 2025
 #
 #=========================================
 
@@ -556,10 +556,10 @@ do
 done
 #}}}
 
-if [[ $DZMODEL=~ 'STRETCH' ]]
+if [[ "$DZMODEL" =~ 'STRETCH' ]]
 then 
   #Update the values with the uncorrelated Dz priors {{{
-  echo "[nz_source_errors]" >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_values.ini 
+  echo "[nofz_widths]" >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_values.ini 
   #Add the tomographic bin stretch priors 
   tomoval_all="@BV:NZSTRETCH@"
   tomoerr_all="@BV:NZSTRETCH_UNCERTAINTY@"
@@ -573,7 +573,7 @@ then
   done
   #}}}
   #Update the priors with the uncorrelated Dz priors {{{
-  echo "[nz_source_errors]" >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_priors.ini 
+  echo "[nofz_widths]" >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_priors.ini 
   #Add the uncorrelated tomographic bin shifts 
   for tomo in `seq ${NTOMO}`
   do 

@@ -3,7 +3,7 @@
 # File Name : calc_xi_w_treecorr.sh
 # Created By : awright
 # Creation Date : 27-03-2023
-# Last Modified : Mon Jul 21 21:59:44 2025
+# Last Modified : Sat Sep  6 04:09:08 2025
 #
 #=========================================
 
@@ -17,7 +17,7 @@ do
   filelist=''
   for file in ${headfiles}
   do 
-    if [[ "$file" =~ .*"_${patch}_".* ]] || [[ "$file" =~ ^"${patch}_".* ]]
+    if [[ "$file" =~ .*"_${patch}_".* ]] || [[ "$file" =~ ^"${patch}_".* ]] || [[ "${file}" =~ .*"_${patch,,}_".* ]] || [[ "${file}" =~ .*"_${patch^^}_".* ]]
     then 
       filelist="${filelist} ${file}" 
     fi 

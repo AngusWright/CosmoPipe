@@ -127,6 +127,7 @@ then
   if [ "${STATISTIC^^}" == "2PCF" ]
   then
     _message "    -> @BLU@Generating arbitrary statistic weights for 2pcfs @DEF@"
+    cd @RUNROOT@/INSTALL/OneCovariance/input/arbitrary_summary/script_weights/
     @PYTHON3BIN@ @RUNROOT@/INSTALL/OneCovariance/input/arbitrary_summary/script_weights/get_weights_realspace.py \
       -n @BV:NTHREADS@ \
       -nf 100000 \
@@ -144,11 +145,13 @@ then
       --t_bins_gg @BV:NWT@ \
       --t_type_gg "log" 2>&1
   
+    cd @RUNROOT@
     cp -a @RUNROOT@/INSTALL/OneCovariance/input/arbitrary_summary/rcf/. ${outfold}
   
   elif [ "${STATISTIC^^}" == "COSEBIS" ]
   then
     _message "    -> @BLU@Generating arbitrary statistic weights for cosebis / psi stats @DEF@"
+    cd @RUNROOT@/INSTALL/OneCovariance/input/arbitrary_summary/script_weights/
     @PYTHON3BIN@ @RUNROOT@/INSTALL/OneCovariance/input/arbitrary_summary/script_weights/get_weights_cosebis.py \
       -n @BV:NTHREADS@ \
       -nf 100000 \
@@ -163,12 +166,14 @@ then
       --tmin_gg @BV:THETAMINWT@ \
       --tmax_gg @BV:THETAMAXWT@  2>&1
   
+    cd @RUNROOT@
     cp -a @RUNROOT@/INSTALL/OneCovariance/input/arbitrary_summary/cosebis/. ${outfold}
   
   
   elif [ "${STATISTIC^^}" == "BANDPOWERS" ]
   then
     _message "    -> @BLU@Generating arbitrary statistic weights for bandpowers @DEF@"
+    cd @RUNROOT@/INSTALL/OneCovariance/input/arbitrary_summary/script_weights/
     @PYTHON3BIN@ @RUNROOT@/INSTALL/OneCovariance/input/arbitrary_summary/script_weights/get_weights_bandpowers.py \
       -n @BV:NTHREADS@ \
       -nf 10000 \
@@ -195,6 +200,7 @@ then
       --L_bins_gg @BV:NBANDPOWERSNN@ \
       --L_type_gg "log" 2>&1
   
+    cd @RUNROOT@
     cp -a @RUNROOT@/INSTALL/OneCovariance/input/arbitrary_summary/bandpowers/. ${outfold}
   fi
 fi

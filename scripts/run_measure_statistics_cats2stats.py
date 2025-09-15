@@ -1,12 +1,7 @@
 import numpy as np
-import matplotlib.pylab as pl
-from   matplotlib.font_manager import FontProperties
-from   matplotlib.ticker import ScalarFormatter
-import math, os
-from matplotlib.patches import Rectangle
+import os
 from scipy.interpolate import interp1d
-from scipy import pi,sqrt,exp
-from measure_statistics import tminus_quad, tplus, tminus, gplus, gminus, T, str2bool, h, f, rebin, psi_filter
+from measure_statistics import tplus, tminus, gplus, gminus, T, str2bool, h, f, rebin, psi_filter
 from argparse import ArgumentParser
 import treecorr
 
@@ -225,13 +220,15 @@ else:
     raise ValueError('Please choose either lin or log with the --binning option, exiting now ...')
 
 #Lets check that the user has provided enough bins
+"""
 if(binning=='log'):
     if(nbins_within_range<100):
         raise ValueError("The low number of bins in the input 2pt correlation function data will result in low accuracy.  Provide finer log binned data with bins>100, exiting now ...")
 elif(binning=='lin'):
     if(nbins_within_range<1000):
         raise ValueError("The low number of bins in the input 2pt correlation function data will result in low accuracy.  Provide finer linear binned data with bins>100, exiting now ...")
-
+"""
+        
 #OK now we can perform the integrals
 arcmin=180*60/np.pi
 arcmin2rad = 2*np.pi/360/60

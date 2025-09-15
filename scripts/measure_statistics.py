@@ -1,14 +1,9 @@
 import numpy as np
-import math, os
 from scipy.interpolate import interp1d
-from scipy import pi,sqrt,exp
 from scipy.special.orthogonal import p_roots
-from numpy.polynomial.legendre import legcompanion, legval, legder
-import numpy.linalg as la
 from scipy.integrate import quad
 from scipy.special import jv
 from scipy.special import eval_legendre
-from math import factorial
 
 def str2bool(v):
     if isinstance(v, bool):

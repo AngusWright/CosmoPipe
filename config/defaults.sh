@@ -103,9 +103,9 @@ TOMOLIMS='0.10 0.42 0.58 0.71 0.90 1.14 2.00'                        #KiDS-Legac
 TOMOVAR=Z_B
 
 #lower theta limit for xipm (arcmin; Default is KiDS-Legacy)
-THETAMINXI="2.00"
+THETAMINXI="2.0"
 #upper theta limit for xipm (arcmin; Default is KiDS-Legacy)
-THETAMAXXI="300.00"
+THETAMAXXI="300.0"
 #Number of Theta bins for xipm (can be highres for BP/COSEBIs; default is KiDS-Legacy)
 NTHETABINXI="1000"
 #Number of Xipm bins used for science (Default is KiDS-Legacy)
@@ -122,9 +122,9 @@ NMAXCOSEBIS=20
 
 
 #lower theta limit for gamma_t (arcmin; Default is KiDS-Legacy)
-THETAMINGT="2.00"
+THETAMINGT="2.0"
 #upper theta limit for gamma_t (arcmin; Default is KiDS-Legacy)
-THETAMAXGT="300.00"
+THETAMAXGT="300.0"
 #Number of Theta bins for gamma_t (can be highres for BP/COSEBIs; default is KiDS-Legacy)
 NTHETABINGT="1000"
 #Number of gamma_t bins used for science (Default is KiDS-Legacy)
@@ -137,9 +137,9 @@ NMAXCOSEBISNE=20
 
 
 #lower theta limit for w(theta) (arcmin; Default is KiDS-Legacy)
-THETAMINWT="2.00"
+THETAMINWT="2.0"
 #upper theta limit for w(theta) (arcmin; Default is KiDS-Legacy)
-THETAMAXWT="300.00"
+THETAMAXWT="300.0"
 #Number of Theta bins for w(theta) (can be highres for BP/COSEBIs; default is KiDS-Legacy)
 NTHETABINWT="1000"
 #Number of w(theta) bins used for science (Default is KiDS-Legacy)

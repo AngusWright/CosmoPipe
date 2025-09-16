@@ -44,10 +44,10 @@ then
     est_shear=xi_pm
     cosmic_shear=True
     n_arb_ee=@BV:NXIPM@
-    arb_fourier_filter_mmE_file_@BV:STATISTIC@="fourier_weight_realspace_cf_mm_p_@BV:THETAMINXI@-@BV:THETAMAXXI@_?.table"
-    arb_fourier_filter_mmB_file_@BV:STATISTIC@="fourier_weight_realspace_cf_mm_m_@BV:THETAMINXI@-@BV:THETAMAXXI@_?.table"
-    arb_real_filter_mm_p_file_@BV:STATISTIC@="real_weight_realspace_cf_mm_p_@BV:THETAMINXI@-@BV:THETAMAXXI@_?.table"
-    arb_real_filter_mm_m_file_@BV:STATISTIC@="real_weight_realspace_cf_mm_m_@BV:THETAMINXI@-@BV:THETAMAXXI@_?.table"
+    arb_fourier_filter_mmE_file_@BV:STATISTIC@="fourier_weight_realspace_cf_mm_p_?.table"
+    arb_fourier_filter_mmB_file_@BV:STATISTIC@="fourier_weight_realspace_cf_mm_m_?.table"
+    arb_real_filter_mm_p_file_@BV:STATISTIC@="real_weight_realspace_cf_mm_p_?.table"
+    arb_real_filter_mm_m_file_@BV:STATISTIC@="real_weight_realspace_cf_mm_m_?.table"
   else
     est_shear=xi_pm
     cosmic_shear=False
@@ -57,8 +57,8 @@ then
     est_ggl=gamma_t
     ggl=True
     n_arb_ne=@BV:NGT@
-    arb_fourier_filter_gm_file_@BV:STATISTIC@="fourier_weight_realspace_cf_gm_@BV:THETAMINGT@-@BV:THETAMAXGT@_?.table"
-    arb_real_filter_gm_file_@BV:STATISTIC@="real_weight_realspace_cf_gm_@BV:THETAMINGT@-@BV:THETAMAXGT@_?.table"
+    arb_fourier_filter_gm_file_@BV:STATISTIC@="fourier_weight_realspace_cf_gm_?.table"
+    arb_real_filter_gm_file_@BV:STATISTIC@="real_weight_realspace_cf_gm_?.table"
   else
     est_ggl=gamma_t
     ggl=False
@@ -68,8 +68,8 @@ then
     est_clust=w
     clustering=True
     n_arb_nn=@BV:NWT@
-    arb_fourier_filter_gg_file_@BV:STATISTIC@="fourier_weight_realspace_cf_gg_@BV:THETAMINWT@-@BV:THETAMAXWT@_?.table"
-    arb_real_filter_gg_file_@BV:STATISTIC@="real_weight_realspace_cf_gg_@BV:THETAMINWT@-@BV:THETAMAXWT@_?.table"
+    arb_fourier_filter_gg_file_@BV:STATISTIC@="fourier_weight_realspace_cf_gg_?.table"
+    arb_real_filter_gg_file_@BV:STATISTIC@="real_weight_realspace_cf_gg_?.table"
   else
     est_clust=w
     clustering=False
@@ -81,10 +81,10 @@ then
     est_shear=cosebi
     cosmic_shear=True
     n_arb_ee=@BV:NMAXCOSEBIS@
-    arb_fourier_filter_mmE_file_@BV:STATISTIC@="Wn_@BV:THETAMINXI@-@BV:THETAMAXXI@_?.table"
-    arb_fourier_filter_mmB_file_@BV:STATISTIC@="Wn_@BV:THETAMINXI@-@BV:THETAMAXXI@_?.table"
-    arb_real_filter_mm_p_file_@BV:STATISTIC@="Tp_@BV:THETAMINXI@-@BV:THETAMAXXI@_?.table"
-    arb_real_filter_mm_m_file_@BV:STATISTIC@="Tm_@BV:THETAMINXI@-@BV:THETAMAXXI@_?.table"
+    arb_fourier_filter_mmE_file_@BV:STATISTIC@="Wn_@BV:THETAMINXI@_to_@BV:THETAMAXXI@_?.table"
+    arb_fourier_filter_mmB_file_@BV:STATISTIC@="Wn_@BV:THETAMINXI@_to_@BV:THETAMAXXI@_?.table"
+    arb_real_filter_mm_p_file_@BV:STATISTIC@="Tp_@BV:THETAMINXI@_to_@BV:THETAMAXXI@_?.table"
+    arb_real_filter_mm_m_file_@BV:STATISTIC@="Tm_@BV:THETAMINXI@_to_@BV:THETAMAXXI@_?.table"
   else
     est_shear=cosebi
     cosmic_shear=False
@@ -94,8 +94,8 @@ then
     est_ggl=cosebi
     ggl=True
     n_arb_ne=@BV:NMAXCOSEBISNE@
-    arb_fourier_filter_gm_file_@BV:STATISTIC@="Qgm_@BV:THETAMINGT@-@BV:THETAMAXGT@_?.table"
-    arb_real_filter_gm_file_@BV:STATISTIC@="Wn_psigm_@BV:THETAMINGT@-@BV:THETAMAXGT@_?.table"
+    arb_fourier_filter_gm_file_@BV:STATISTIC@="Qgm_@BV:THETAMINGT@_to_@BV:THETAMAXGT@_?.table"
+    arb_real_filter_gm_file_@BV:STATISTIC@="Wn_psigm_@BV:THETAMINGT@_to_@BV:THETAMAXGT@_?.table"
   else
     est_ggl=cosebi
     ggl=False
@@ -105,8 +105,8 @@ then
     est_clust=cosebi
     clustering=True
     n_arb_nn=@BV:NMAXCOSEBISNN@
-    arb_fourier_filter_gg_file_@BV:STATISTIC@="Ugg_@BV:THETAMINWT@-@BV:THETAMAXWT@_?.table"
-    arb_real_filter_gg_file_@BV:STATISTIC@="Wn_psigg_@BV:THETAMINWT@-@BV:THETAMAXWT@_?.table"
+    arb_fourier_filter_gg_file_@BV:STATISTIC@="Ugg_@BV:THETAMINWT@_to_@BV:THETAMAXWT@_?.table"
+    arb_real_filter_gg_file_@BV:STATISTIC@="Wn_psigg_@BV:THETAMINWT@_to_@BV:THETAMAXWT@_?.table"
   else
     est_clust=cosebi
     clustering=False
@@ -118,14 +118,14 @@ then
     est_shear=bandpowers
     cosmic_shear=True
     n_arb_ee=@BV:NBANDPOWERS@
-    theta_lo_lensing=`echo 'e(l(@BV:THETAMINXI@)+@BV:APODISATIONWIDTH@/2)' | bc -l | awk '{printf "%.9f", $0}'`
-    theta_up_lensing=`echo 'e(l(@BV:THETAMAXXI@)-@BV:APODISATIONWIDTH@/2)' | bc -l | awk '{printf "%.9f", $0}'`
-    t_lo=`printf "%.2f" $theta_lo_lensing`
-    t_up=`printf "%.2f" $theta_up_lensing`
-    arb_fourier_filter_mmE_file_@BV:STATISTIC@="fourier_weight_bandpowers_mmE_${t_lo}-${t_up}_?.table"
-    arb_fourier_filter_mmB_file_@BV:STATISTIC@="fourier_weight_bandpowers_mmB_${t_lo}-${t_up}_?.table"
-    arb_real_filter_mm_p_file_@BV:STATISTIC@="real_weight_bandpowers_mmE_${t_lo}-${t_up}_?.table"
-    arb_real_filter_mm_m_file_@BV:STATISTIC@="real_weight_bandpowers_mmB_${t_lo}-${t_up}_?.table"
+    theta_lo=`echo 'e(l(@BV:THETAMINXI@)+@BV:APODISATIONWIDTH@/2)' | bc -l | awk '{printf "%.9f", $0}'`
+    theta_up=`echo 'e(l(@BV:THETAMAXXI@)-@BV:APODISATIONWIDTH@/2)' | bc -l | awk '{printf "%.9f", $0}'`
+    t_lo=`printf "%.2f" $theta_lo`
+    t_up=`printf "%.2f" $theta_up`
+    arb_fourier_filter_mmE_file_@BV:STATISTIC@="fourier_weight_bandpowers_mmE_?.table"
+    arb_fourier_filter_mmB_file_@BV:STATISTIC@="fourier_weight_bandpowers_mmB_?.table"
+    arb_real_filter_mm_p_file_@BV:STATISTIC@="real_weight_bandpowers_mmE_?.table"
+    arb_real_filter_mm_m_file_@BV:STATISTIC@="real_weight_bandpowers_mmB_?.table"
   else
     est_shear=bandpowers
     cosmic_shear=False
@@ -135,12 +135,12 @@ then
     est_ggl=bandpowers
     ggl=True
     n_arb_ne=@BV:NBANDPOWERSNE@
-    theta_lo_clustering=`echo 'e(l(@BV:THETAMINGT@)+@BV:APODISATIONWIDTH@/2)' | bc -l | awk '{printf "%.9f", $0}'`
-    theta_up_clustering=`echo 'e(l(@BV:THETAMAXGT@)-@BV:APODISATIONWIDTH@/2)' | bc -l | awk '{printf "%.9f", $0}'`
-    t_lo=`printf "%.2f" $theta_lo_clustering`
-    t_up=`printf "%.2f" $theta_up_clustering`
-    arb_fourier_filter_gm_file_@BV:STATISTIC@="fourier_weight_bandpowers_gm_${t_lo}-${t_up}_?.table"
-    arb_real_filter_gm_file_@BV:STATISTIC@="real_weight_bandpowers_gm_${t_lo}-${t_up}_?.table"
+    theta_lo_lensing=`echo 'e(l(@BV:THETAMINGT@)+@BV:APODISATIONWIDTH@/2)' | bc -l | awk '{printf "%.9f", $0}'`
+    theta_up_lensing=`echo 'e(l(@BV:THETAMAXGT@)-@BV:APODISATIONWIDTH@/2)' | bc -l | awk '{printf "%.9f", $0}'`
+    t_lo=`printf "%.2f" $theta_lo_lensing`
+    t_up=`printf "%.2f" $theta_up_lensing`
+    arb_fourier_filter_gm_file_@BV:STATISTIC@="fourier_weight_bandpowers_gm_?.table"
+    arb_real_filter_gm_file_@BV:STATISTIC@="real_weight_bandpowers_gm_?.table"
   else
     est_ggl=bandpowers
     ggl=False
@@ -154,8 +154,8 @@ then
     theta_up_clustering=`echo 'e(l(@BV:THETAMAXWT@)-@BV:APODISATIONWIDTH@/2)' | bc -l | awk '{printf "%.9f", $0}'`
     t_lo=`printf "%.2f" $theta_lo_clustering`
     t_up=`printf "%.2f" $theta_up_clustering`
-    arb_fourier_filter_gg_file_@BV:STATISTIC@="fourier_weight_bandpowers_gg_${t_lo}-${t_up}_?.table"
-    arb_real_filter_gg_file_@BV:STATISTIC@="real_weight_bandpowers_gg_${t_lo}-${t_up}_?.table"
+    arb_fourier_filter_gg_file_@BV:STATISTIC@="fourier_weight_bandpowers_gg_?.table"
+    arb_real_filter_gg_file_@BV:STATISTIC@="real_weight_bandpowers_gg_?.table"
   else
     est_clust=bandpowers
     clustering=False
@@ -265,14 +265,14 @@ then
     _message "Got wrong or no information about slicing of the lens sample.\n"
     #exit 1
   fi
-  #bias_Mmin=`echo ${obs_mins} | sed 's/ /,/g'`
-  #bias_Mmax=`echo ${obs_maxs} | sed 's/ /,/g'`
+  bias_Mmin=`echo ${obs_mins} | sed 's/ /,/g'`
+  bias_Mmax=`echo ${obs_maxs} | sed 's/ /,/g'`
   # Merge, split into lines, sort uniquely, and turn back into comma-separated
-  bias_mass=$(echo "$obs_mins $obs_maxs" | tr ' ' '\n' | sort -n | uniq | tr '\n' ',' | sed 's/,$//')
+  #bias_mass=$(echo "$obs_mins $obs_maxs" | tr ' ' '\n' | sort -n | uniq | tr '\n' ',' | sed 's/,$//')
 else
-  #bias_Mmin=9.0
-  #bias_Mmax=13.0
-  bias_mass=9.0,13.0
+  bias_Mmin=9.0
+  bias_Mmax=13.0
+  #bias_mass=9.0,13.0
 fi
 
 # Check if the arbitrary input files exist and copy to input directory
@@ -505,6 +505,8 @@ csmf_directory = ${csmf_directory}
 ;csmf_log10M_bins =
 V_max_file = ${V_max_file}
 f_tomo_file = ${f_tomo_file}
+csmf_diagonal = False
+csmf_diagonal_lenses = True
 
 [output settings]
 directory = ${output_path}
@@ -552,12 +554,16 @@ if [ "${STATISTIC^^}" == "2PCF" ] || [ "${SECONDSTATISTIC^^}" == "2PCF" ]
 then
 cat >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_inputs/@SURVEY@_CosmoPipe_constructed_statistic.ini <<- EOF
 [covTHETAspace settings]
-theta_min_lensing = @BV:THETAMINXI@
-theta_max_lensing = @BV:THETAMAXXI@
-theta_bins_lensing = @BV:NXIPM@
-theta_min_clustering = @BV:THETAMINGT@
-theta_max_clustering = @BV:THETAMAXGT@
-theta_bins_clustering = @BV:NGT@
+theta_min = @BV:THETAMINXI@
+theta_max = @BV:THETAMAXXI@
+theta_bins = @BV:NXIPM@
+theta_min_lensing = @BV:THETAMINGT@
+theta_max_lensing = @BV:THETAMAXGT@
+theta_bins_lensing = @BV:NGT@
+theta_min_clustering = @BV:THETAMINWT@
+theta_max_clustering = @BV:THETAMAXWT@
+theta_bins_clustering = @BV:NWT@
+theta_type = log
 theta_type_lensing = log
 theta_type_clustering = log
 theta_list = 1, 2, 3
@@ -599,12 +605,15 @@ if [ "${STATISTIC^^}" == "COSEBIS" ]  || [ "${SECONDSTATISTIC^^}" == "COSEBIS" ]
 then
 cat >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_inputs/@SURVEY@_CosmoPipe_constructed_statistic.ini <<- EOF
 [covCOSEBI settings]
-En_modes_lensing = @BV:NMAXCOSEBIS@
-theta_min_lensing = @BV:THETAMINXI@
-theta_max_lensing = @BV:THETAMAXXI@
-En_modes_clustering = @BV:NMAXCOSEBISNE@
-theta_min_clustering = @BV:THETAMINGT@
-theta_max_clustering = @BV:THETAMAXGT@
+En_modes = @BV:NMAXCOSEBIS@
+theta_min = @BV:THETAMINXI@
+theta_max = @BV:THETAMAXXI@
+En_modes_lensing = @BV:NMAXCOSEBISNE@
+theta_min_lensing = @BV:THETAMINGT@
+theta_max_lensing = @BV:THETAMAXGT@
+En_modes_clustering = @BV:NMAXCOSEBISNN@
+theta_min_clustering = @BV:THETAMINWT@
+theta_max_clustering = @BV:THETAMAXWT@
 En_accuracy = 1e-4
 Wn_style = log
 
@@ -617,18 +626,24 @@ cat >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_inputs/@SURVEY@_CosmoPipe_
 [covbandpowers settings]
 apodisation_log_width_lensing = @BV:APODISATIONWIDTH@
 apodisation_log_width_clustering = @BV:APODISATIONWIDTH@
+theta_lo = ${theta_lo}
+theta_up = ${theta_up}
 theta_lo_lensing = ${theta_lo_lensing}
 theta_up_lensing = ${theta_up_lensing}
 theta_lo_clustering = ${theta_lo_clustering}
 theta_up_clustering = ${theta_up_clustering}
 theta_binning = @BV:NTHETABINXI@
-ell_min_lensing = @BV:LMINBANDPOWERS@
-ell_max_lensing = @BV:LMAXBANDPOWERS@
-ell_bins_lensing = @BV:NBANDPOWERS@
+ell_min = @BV:LMINBANDPOWERS@
+ell_max = @BV:LMAXBANDPOWERS@
+ell_bins = @BV:NBANDPOWERS@
+ell_type = log
+ell_min_lensing = @BV:LMINBANDPOWERSNE@
+ell_max_lensing = @BV:LMAXBANDPOWERSNE@
+ell_bins_lensing = @BV:NBANDPOWERSNE@
 ell_type_lensing = log
-ell_min_clustering = @BV:LMINBANDPOWERSNE@
-ell_max_clustering = @BV:LMAXBANDPOWERSNE@
-ell_bins_clustering = @BV:NBANDPOWERSNE@
+ell_min_clustering = @BV:LMINBANDPOWERSNN@
+ell_max_clustering = @BV:LMAXBANDPOWERSNN@
+ell_bins_clustering = @BV:NBANDPOWERSNN@
 ell_type_clustering = log
 bandpower_accuracy = 1e-7
 
@@ -729,9 +744,8 @@ model = Tinker10
 bias_2h = 1.0
 mc_relation_cen = duffy08
 mc_relation_sat = duffy08
-log10mass_bins = ${bias_mass}
-; log10mass_bins = ${bias_Mmin}
-; log10mass_bins = ${bias_Mmax}
+log10mass_bins_lower = ${bias_Mmin}
+log10mass_bins_upper = ${bias_Mmax}
 
 [IA]
 A_IA = $AIA
@@ -935,7 +949,7 @@ then
     fi
 
 cat >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_inputs/@SURVEY@_CosmoPipe_constructed_other.ini <<- EOF
-#arb_summary_directory = @RUNROOT@/@CONFIGPATH@/covariance_arb_summary/
+;arb_summary_directory = @RUNROOT@/@CONFIGPATH@/covariance_arb_summary/
 arb_summary_directory = @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_inputs/arb_summary_filters/
 arb_fourier_filter_mmE_file = ${arb_fourier_filter_mmE_file_@BV:STATISTIC@}, ${arb_fourier_filter_mmE_file_@BV:SECONDSTATISTIC@}
 arb_fourier_filter_mmB_file = ${arb_fourier_filter_mmB_file_@BV:STATISTIC@}, ${arb_fourier_filter_mmB_file_@BV:SECONDSTATISTIC@}
@@ -957,7 +971,7 @@ fi
 if [ "${use_arbitrary}" == "True" ] && [ "${cov_between_stats}" != "True" ]
 then
 cat >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_inputs/@SURVEY@_CosmoPipe_constructed_other.ini <<- EOF
-#arb_summary_directory = @RUNROOT@/@CONFIGPATH@/covariance_arb_summary/
+;arb_summary_directory = @RUNROOT@/@CONFIGPATH@/covariance_arb_summary/
 arb_summary_directory = @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_inputs/arb_summary_filters/
 arb_fourier_filter_mmE_file = ${arb_fourier_filter_mmE_file_@BV:STATISTIC@}
 arb_fourier_filter_mmB_file = ${arb_fourier_filter_mmB_file_@BV:STATISTIC@}

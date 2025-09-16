@@ -17,31 +17,31 @@ fi
 if [ "${STATISTIC^^}" == "2PCF" ]
 then
     n_arb_ee=@BV:NXIPM@
-    arb_fourier_filter_mmE_file_@BV:STATISTIC@="fourier_weight_realspace_cf_mm_p_@BV:THETAMINXI@-@BV:THETAMAXXI@_?.table"
-    arb_fourier_filter_mmB_file_@BV:STATISTIC@="fourier_weight_realspace_cf_mm_m_@BV:THETAMINXI@-@BV:THETAMAXXI@_?.table"
-    arb_real_filter_mm_p_file_@BV:STATISTIC@="real_weight_realspace_cf_mm_p_@BV:THETAMINXI@-@BV:THETAMAXXI@_?.table"
-    arb_real_filter_mm_m_file_@BV:STATISTIC@="real_weight_realspace_cf_mm_m_@BV:THETAMINXI@-@BV:THETAMAXXI@_?.table"
+    arb_fourier_filter_mmE_file_@BV:STATISTIC@="fourier_weight_realspace_cf_mm_p_?.table"
+    arb_fourier_filter_mmB_file_@BV:STATISTIC@="fourier_weight_realspace_cf_mm_m_?.table"
+    arb_real_filter_mm_p_file_@BV:STATISTIC@="real_weight_realspace_cf_mm_p_?.table"
+    arb_real_filter_mm_m_file_@BV:STATISTIC@="real_weight_realspace_cf_mm_m_?.table"
     n_arb_ne=@BV:NGT@
-    arb_fourier_filter_gm_file_@BV:STATISTIC@="fourier_weight_realspace_cf_gm_@BV:THETAMINGT@-@BV:THETAMAXGT@_?.table"
-    arb_real_filter_gm_file_@BV:STATISTIC@="real_weight_realspace_cf_gm_@BV:THETAMINGT@-@BV:THETAMAXGT@_?.table"
+    arb_fourier_filter_gm_file_@BV:STATISTIC@="fourier_weight_realspace_cf_gm_?.table"
+    arb_real_filter_gm_file_@BV:STATISTIC@="real_weight_realspace_cf_gm_?.table"
     n_arb_nn=@BV:NWT@
-    arb_fourier_filter_gg_file_@BV:STATISTIC@="fourier_weight_realspace_cf_gg_@BV:THETAMINWT@-@BV:THETAMAXWT@_?.table"
-    arb_real_filter_gg_file_@BV:STATISTIC@="real_weight_realspace_cf_gg_@BV:THETAMINWT@-@BV:THETAMAXWT@_?.table"
+    arb_fourier_filter_gg_file_@BV:STATISTIC@="fourier_weight_realspace_cf_gg_?.table"
+    arb_real_filter_gg_file_@BV:STATISTIC@="real_weight_realspace_cf_gg_?.table"
     arb_base=@RUNROOT@/INSTALL/OneCovariance/input/arbitrary_summary/rcf/
     
 elif [ "${STATISTIC^^}" == "COSEBIS" ]
 then
     n_arb_ee=@BV:NMAXCOSEBIS@
-    arb_fourier_filter_mmE_file_@BV:STATISTIC@="Wn_@BV:THETAMINXI@-@BV:THETAMAXXI@_?.table"
-    arb_fourier_filter_mmB_file_@BV:STATISTIC@="Wn_@BV:THETAMINXI@-@BV:THETAMAXXI@_?.table"
-    arb_real_filter_mm_p_file_@BV:STATISTIC@="Tp_@BV:THETAMINXI@-@BV:THETAMAXXI@_?.table"
-    arb_real_filter_mm_m_file_@BV:STATISTIC@="Tm_@BV:THETAMINXI@-@BV:THETAMAXXI@_?.table"
+    arb_fourier_filter_mmE_file_@BV:STATISTIC@="Wn_@BV:THETAMINXI@_to_@BV:THETAMAXXI@_?.table"
+    arb_fourier_filter_mmB_file_@BV:STATISTIC@="Wn_@BV:THETAMINXI@_to_@BV:THETAMAXXI@_?.table"
+    arb_real_filter_mm_p_file_@BV:STATISTIC@="Tp_@BV:THETAMINXI@_to_@BV:THETAMAXXI@_?.table"
+    arb_real_filter_mm_m_file_@BV:STATISTIC@="Tm_@BV:THETAMINXI@_to_@BV:THETAMAXXI@_?.table"
     n_arb_ne=@BV:NMAXCOSEBISNE@
-    arb_fourier_filter_gm_file_@BV:STATISTIC@="Qgm_@BV:THETAMINGT@-@BV:THETAMAXGT@_?.table"
-    arb_real_filter_gm_file_@BV:STATISTIC@="Wn_psigm_@BV:THETAMINGT@-@BV:THETAMAXGT@_?.table"
+    arb_fourier_filter_gm_file_@BV:STATISTIC@="Qgm_@BV:THETAMINGT@_to_@BV:THETAMAXGT@_?.table"
+    arb_real_filter_gm_file_@BV:STATISTIC@="Wn_psigm_@BV:THETAMINGT@_to_@BV:THETAMAXGT@_?.table"
     n_arb_nn=@BV:NMAXCOSEBISNN@
-    arb_fourier_filter_gg_file_@BV:STATISTIC@="Ugg_@BV:THETAMINWT@-@BV:THETAMAXWT@_?.table"
-    arb_real_filter_gg_file_@BV:STATISTIC@="Wn_psigg_@BV:THETAMINWT@-@BV:THETAMAXWT@_?.table"
+    arb_fourier_filter_gg_file_@BV:STATISTIC@="Ugg_@BV:THETAMINWT@_to_@BV:THETAMAXWT@_?.table"
+    arb_real_filter_gg_file_@BV:STATISTIC@="Wn_psigg_@BV:THETAMINWT@_to_@BV:THETAMAXWT@_?.table"
     arb_base=@RUNROOT@/INSTALL/OneCovariance/input/arbitrary_summary/cosebis/
 
 elif [ "${STATISTIC^^}" == "BANDPOWERS" ]
@@ -51,24 +51,24 @@ then
     theta_up_lensing=`echo 'e(l(@BV:THETAMAXXI@)-@BV:APODISATIONWIDTH@/2)' | bc -l | awk '{printf "%.9f", $0}'`
     t_lo_mm=`printf "%.2f" $theta_lo_lensing`
     t_up_mm=`printf "%.2f" $theta_up_lensing`
-    arb_fourier_filter_mmE_file_@BV:STATISTIC@="fourier_weight_bandpowers_mmE_${t_lo_mm}-${t_up_mm}_?.table"
-    arb_fourier_filter_mmB_file_@BV:STATISTIC@="fourier_weight_bandpowers_mmB_${t_lo_mm}-${t_up_mm}_?.table"
-    arb_real_filter_mm_p_file_@BV:STATISTIC@="real_weight_bandpowers_mmE_${t_lo_mm}-${t_up_mm}_?.table"
-    arb_real_filter_mm_m_file_@BV:STATISTIC@="real_weight_bandpowers_mmB_${t_lo_mm}-${t_up_mm}_?.table"
+    arb_fourier_filter_mmE_file_@BV:STATISTIC@="fourier_weight_bandpowers_mmE_?.table"
+    arb_fourier_filter_mmB_file_@BV:STATISTIC@="fourier_weight_bandpowers_mmB_?.table"
+    arb_real_filter_mm_p_file_@BV:STATISTIC@="real_weight_bandpowers_mmE_?.table"
+    arb_real_filter_mm_m_file_@BV:STATISTIC@="real_weight_bandpowers_mmB_?.table"
     n_arb_ne=@BV:NBANDPOWERSNE@
     theta_lo_ggl=`echo 'e(l(@BV:THETAMINGT@)+@BV:APODISATIONWIDTH@/2)' | bc -l | awk '{printf "%.9f", $0}'`
     theta_up_ggl=`echo 'e(l(@BV:THETAMAXGT@)-@BV:APODISATIONWIDTH@/2)' | bc -l | awk '{printf "%.9f", $0}'`
     t_lo_gm=`printf "%.2f" $theta_lo_ggl`
     t_up_gm=`printf "%.2f" $theta_up_ggl`
-    arb_fourier_filter_gm_file_@BV:STATISTIC@="fourier_weight_bandpowers_gm_${t_lo_gm}-${t_up_gm}_?.table"
-    arb_real_filter_gm_file_@BV:STATISTIC@="real_weight_bandpowers_gm_${t_lo_gm}-${t_up_gm}_?.table"
+    arb_fourier_filter_gm_file_@BV:STATISTIC@="fourier_weight_bandpowers_gm_?.table"
+    arb_real_filter_gm_file_@BV:STATISTIC@="real_weight_bandpowers_gm_?.table"
     n_arb_nn=@BV:NBANDPOWERSNN@
     theta_lo_clustering=`echo 'e(l(@BV:THETAMINWT@)+@BV:APODISATIONWIDTH@/2)' | bc -l | awk '{printf "%.9f", $0}'`
     theta_up_clustering=`echo 'e(l(@BV:THETAMAXWT@)-@BV:APODISATIONWIDTH@/2)' | bc -l | awk '{printf "%.9f", $0}'`
     t_lo_gg=`printf "%.2f" $theta_lo_clustering`
     t_up_gg=`printf "%.2f" $theta_up_clustering`
-    arb_fourier_filter_gg_file_@BV:STATISTIC@="fourier_weight_bandpowers_gg_${t_lo_gg}-${t_up_gg}_?.table"
-    arb_real_filter_gg_file_@BV:STATISTIC@="real_weight_bandpowers_gg_${t_lo_gg}-${t_up_gg}_?.table"
+    arb_fourier_filter_gg_file_@BV:STATISTIC@="fourier_weight_bandpowers_gg_?.table"
+    arb_real_filter_gg_file_@BV:STATISTIC@="real_weight_bandpowers_gg_?.table"
     arb_base=@RUNROOT@/INSTALL/OneCovariance/input/arbitrary_summary/bandpowers/
 else
   #ERROR: Unknown statistic {{{

@@ -498,8 +498,8 @@ cross_terms = True
 unbiased_clustering = True
 
 [csmf settings]
-csmf_log10M_bins_lower = ${csmf_Mmin}
-csmf_log10M_bins_upper = ${csmf_Mmax}
+csmf_log10Mmin = ${csmf_Mmin}
+csmf_log10Mmax = ${csmf_Mmax}
 csmf_N_log10M_bin = ${csmf_N_log10M_bin}
 csmf_directory = ${csmf_directory}
 ;csmf_log10M_bins =

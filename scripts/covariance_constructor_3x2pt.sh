@@ -818,44 +818,44 @@ then
       if [[ .*\ $MODES\ .* =~ " EE " ]]
       then
         n_arb_ee2=@BV:NXIPM@
-        arb_fourier_filter_mmE_file_@BV:SECONDSTATISTIC@="fourier_weight_realspace_cf_mm_p_@BV:THETAMINXI@-@BV:THETAMAXXI@_?.table"
-        arb_fourier_filter_mmB_file_@BV:SECONDSTATISTIC@="fourier_weight_realspace_cf_mm_m_@BV:THETAMINXI@-@BV:THETAMAXXI@_?.table"
-        arb_real_filter_mm_p_file_@BV:SECONDSTATISTIC@="real_weight_realspace_cf_mm_p_@BV:THETAMINXI@-@BV:THETAMAXXI@_?.table"
-        arb_real_filter_mm_m_file_@BV:SECONDSTATISTIC@="real_weight_realspace_cf_mm_m_@BV:THETAMINXI@-@BV:THETAMAXXI@_?.table"
+        arb_fourier_filter_mmE_file_@BV:STATISTIC@="fourier_weight_realspace_cf_mm_p_?.table"
+        arb_fourier_filter_mmB_file_@BV:STATISTIC@="fourier_weight_realspace_cf_mm_m_?.table"
+        arb_real_filter_mm_p_file_@BV:STATISTIC@="real_weight_realspace_cf_mm_p_?.table"
+        arb_real_filter_mm_m_file_@BV:STATISTIC@="real_weight_realspace_cf_mm_m_?.table"
       fi
       if [[ .*\ $MODES\ .* =~ " NE " ]]
       then
         n_arb_ne2=@BV:NGT@
-        arb_fourier_filter_gm_file_@BV:SECONDSTATISTIC@="fourier_weight_realspace_cf_gm_@BV:THETAMINGT@-@BV:THETAMAXGT@_?.table"
-        arb_real_filter_gm_file_@BV:SECONDSTATISTIC@="real_weight_realspace_cf_gm_@BV:THETAMINGT@-@BV:THETAMAXGT@_?.table"
+        arb_fourier_filter_gm_file_@BV:STATISTIC@="fourier_weight_realspace_cf_gm_?.table"
+        arb_real_filter_gm_file_@BV:STATISTIC@="real_weight_realspace_cf_gm_?.table"
       fi
       if [[ .*\ $MODES\ .* =~ " NN " ]]
       then
         n_arb_nn2=@BV:NWT@
-        arb_fourier_filter_gg_file_@BV:SECONDSTATISTIC@="fourier_weight_realspace_cf_gg_@BV:THETAMINWT@-@BV:THETAMAXWT@_?.table"
-        arb_real_filter_gg_file_@BV:SECONDSTATISTIC@="real_weight_realspace_cf_gg_@BV:THETAMINWT@-@BV:THETAMAXWT@_?.table"
+        arb_fourier_filter_gg_file_@BV:STATISTIC@="fourier_weight_realspace_cf_gg_?.table"
+        arb_real_filter_gg_file_@BV:STATISTIC@="real_weight_realspace_cf_gg_?.table"
       fi
     elif [ "${SECONDSTATISTIC^^}" == "COSEBIS" ]
     then
       if [[ .*\ $MODES\ .* =~ " EE " ]]
       then
         n_arb_ee2=@BV:NMAXCOSEBIS@
-        arb_fourier_filter_mmE_file_@BV:SECONDSTATISTIC@="Wn_@BV:THETAMINXI@-@BV:THETAMAXXI@_?.table"
-        arb_fourier_filter_mmB_file_@BV:SECONDSTATISTIC@="Wn_@BV:THETAMINXI@-@BV:THETAMAXXI@_?.table"
-        arb_real_filter_mm_p_file_@BV:SECONDSTATISTIC@="Tp_@BV:THETAMINXI@-@BV:THETAMAXXI@_?.table"
-        arb_real_filter_mm_m_file_@BV:SECONDSTATISTIC@="Tm_@BV:THETAMINXI@-@BV:THETAMAXXI@_?.table"
+        arb_fourier_filter_mmE_file_@BV:STATISTIC@="Wn_@BV:THETAMINXI@_to_@BV:THETAMAXXI@_?.table"
+        arb_fourier_filter_mmB_file_@BV:STATISTIC@="Wn_@BV:THETAMINXI@_to_@BV:THETAMAXXI@_?.table"
+        arb_real_filter_mm_p_file_@BV:STATISTIC@="Tp_@BV:THETAMINXI@_to_@BV:THETAMAXXI@_?.table"
+        arb_real_filter_mm_m_file_@BV:STATISTIC@="Tm_@BV:THETAMINXI@_to_@BV:THETAMAXXI@_?.table"
       fi
       if [[ .*\ $MODES\ .* =~ " NE " ]]
       then
         n_arb_ne2=@BV:NMAXCOSEBISNE@
-        arb_fourier_filter_gm_file_@BV:SECONDSTATISTIC@="Qgm_@BV:THETAMINGT@-@BV:THETAMAXGT@_?.table"
-        arb_real_filter_gm_file_@BV:SECONDSTATISTIC@="Wn_psigm_@BV:THETAMINGT@-@BV:THETAMAXGT@_?.table"
+        arb_fourier_filter_gm_file_@BV:STATISTIC@="Qgm_@BV:THETAMINGT@_to_@BV:THETAMAXGT@_?.table"
+        arb_real_filter_gm_file_@BV:STATISTIC@="Wn_psigm_@BV:THETAMINGT@_to_@BV:THETAMAXGT@_?.table"
       fi
       if [[ .*\ $MODES\ .* =~ " NN " ]]
       then
         n_arb2_nn=@BV:NMAXCOSEBISNN@
-        arb_fourier_filter_gg_file_@BV:SECONDSTATISTIC@="Ugg_@BV:THETAMINWT@-@BV:THETAMAXWT@_?.table"
-        arb_real_filter_gg_file_@BV:SECONDSTATISTIC@="Wn_psigg_@BV:THETAMINWT@-@BV:THETAMAXWT@_?.table"
+        arb_fourier_filter_gg_file_@BV:STATISTIC@="Ugg_@BV:THETAMINWT@_to_@BV:THETAMAXWT@_?.table"
+        arb_real_filter_gg_file_@BV:STATISTIC@="Wn_psigg_@BV:THETAMINWT@_to_@BV:THETAMAXWT@_?.table"
       fi
     elif [ "${SECONDSTATISTIC^^}" == "BANDPOWERS" ]
     then
@@ -866,10 +866,10 @@ then
         theta_up_lensing=`echo 'e(l(@BV:THETAMAXXI@)-@BV:APODISATIONWIDTH@/2)' | bc -l | awk '{printf "%.9f", $0}'`
         t_lo=`printf "%.2f" $theta_lo`
         t_up=`printf "%.2f" $theta_up`
-        arb_fourier_filter_mmE_file_@BV:SECONDSTATISTIC@="fourier_weight_bandpowers_mmE_${t_lo}-${t_up}_?.table"
-        arb_fourier_filter_mmB_file_@BV:SECONDSTATISTIC@="fourier_weight_bandpowers_mmB_${t_lo}-${t_up}_?.table"
-        arb_real_filter_mm_p_file_@BV:SECONDSTATISTIC@="real_weight_bandpowers_mmE_${t_lo}-${t_up}_?.table"
-        arb_real_filter_mm_m_file_@BV:SECONDSTATISTIC@="real_weight_bandpowers_mmB_${t_lo}-${t_up}_?.table"
+        arb_fourier_filter_mmE_file_@BV:STATISTIC@="fourier_weight_bandpowers_mmE_?.table"
+        arb_fourier_filter_mmB_file_@BV:STATISTIC@="fourier_weight_bandpowers_mmB_?.table"
+        arb_real_filter_mm_p_file_@BV:STATISTIC@="real_weight_bandpowers_mmE_?.table"
+        arb_real_filter_mm_m_file_@BV:STATISTIC@="real_weight_bandpowers_mmB_?.table"
       fi
       if [[ .*\ $MODES\ .* =~ " NE " ]]
       then
@@ -878,8 +878,8 @@ then
         theta_up_clustering=`echo 'e(l(@BV:THETAMAXGT@)-@BV:APODISATIONWIDTH@/2)' | bc -l | awk '{printf "%.9f", $0}'`
         t_lo=`printf "%.2f" $theta_lo`
         t_up=`printf "%.2f" $theta_up`
-        arb_fourier_filter_gm_file_@BV:SECONDSTATISTIC@="fourier_weight_bandpowers_gm_${t_lo}-${t_up}_?.table"
-        arb_real_filter_gm_file_@BV:SECONDSTATISTIC@="real_weight_bandpowers_gm_${t_lo}-${t_up}_?.table"
+        arb_fourier_filter_gm_file_@BV:STATISTIC@="fourier_weight_bandpowers_gm_?.table"
+        arb_real_filter_gm_file_@BV:STATISTIC@="real_weight_bandpowers_gm_?.table"
       fi
       if [[ .*\ $MODES\ .* =~ " NN " ]]
       then
@@ -888,8 +888,8 @@ then
         theta_up_clustering=`echo 'e(l(@BV:THETAMAXWT@)-@BV:APODISATIONWIDTH@/2)' | bc -l | awk '{printf "%.9f", $0}'`
         t_lo=`printf "%.2f" $theta_lo`
         t_up=`printf "%.2f" $theta_up`
-        arb_fourier_filter_gg_file_@BV:SECONDSTATISTIC@="fourier_weight_bandpowers_gg_${t_lo}-${t_up}_?.table"
-        arb_real_filter_gg_file_@BV:SECONDSTATISTIC@="real_weight_bandpowers_gg_${t_lo}-${t_up}_?.table"
+        arb_fourier_filter_gg_file_@BV:STATISTIC@="fourier_weight_bandpowers_gg_?.table"
+        arb_real_filter_gg_file_@BV:STATISTIC@="real_weight_bandpowers_gg_?.table"
       fi
     fi
 

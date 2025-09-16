@@ -32,10 +32,10 @@ then
 elif [ "${STATISTIC^^}" == "COSEBIS" ]
 then
     n_arb_ee=@BV:NMAXCOSEBIS@
-    arb_fourier_filter_mmE_file_@BV:STATISTIC@="WnLog_@BV:THETAMINXI@-@BV:THETAMAXXI@_?.table"
-    arb_fourier_filter_mmB_file_@BV:STATISTIC@="WnLog_@BV:THETAMINXI@-@BV:THETAMAXXI@_?.table"
-    arb_real_filter_mm_p_file_@BV:STATISTIC@="Tplus_@BV:THETAMINXI@-@BV:THETAMAXXI@_?.table"
-    arb_real_filter_mm_m_file_@BV:STATISTIC@="Tminus_@BV:THETAMINXI@-@BV:THETAMAXXI@_?.table"
+    arb_fourier_filter_mmE_file_@BV:STATISTIC@="Wn_@BV:THETAMINXI@-@BV:THETAMAXXI@_?.table"
+    arb_fourier_filter_mmB_file_@BV:STATISTIC@="Wn_@BV:THETAMINXI@-@BV:THETAMAXXI@_?.table"
+    arb_real_filter_mm_p_file_@BV:STATISTIC@="Tp_@BV:THETAMINXI@-@BV:THETAMAXXI@_?.table"
+    arb_real_filter_mm_m_file_@BV:STATISTIC@="Tm_@BV:THETAMINXI@-@BV:THETAMAXXI@_?.table"
     n_arb_ne=@BV:NMAXCOSEBISNE@
     arb_fourier_filter_gm_file_@BV:STATISTIC@="Qgm_@BV:THETAMINGT@-@BV:THETAMAXGT@_?.table"
     arb_real_filter_gm_file_@BV:STATISTIC@="Wn_psigm_@BV:THETAMINGT@-@BV:THETAMAXGT@_?.table"
@@ -155,7 +155,7 @@ then
     @PYTHON3BIN@ @RUNROOT@/INSTALL/OneCovariance/input/arbitrary_summary/script_weights/get_weights_cosebis.py \
       -n @BV:NTHREADS@ \
       -nf 100000 \
-      -nt 100000 \
+      -nt 10000 \
       --Nmax_mm @BV:NMAXCOSEBIS@ \
       --tmin_mm @BV:THETAMINXI@ \
       --tmax_mm @BV:THETAMAXXI@ \

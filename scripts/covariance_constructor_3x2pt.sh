@@ -81,10 +81,10 @@ then
     est_shear=cosebi
     cosmic_shear=True
     n_arb_ee=@BV:NMAXCOSEBIS@
-    arb_fourier_filter_mmE_file_@BV:STATISTIC@="WnLog_@BV:THETAMINXI@-@BV:THETAMAXXI@_?.table"
-    arb_fourier_filter_mmB_file_@BV:STATISTIC@="WnLog_@BV:THETAMINXI@-@BV:THETAMAXXI@_?.table"
-    arb_real_filter_mm_p_file_@BV:STATISTIC@="Tplus_@BV:THETAMINXI@-@BV:THETAMAXXI@_?.table"
-    arb_real_filter_mm_m_file_@BV:STATISTIC@="Tminus_@BV:THETAMINXI@-@BV:THETAMAXXI@_?.table"
+    arb_fourier_filter_mmE_file_@BV:STATISTIC@="Wn_@BV:THETAMINXI@-@BV:THETAMAXXI@_?.table"
+    arb_fourier_filter_mmB_file_@BV:STATISTIC@="Wn_@BV:THETAMINXI@-@BV:THETAMAXXI@_?.table"
+    arb_real_filter_mm_p_file_@BV:STATISTIC@="Tp_@BV:THETAMINXI@-@BV:THETAMAXXI@_?.table"
+    arb_real_filter_mm_m_file_@BV:STATISTIC@="Tm_@BV:THETAMINXI@-@BV:THETAMAXXI@_?.table"
   else
     est_shear=cosebi
     cosmic_shear=False
@@ -826,10 +826,10 @@ then
       if [[ .*\ $MODES\ .* =~ " EE " ]]
       then
         n_arb_ee2=@BV:NMAXCOSEBIS@
-        arb_fourier_filter_mmE_file_@BV:SECONDSTATISTIC@="WnLog_@BV:THETAMINXI@-@BV:THETAMAXXI@_?.table"
-        arb_fourier_filter_mmB_file_@BV:SECONDSTATISTIC@="WnLog_@BV:THETAMINXI@-@BV:THETAMAXXI@_?.table"
-        arb_real_filter_mm_p_file_@BV:SECONDSTATISTIC@="Tplus_@BV:THETAMINXI@-@BV:THETAMAXXI@_?.table"
-        arb_real_filter_mm_m_file_@BV:SECONDSTATISTIC@="Tminus_@BV:THETAMINXI@-@BV:THETAMAXXI@_?.table"
+        arb_fourier_filter_mmE_file_@BV:SECONDSTATISTIC@="Wn_@BV:THETAMINXI@-@BV:THETAMAXXI@_?.table"
+        arb_fourier_filter_mmB_file_@BV:SECONDSTATISTIC@="Wn_@BV:THETAMINXI@-@BV:THETAMAXXI@_?.table"
+        arb_real_filter_mm_p_file_@BV:SECONDSTATISTIC@="Tp_@BV:THETAMINXI@-@BV:THETAMAXXI@_?.table"
+        arb_real_filter_mm_m_file_@BV:SECONDSTATISTIC@="Tm_@BV:THETAMINXI@-@BV:THETAMAXXI@_?.table"
       fi
       if [[ .*\ $MODES\ .* =~ " NE " ]]
       then

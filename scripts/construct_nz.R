@@ -3,13 +3,13 @@
 # File Name : compute_nz.R
 # Created By : awright
 # Creation Date : 22-03-2023
-# Last Modified : Thu 02 Nov 2023 03:51:12 PM CET
+# Last Modified : Sat Sep 13 10:59:32 2025
 #
 #=========================================
 
 #Loop through the command arguments /*fold*/ {{{
 inputs<-commandArgs(TRUE)
-original_weight<-NULL
+original.weight<-NULL
 while (length(inputs)!=0) {
   #Check the options syntax /*fold*/ {{{
   while (length(inputs)!=0 && inputs[1]=='') { inputs<-inputs[-1] }
@@ -36,6 +36,7 @@ while (length(inputs)!=0) {
     #Define the pre-existing weight column /*fold*/ {{{
     inputs<-inputs[-1]
     som.weight<-inputs[1]
+    if (som.weight=='') som.weight<-NULL
     inputs<-inputs[-1]
     #/*fend*/}}}
   } else if (inputs[1]=='--origweightname') {
@@ -69,11 +70,17 @@ while (length(inputs)!=0) {
 cat<-helpRfuncs::read.file(input.file,cols=c(z.label,original.weight,som.weight))
 
 #Construct the Nz {{{
-if (!is.null(original.weight)) { 
+if (!is.null(original.weight) & !is.null(som.weight)) { 
   nzdist<-plotrix::weighted.hist(cat[[z.label]],w=cat[[som.weight]]*cat[[original.weight]]/sum(cat[[som.weight]]*cat[[original.weight]]),
                                 breaks=seq(0,6.001,by=binstep),plot=F)
-} else { 
+} else if (!is.null(original.weight) & is.null(som.weight)) { 
+  nzdist<-plotrix::weighted.hist(cat[[z.label]],w=cat[[original.weight]]/sum(cat[[original.weight]]),
+                                breaks=seq(0,6.001,by=binstep),plot=F)
+} else if (is.null(original.weight) & !is.null(som.weight)) { 
   nzdist<-plotrix::weighted.hist(cat[[z.label]],w=cat[[som.weight]]/sum(cat[[som.weight]]),
+                                breaks=seq(0,6.001,by=binstep),plot=F)
+} else { 
+  nzdist<-plotrix::weighted.hist(cat[[z.label]],
                                 breaks=seq(0,6.001,by=binstep),plot=F)
 }
 #/*fend*/}}}

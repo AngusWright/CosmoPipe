@@ -53,10 +53,14 @@ function _inp_data {
 } 
 #}}}
 
-# Output data {{{ 
 function _outputs { 
   #Data outputs (leave blank if none)
-  echo nz_truth
+  outlist=""
+  for patch in @BV:PATCHLIST@ @ALLPATCH@ @ALLPATCH@comb 
+  do
+    outlist="$outlist nz_truth_${patch}"
+  done
+  echo $outlist
 } 
 #}}}
 

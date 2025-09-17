@@ -3,7 +3,7 @@
 # File Name : ldac_crossmask.sh
 # Created By : awright
 # Creation Date : 09-09-2025
-# Last Modified : Thu Sep 11 19:45:30 2025
+# Last Modified : Thu Sep 11 20:28:10 2025
 #
 #=========================================
 
@@ -14,6 +14,7 @@ maskbase=@DB:mask_base@
 output=${maskbase##*/}
 ext=${output##*.}
 output=${output%.*}_cmask.${ext}
+output=@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/DATAHEAD/${output}
 
 #Apply the mask to the mask base: 
 #Get the list of all columns 
@@ -76,6 +77,6 @@ _message "@BLU@ - @RED@Done! (`date +'%a %H:%M'`)@DEF@\n"
 rm ${output}_tmp 
 
 #Update the datahead
-_replace_datahead "${inputlist}" "${output}"
+_replace_datahead "@DB:ALLHEAD@" "${output}"
 
 #Finalise 

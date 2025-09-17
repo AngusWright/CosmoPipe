@@ -387,6 +387,44 @@ central_value () {
   fi
   echo $value
 }
+
+get_param_value() {
+  local param="$1"
+  local file="$2"
+
+  awk -v p="$param" -F'=' '
+    /^[[:space:]]*;/ { next }          # skip comments
+    /^\[/ { next }                     # skip section headers
+    NF == 2 {
+      key=$1
+      gsub(/[[:space:]]/, "", key)     # strip spaces/tabs from key
+      if (key == p) {
+        vals=$2
+        sub(/;.*/, "", vals)           # strip inline comments
+        gsub(/^[[:space:]]+|[[:space:]]+$/, "", vals) # trim ends
+        n=split(vals, a, /[[:space:]]+/) # split by space OR tab
+        if (n==1) {
+          print a[1]
+        } else if (n==3) {
+          print a[2]
+        }
+      }
+    }
+  ' "$file"
+}
+
+assign_if_empty() {
+  local varname="$1"
+  local param="$2"
+
+  eval current=\$$varname
+  if [ -z "$current" ]; then
+    value=$(get_param_value "${param}" "${values}")
+    eval $varname="'$value'"
+  fi
+}
+
+values="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_values.ini"
 ITERATION=@BV:ITERATION@
 if [ -n "$ITERATION" ] && [ "$ITERATION" -eq "$ITERATION" ]
 then
@@ -399,65 +437,119 @@ then
     printf -v "$name" '%s' $value
   done < ${bestfit_file}
 
-  if [ "${IAMODEL^^}" == "LINEAR" ] 
-	then
-    AIA=$intrinsic_alignment_parameters__a
-  else
-    AIA=`central_value "@BV:PRIOR_AIA@"`
-  fi
+  AIA=${intrinsic_alignment_parameters__a}
   H0=${cosmological_parameters__h0}
-  omega_b=${cosmological_parameters__ombh2}
-  omega_c=${cosmological_parameters__omch2} 
+  ombh2=${cosmological_parameters__ombh2}
+  omch2=${cosmological_parameters__omch2} 
   ns=${cosmological_parameters__n_s}
   S8=${cosmological_parameters__s_8_input}
-  if [ "${non_linear_model}" == "mead2020_feedback" ]
-  then
-    logT_AGN=${halo_model_parameters__log_t_agn}
-    nlparam="HMCode_logT_AGN = $logT_AGN"
-    nlparam2=""
-  elif [ "${non_linear_model}" == "mead2015" ]
-  then
-    Abary=${halo_model_parameters__a}
-    eta=`echo "$Abary 0.98 -0.12" | awk '{printf "%f", $2 + $3 * $1}'`
-    nlparam="HMCode_A_baryon = $Abary"
-    nlparam2="HMCode_eta_baryon = $eta"
+  
+  logT_AGN=${halo_model_parameters__log_t_agn}
+
+  w0=${halo_model_parameters__w0}
+  wa=${halo_model_parameters__wa} 
+  mnu=${halo_model_parameters__mnu}
+
+  log10_obs_norm_c=${halo_model_parameters__log10_obs_norm_c}
+  log10_m_ch=${halo_model_parameters__log10_m_ch}
+  g1=${halo_model_parameters__g1}
+  g2=${halo_model_parameters__g2}
+  norm_s=${halo_model_parameters__norm_s}
+  sigma_log10_O_c=${halo_model_parameters__sigma_log10_O_c}
+  pivot=${halo_model_parameters__pivot}
+  alpha_s=${halo_model_parameters__alpha_s}
+  b0=${halo_model_parameters__b0}
+  b1=${halo_model_parameters__b1}
+  b2=${halo_model_parameters__b2}
+
+  if [ -z "${AIA}" ]; then
+    AIA=1.0
   fi
+  assign_if_empty H0 "h0"
+  assign_if_empty ombh2 "ombh2"
+  assign_if_empty omch2 "omch2"
+  assign_if_empty ns "n_s"
+  assign_if_empty S8 "s_8_input"
+
+  assign_if_empty logT_AGN "logT_AGN"
+
+  assign_if_empty w0 "w"
+  assign_if_empty wa "wa"
+  assign_if_empty mnu "mnu"
+
+  assign_if_empty log10_obs_norm_c "log10_obs_norm_c"
+  assign_if_empty log10_m_ch "log10_m_ch"
+  assign_if_empty g1 "g1"
+  assign_if_empty g2 "g2"
+  assign_if_empty norm_s "norm_s"
+  assign_if_empty sigma_log10_O_c "sigma_log10_O_c"
+  assign_if_empty pivot "pivot"
+  assign_if_empty alpha_s "alpha_s"
+  assign_if_empty b0 "b0"
+  assign_if_empty b1 "b1"
+  assign_if_empty b2 "b2"
+
+  Omega_m=`echo "$ombh2 $omch2 $H0" | awk '{printf "%f", ($1 + $2) /$3 /$3}'`
+  Omega_b=`echo "$ombh2 $H0" | awk '{printf "%f", $1 /$2 /$2}'`
+  Omega_de=`echo "$Omega_m $H0" | awk '{printf "%f", 1 - $1}'`
+  sigma8=`echo "$S8 $Omega_m" | awk '{printf "%f", $1 / sqrt($2/0.3)}'` 
+
+  nlparam="HMCode_logT_AGN = $logT_AGN"
+  nlparam2=""
+  
   filename_extension=${CHAINSUFFIX}_iteration_${ITERATION}
   nzfile_source=@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_inputs/biased_nz/nz${CHAINSUFFIX}_iteration_${previous}.fits
   nzfile_lens=@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_inputs/biased_nz/nz${CHAINSUFFIX}_iteration_${previous}.fits
   nzfile_obs=@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_inputs/biased_nz/nz${CHAINSUFFIX}_iteration_${previous}.fits
 else
-  AIA=`central_value "@BV:PRIOR_AIA@"`
-  H0=`central_value "@BV:PRIOR_H0@"`
-  omega_b=`central_value "@BV:PRIOR_OMBH2@"`
-  omega_c=`central_value "@BV:PRIOR_OMCH2@"` 
-  ns=`central_value "@BV:PRIOR_NS@"`
-  S8=`central_value "@BV:PRIOR_S8INPUT@"`
+  H0=$(get_param_value h0 ${values})
+  omch2=$(get_param_value omch2 ${values})
+  ombh2=$(get_param_value ombh2 ${values})
+  ns=$(get_param_value n_s ${values})
+  S8=$(get_param_value s_8_input ${values})
+  AIA=1.0
+  logT_AGN=$(get_param_value logT_AGN ${values})
+  w0=$(get_param_value w ${values})
+  wa=$(get_param_value wa ${values}) 
+  mnu=$(get_param_value mnu ${values})
+  Omega_m=`echo "$ombh2 $omch2 $H0" | awk '{printf "%f", ($1 + $2) /$3 /$3}'`
+  Omega_b=`echo "$ombh2 $H0" | awk '{printf "%f", $1 /$2 /$2}'`
+  Omega_de=`echo "$Omega_m $H0" | awk '{printf "%f", 1 - $1}'`
+  sigma8=`echo "$S8 $Omega_m" | awk '{printf "%f", $1 / sqrt($2/0.3)}'` 
+
+  log10_obs_norm_c=$(get_param_value log10_obs_norm_c ${values})
+  log10_m_ch=$(get_param_value log10_m_ch ${values})
+  g1=$(get_param_value g1 ${values})
+  g2=$(get_param_value g2 ${values})
+  norm_s=$(get_param_value norm_s ${values})
+  sigma_log10_O_c=$(get_param_value sigma_log10_O_c ${values})
+  pivot=$(get_param_value pivot ${values})
+  alpha_s=$(get_param_value alpha_s ${values})
+  b0=$(get_param_value b0 ${values})
+  b1=$(get_param_value b1 ${values})
+  b2=$(get_param_value b2 ${values})
+
+  nlparam="HMCode_logT_AGN = $logT_AGN"
+  nlparam2=""
+
   filename_extension=""
   nzfile_source=@DB:cosmosis_nz_source@
   nzfile_lens=@DB:cosmosis_nz_lens@
   nzfile_obs=@DB:cosmosis_nz_obs@
-  nlparam2=""
-  if [ "${non_linear_model}" == "mead2020_feedback" ]
-  then
-    logT_AGN=`central_value "@BV:PRIOR_LOGTAGN@"`
-    nlparam="HMCode_logT_AGN = $logT_AGN"
-  elif [ "${non_linear_model}" == "mead2015" ]
-  then
-    Abary=`central_value "@BV:PRIOR_ABARY@"`
-    # a_0 and a_1 are hardcoded in the cosmosis constructor as well...
-    eta=`echo "$Abary 0.98 -0.12" | awk '{printf "%f", $2 + $3 * $1}'`
-    nlparam="HMCode_A_baryon = $Abary"
-    nlparam2="HMCode_eta_baryon = $eta"
-  fi
 fi
-w0=`central_value "@BV:PRIOR_W@"`
-wa=`central_value "@BV:PRIOR_WA@"` 
-mnu=`central_value "@BV:PRIOR_MNU@"`
-Omega_m=`echo "$omega_b $omega_c $H0" | awk '{printf "%f", ($1 + $2) /$3 /$3}'`
-Omega_b=`echo "$omega_b $H0" | awk '{printf "%f", $1 /$2 /$2}'`
-Omega_de=`echo "$Omega_m $H0" | awk '{printf "%f", 1 - $1}'`
-sigma8=`echo "$S8 $Omega_m" | awk '{printf "%f", $1 / sqrt($2/0.3)}'`
+
+# log10_obs_norm_c=10.51
+# log10_m_ch=11.38
+# g1=7.096
+# g2=0.2
+# norm_s=0.56
+# sigma_log10_O_c=0.35
+# pivot=13.0
+# alpha_s=-0.858
+# b0=-0.024
+# b1=1.149
+# b2=0.0
+
 
 # Covariance input path (just pointing to a inputs folder in the datablock) 
 input_path="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_inputs"
@@ -755,18 +847,18 @@ z_pivot_IA = 0.3
 [hod]
 model_mor_cen = double_powerlaw
 model_mor_sat = double_powerlaw
-dpow_logm0_cen = 10.51
-dpow_logm1_cen = 11.38
-dpow_a_cen = 7.096
-dpow_b_cen = 0.2
+dpow_logm0_cen = ${log10_obs_norm_c}
+dpow_logm1_cen = ${log10_m_ch}
+dpow_a_cen = ${g1}
+dpow_b_cen = ${g2}
 dpow_norm_cen = 1.0
-dpow_norm_sat = 0.56
+dpow_norm_sat = ${norm_s}
 model_scatter_cen = lognormal
 model_scatter_sat = modschechter
-logn_sigma_c_cen = 0.35
-modsch_logmref_sat = 13.0
-modsch_alpha_s_sat = -0.858
-modsch_b_sat = -0.024, 1.149
+logn_sigma_c_cen = ${sigma_log10_O_c}
+modsch_logmref_sat = ${pivot}
+modsch_alpha_s_sat = ${alpha_s}
+modsch_b_sat = ${b0}, ${b1}, ${b2}
 
 [halomodel evaluation]
 m_bins = 900

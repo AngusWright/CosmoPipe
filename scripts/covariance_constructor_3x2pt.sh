@@ -443,6 +443,7 @@ then
   omch2=${cosmological_parameters__omch2} 
   ns=${cosmological_parameters__n_s}
   S8=${cosmological_parameters__s_8_input}
+  tcmb0=${cosmological_parameters__TCMB}
   
   logT_AGN=${halo_model_parameters__log_t_agn}
 
@@ -470,6 +471,7 @@ then
   assign_if_empty omch2 "omch2"
   assign_if_empty ns "n_s"
   assign_if_empty S8 "s_8_input"
+  assign_if_empty tcmb0 "TCMB"
 
   assign_if_empty logT_AGN "logT_AGN"
 
@@ -507,6 +509,7 @@ else
   ombh2=$(get_param_value ombh2 ${values})
   ns=$(get_param_value n_s ${values})
   S8=$(get_param_value s_8_input ${values})
+  tcmb0=$(get_param_value TCMB ${values})
   AIA=1.0
   logT_AGN=$(get_param_value logT_AGN ${values})
   w0=$(get_param_value w ${values})
@@ -598,6 +601,7 @@ csmf_directory = ${csmf_directory}
 V_max_file = ${V_max_file}
 f_tomo_file = ${f_tomo_file}
 csmf_diagonal = False
+csmf_auto_only = True
 csmf_diagonal_lenses = True
 
 [output settings]
@@ -829,7 +833,7 @@ wa = $wa
 ns = $ns
 neff = 3.046
 m_nu = $mnu
-tcmb0 = 2.725
+tcmb0 = $tcmb0
 
 [bias]
 model = Tinker10

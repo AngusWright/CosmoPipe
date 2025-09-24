@@ -23,7 +23,7 @@ elif [ "${STATISTIC^^}" == "BANDPOWERS" ] #{{{
 then 
   inputfile=@DB:mcmc_inp_bandpowers@
 #}}}
-elif [ "${STATISTIC^^}" == "2PCF" ] #{{{
+elif [ "${STATISTIC^^}" == "XIPM" ] #{{{
 then
   _message "B-modes are not defined for vanilla xipm! Use xiEB instead!\n"
 #}}}

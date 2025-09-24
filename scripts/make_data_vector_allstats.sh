@@ -65,6 +65,22 @@ then
 	stat_out="${stat_out} bandpowers_nn"
   fi
 #}}}
+elif [ "${STATISTIC^^}" == "XIPM" ] #{{{
+then
+  if [[ .*\ $MODES\ .* =~ " EE " ]]
+  then
+	inputs="${inputs} @DB:xipm_binned@"
+	stat_out="${stat_out} xipm"
+  fi
+  if [[ .*\ $MODES\ .* =~ " NE " ]]
+  then
+	_message "NE mode not implemented for ${STATISTIC}, pipeline might break down the line!"
+  fi
+  if [[ .*\ $MODES\ .* =~ " NN " ]]
+  then
+	_message "NN mode not implemented for ${STATISTIC}, pipeline might break down the line!"
+  fi
+#}}}
 elif [ "${STATISTIC^^}" == "XIPSF" ] #{{{
 then
   if [[ .*\ $MODES\ .* =~ " EE " ]]

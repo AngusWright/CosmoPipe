@@ -66,6 +66,10 @@ function _outputs {
   then
     output="covariance_bandpowers"
   #}}}
+  elif [ "${STATISTIC^^}" == "XIPM" ] #{{{
+  then
+    output="covariance_xipm"
+  #}}}
   elif [ "${STATISTIC^^}" == "2PCF" ] #{{{
   then
     output="covariance_2pcf"

@@ -96,6 +96,10 @@ function _inp_data {
   then
     inputs="${inputs} xigpsf_binned"
   #}}}
+  elif [ "${STATISTIC^^}" == "XIPM" ] #{{{
+  then
+    inputs="${inputs} xipm_binned"
+  #}}}
   elif [ "${STATISTIC^^}" == "2PCF" ] #{{{
   then
     if [[ .*\ $MODES\ .* =~ " EE " ]]
@@ -164,6 +168,10 @@ function _outputs {
   elif [ "${STATISTIC^^}" == "XIGPSF" ] #{{{
   then
     outputs="${outputs} xigpsf_binned"
+  #}}}
+  elif [ "${STATISTIC^^}" == "XIPM" ] #{{{
+  then
+    outputs="${outputs} xipm"
   #}}}
   elif [ "${STATISTIC^^}" == "2PCF" ] #{{{
   then

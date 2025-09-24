@@ -58,41 +58,54 @@ function _inp_data {
 function _outputs { 
   #Data outputs (leave blank if none)
   STATISTIC=@BV:STATISTIC@
+  STATISTIC=`_parse_blockvars ${STATISTIC}`
+  MODES=@BV:MODES@
+  MODES=`_parse_blockvars ${MODES}`
   if [ "${STATISTIC^^}" == "COSEBIS" ] #{{{
   then
-    output="cosebis_vec"
+    if [[ .*\ $MODES\ .* =~ " EE " ]]
+    then
+      output="cosebis_vec"
   #}}}
-  elif [ "${STATISTIC^^}" == "PSI_STATS_GM" ] #{{{
-  then
-    output="psi_stats_gm_vec"
+    if [[ .*\ $MODES\ .* =~ " NE " ]]
+    then
+      output="psi_stats_gm_vec"
   #}}}
-  elif [ "${STATISTIC^^}" == "PSI_STATS_GG" ] #{{{
-  then
-    output="psi_stats_gg_vec"
+    if [[ .*\ $MODES\ .* =~ " NN " ]]
+    then
+      output="psi_stats_gg_vec"
   #}}}
-  elif [ "${STATISTIC^^}" == "BANDPOWERS_EE" ] #{{{
+  elif [ "${STATISTIC^^}" == "BANDPOWERS" ] #{{{
   then
-    output="bandpowers_ee_vec"
+    if [[ .*\ $MODES\ .* =~ " EE " ]]
+    then
+      output="bandpowers_ee_vec"
   #}}}
-  elif [ "${STATISTIC^^}" == "BANDPOWERS_NE" ] #{{{
-  then
-    output="bandpowers_ne_vec"
+    if [[ .*\ $MODES\ .* =~ " NE " ]]
+    then
+      output="bandpowers_ne_vec"
   #}}}
-  elif [ "${STATISTIC^^}" == "BANDPOWERS_NN" ] #{{{
-  then
-    output="bandpowers_nn_vec"
+    if [[ .*\ $MODES\ .* =~ " NN " ]]
+    then
+      output="bandpowers_nn_vec"
   #}}}
   elif [ "${STATISTIC^^}" == "XIPM" ] #{{{
   then
     output="xipm_vec"
   #}}}
-  elif [ "${STATISTIC^^}" == "GT" ] #{{{
+  elif [ "${STATISTIC^^}" == "2PCF" ] #{{{
   then
-    output="gt_vec"
+    if [[ .*\ $MODES\ .* =~ " EE " ]]
+    then
+      output="xipm_vec"
   #}}}
-  elif [ "${STATISTIC^^}" == "WT" ] #{{{
-  then
-    output="wt_vec"
+    if [[ .*\ $MODES\ .* =~ " NE " ]]
+    then
+      output="gt_vec"
+  #}}}
+    if [[ .*\ $MODES\ .* =~ " NN " ]]
+    then
+      output="wt_vec"
   #}}}
   elif [ "${STATISTIC^^}" == "OBS" ] #{{{
   then

@@ -95,7 +95,7 @@ then
   then 
     echo "cut_pair_PeeE = $rempairs " >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_scalecut.ini 
     echo "cut_pair_PeeB = $rempairs " >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_scalecut.ini 
-  elif [ "${STATISTIC^^}" == "2PCF" ]
+  elif [ "${STATISTIC^^}" == "XIPM" ]
   then
     echo "cut_pair_xiP = $rempairs " >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_scalecut.ini 
     echo "cut_pair_xiM = $rempairs " >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_scalecut.ini 
@@ -331,7 +331,7 @@ fi
 #}}}
 
 #}}}
-elif [ "${STATISTIC^^}" == "2PCF" ] #{{{
+elif [ "${STATISTIC^^}" == "XIPM" ] #{{{
 then 
   #scale cut {{{
   if [ "${SAMPLER^^}" == "LIST" ]
@@ -552,7 +552,7 @@ then
   elif [ "${STATISTIC^^}" == "BANDPOWERS" ]
   then 
 	ndat=`echo "$ncombinations @BV:NBANDPOWERS@" | awk '{printf "%u", $1*$2 }'`
-  elif [ "${STATISTIC^^}" == "2PCF" ]
+  elif [ "${STATISTIC^^}" == "XIPM" ]
   then 
 	ndat=`echo "$ncombinations @BV:NXIPM@" | awk '{printf "%u", $1*$2*2 }'`
   fi
@@ -658,7 +658,7 @@ then
 	elif [ "${STATISTIC^^}" == "BANDPOWERS_B" ] #{{{
 	then 
 		COSMOSIS_PIPELINE="sample_S8 correlated_dz_priors load_nz_fits ${boltzmann_pipeline} extrapolate_power source_photoz_bias ${iamodel_pipeline} bandpowers scale_cuts bandpowers_b scale_cuts_b likelihood likelihood_b"
-	elif [ "${STATISTIC^^}" == "2PCF" ] #{{{
+	elif [ "${STATISTIC^^}" == "XIPM" ] #{{{
 	then 
 		COSMOSIS_PIPELINE="sample_S8 correlated_dz_priors load_nz_fits ${boltzmann_pipeline} extrapolate_power source_photoz_bias ${iamodel_pipeline} cl2xi xip_binned xim_binned scale_cuts likelihood"
 	fi
@@ -697,7 +697,7 @@ do
         elif [ "${STATISTIC^^}" == "COSEBIS" ]
         then
             tpdparams="${tpdparams} cosebis/bin_${tomo2}_${tomo1}#@BV:NMAXCOSEBIS@"
-        elif [ "${STATISTIC^^}" == "2PCF" ]
+        elif [ "${STATISTIC^^}" == "XIPM" ]
         then
             tpdparams="${tpdparams} shear_xi_plus_binned/bin_${tomo2}_${tomo1}#@BV:NXIPM@ shear_xi_minus_binned/bin_${tomo2}_${tomo1}#@BV:NXIPM@"
         fi

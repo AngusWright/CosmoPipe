@@ -31,7 +31,7 @@ fi
 # Infer statistic {{{
 STATISTIC="@BV:STATISTIC@"
 SECONDSTATISTIC="@BV:SECONDSTATISTIC@"
-if [ "${STATISTIC^^}" == "2PCF" ]
+if [ "${STATISTIC^^}" == "XIPM" ]
 then
   est_shear=xi_pm
   n_arb=@BV:NXIPM@
@@ -111,7 +111,7 @@ then
 else
   mixterm=""
 fi
-if [ "${SECONDSTATISTIC^^}" == "2PCF" ] || [ "${SECONDSTATISTIC^^}" == "COSEBIS" ] || [ "${SECONDSTATISTIC^^}" == "BANDPOWERS" ]
+if [ "${SECONDSTATISTIC^^}" == "XIPM" ] || [ "${SECONDSTATISTIC^^}" == "COSEBIS" ] || [ "${SECONDSTATISTIC^^}" == "BANDPOWERS" ]
 then
   if [ "${STATISTIC^^}" == "${SECONDSTATISTIC^^}" ]
   then
@@ -307,7 +307,7 @@ cat > @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_inputs/@SURVEY@_CosmoPipe_c
 
 EOF
 
-if [ "${STATISTIC^^}" == "2PCF" ] || [ "${SECONDSTATISTIC^^}" == "2PCF" ]
+if [ "${STATISTIC^^}" == "XIPM" ] || [ "${SECONDSTATISTIC^^}" == "XIPM" ]
 then
 cat >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_inputs/@SURVEY@_CosmoPipe_constructed_statistic.ini <<- EOF
 [covTHETAspace settings]
@@ -521,7 +521,7 @@ EOF
 # Covariance between summary statistics {{{
 if [ "${cov_between_stats}" == "True" ]
 then
-    if [ "${SECONDSTATISTIC^^}" == "2PCF" ]
+    if [ "${SECONDSTATISTIC^^}" == "XIPM" ]
     then
       n_arb2=@BV:NXIPM@
       arb_fourier_filter_mmE_file_@BV:SECONDSTATISTIC@="fourier_weight_realspace_cf_mm_p_@BV:THETAMINXI@-@BV:THETAMAXXI@_?.table"

@@ -67,9 +67,9 @@ elif [ "${STATISTIC^^}" == "BANDPOWERS" ] #{{{
 then 
   datafile=@DB:mcmc_inp_bandpowers@
 #}}}
-elif [ "${STATISTIC^^}" == "2PCF" ] #{{{
+elif [ "${STATISTIC^^}" == "XIPM" ] #{{{
 then 
-  datafile=@DB:mcmc_inp_2pcf@
+  datafile=@DB:mcmc_inp_xipm@
 fi
 
 #Data files  {{{
@@ -311,7 +311,7 @@ EOF
 #}}}
 
 #}}}
-elif [ "${STATISTIC^^}" == "2PCF" ] #{{{
+elif [ "${STATISTIC^^}" == "XIPM" ] #{{{
 then 
   #scale cut {{{
 cat >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_scalecut_1.ini <<- EOF
@@ -469,7 +469,7 @@ then
 	source_section=bandpower_shear_e
 	dest1=bandpowers_set1
 	dest2=bandpowers_set2
-elif [ "${STATISTIC^^}" == "2PCF" ] #{{{
+elif [ "${STATISTIC^^}" == "XIPM" ] #{{{
 then
   source_section="shear_xi_plus_binned shear_xi_minus_binned"
   dest1="xip_set1 xim_set1"
@@ -511,7 +511,7 @@ file = %(CSL_PATH)s/utility/delete/delete_section.py
 sections = distances intrinsic_power matter_intrinsic_power matter_power_lin matter_power_nl intrinsic_alignment_parameters bandpower_shear_e cosmological_parameters halo_model_parameters recfast
 			
 EOF
-elif [ "${STATISTIC^^}" == "2PCF" ]
+elif [ "${STATISTIC^^}" == "XIPM" ]
 then
 cat >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_2cosmo_base.ini <<- EOF
 [delete]
@@ -697,7 +697,7 @@ do
 	elif [ "${STATISTIC^^}" == "COSEBIS" ]
 	then
 	  tpdparams="${tpdparams} cosebis_set1/bin_${tomo2}_${tomo1}#@BV:NMAXCOSEBIS@ cosebis_set2/bin_${tomo2}_${tomo1}#@BV:NMAXCOSEBIS@"
-	elif [ "${STATISTIC^^}" == "2PCF" ]
+	elif [ "${STATISTIC^^}" == "XIPM" ]
 	then
 	  tpdparams="${tpdparams} xip_set1/bin_${tomo2}_${tomo1}#@BV:NXIPM@ xim_set1/bin_${tomo2}_${tomo1}#@BV:NXIPM@ xip_set2/bin_${tomo2}_${tomo1}#@BV:NXIPM@ xim_set2/bin_${tomo2}_${tomo1}#@BV:NXIPM@"
 	fi

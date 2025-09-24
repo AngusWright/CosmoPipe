@@ -133,22 +133,15 @@ if __name__ == '__main__':
     # prepare the catalogues
     if center_file: 
         cat1 = treecorr.Catalog(fitscat1, ra_col=cat1raname, dec_col=cat1decname, ra_units='deg', dec_units='deg', \
-                                          g1_col=cat1e1name, g2_col=cat1e2name, w_col=cat1wname,patch_centers=center_file)#, flip_g1=True)
+                                          g1_col=cat1e1name, g2_col=cat1e2name, w_col=cat1wname,patch_centers=center_file)
         #cat1.write_patch_centers(file_name=outfile+"cens.txt")
         cat2 = treecorr.Catalog(fitscat2, ra_col=cat2raname, dec_col=cat2decname, ra_units='deg', dec_units='deg', \
-                                          g1_col=cat2e1name, g2_col=cat2e2name, w_col=cat2wname,patch_centers=cat1.patch_centers)#, flip_g1=True)
+                                          g1_col=cat2e1name, g2_col=cat2e2name, w_col=cat2wname,patch_centers=cat1.patch_centers)
     else:
         cat1 = treecorr.Catalog(fitscat1, ra_col=cat1raname, dec_col=cat1decname, ra_units='deg', dec_units='deg', \
-                                          g1_col=cat1e1name, g2_col=cat1e2name, w_col=cat1wname)#, flip_g1=True)
+                                          g1_col=cat1e1name, g2_col=cat1e2name, w_col=cat1wname)
         cat2 = treecorr.Catalog(fitscat2, ra_col=cat2raname, dec_col=cat2decname, ra_units='deg', dec_units='deg', \
-                                          g1_col=cat2e1name, g2_col=cat2e2name, w_col=cat2wname)#, flip_g1=True)
-    # This check is implemented in calc_xi_with_treecorr
-    # if nbins > 100: ## Fine-binning
-    #     inbinslop = 1.5
-    #     print(f"binslop = {inbinslop} (because of fine binning)")
-    # else: ## Broad bins
-    #     inbinslop = 0.08
-    #     print(f"binslop = {inbinslop} (because of coarse binning)")
+                                          g1_col=cat2e1name, g2_col=cat2e2name, w_col=cat2wname)
 
     # Define the binning based on command line input
     if(binning=='lin'): 

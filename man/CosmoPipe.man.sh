@@ -127,8 +127,7 @@ function _clean_variable {
 
 #Get option list {{{
 function _get_optlist { 
-  #cat $1 | grep -Ev "^[[:space:]]{0,}#" | grep "=" | awk -F= '{print $1}' 
-  grep -Ev '^[[:space:]]*#' "$1" | grep '=' | awk -F= '{print $1}'
+  cat $1 | grep -Ev "^[[:space:]]{0,}#" | grep "=" | awk -F= '{print $1}' 
 }
 #}}}
 
@@ -1040,8 +1039,7 @@ function _incorporate_datablock {
 
   #Update the script to include the blockvars {{{
   nloop=0
-  #while [ "`grep -Ev "^[[:space:]]{0,}#" ${1//.${ext}/_prehead.${ext}} | grep -c @BV: || echo`" != "0" ]
-  while [ "$(grep -Ev "^[[:space:]]*#" "${1//.${ext}/_prehead.${ext}}" | grep -c '@BV:')" != "0" ]
+  while [ "`grep -Ev "^[[:space:]]{0,}#" ${1//.${ext}/_prehead.${ext}} | grep -c @BV: || echo`" != "0" ]
   do 
     for item in ${_vars}
     do 

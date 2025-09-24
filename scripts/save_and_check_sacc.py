@@ -44,15 +44,19 @@ def plot_2pt(sacc_data, statistic, type, plotdir):
     import matplotlib.pyplot as plt
     # Now another plot of the second data set that we saved and loaded
     instance = sacc_map[statistic][type]
-    for b1, b2 in sacc_data.get_tracer_combinations(instance):
-        x, y, covmat = sacc_data._get_2pt(instance, b1, b2, return_cov=True, angle_name='theta' if statistic == '2pcf' else 'ell' if statistic == 'bandpowers' else 'n')
-        #plt.errorbar(x, y, yerr=covmat.diagonal()**0.5, fmt='.', label=f'{b1}-{b2}')
-        plt.plot(x, y, label=f'{b1}-{b2}')
-        plt.xscale('log')
-        plt.yscale('log')
-    plt.savefig(os.path.join(plotdir, f'{statistic}_{type}.png'))
-    plt.clf()
-    plt.close()
+    if instance not in sacc_data.tracers:
+        print(f"Skipping plot for {instance}, not in data")
+    else:
+        for b1, b2 in sacc_data.get_tracer_combinations(instance):
+            x, y, covmat = sacc_data._get_2pt(instance, b1, b2, return_cov=True, angle_name='theta' if statistic == '2pcf' else 'ell' if statistic == 'bandpowers' else 'n')
+            plt.errorbar(x, y, yerr=covmat.diagonal()**0.5, fmt='.', label=f'{b1}-{b2}')
+            #plt.plot(x, y, label=f'{b1}-{b2}')
+            plt.xscale('log')
+            plt.yscale('log')
+            
+        plt.savefig(os.path.join(plotdir, f'{statistic}_{type}.png'))
+        plt.clf()
+        plt.close()
 
 def plot_1pt(sacc_data, plotdir):
     import matplotlib.pyplot as plt
@@ -61,8 +65,9 @@ def plot_1pt(sacc_data, plotdir):
         ind = sacc_data.indices('galaxy_stellarmassfunction', (b,))
         y = np.array(sacc_data.mean[ind])
         x = np.array(sacc_data._get_tags_by_index(['mass'], ind)[0])
-        #covmat = sacc_data.covariance.get_block(ind)
-        plt.plot(x, y, label=b)
+        covmat = sacc_data.covariance.get_block(ind)
+        plt.errorbar(x, y, yerr=covmat.diagonal()**0.5, fmt='.', label=b)
+        #plt.plot(x, y, label=b)
         plt.xscale('log')
         plt.yscale('log')
     plt.savefig(os.path.join(plotdir, 'smf.png'))

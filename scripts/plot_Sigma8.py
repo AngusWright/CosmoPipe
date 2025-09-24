@@ -41,7 +41,7 @@ if statistic == 'cosebis':
     colour = colors['darkorange']
 elif statistic == 'bandpowers':
     colour = colors['hotpink']
-elif statistic == '2pcf':
+elif statistic == 'xipm':
     colour = colors['darkturquoise']
 else:
     raise Exception('Statistic not implemented: %s'%statistic)

@@ -37,7 +37,7 @@ then
       xmultpower=-1
       covariance=@DB:covariance_bandpowers@
       ;;
-    "2pcf") 
+    "xipm") 
       xlabel="theta" 
       ylabel="xi['+']" 
       datavec=`echo @DB:xipm_vec@ | awk '{print $1}'`

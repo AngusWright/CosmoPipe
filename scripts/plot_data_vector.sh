@@ -25,7 +25,7 @@ case "@BV:STATISTIC@" in
     datavec="@DB:bandpower_vec@"
     covariance="@DB:covariance_bandpower@"
     ;;
-  "2pcf") 
+  "xipm") 
     xlabel="Radial Bin i" 
     ylabel_upper="Xi[p]" 
     ylabel_lower="Xi[m]" 

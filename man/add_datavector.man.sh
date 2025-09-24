@@ -42,7 +42,7 @@ set -e
 # Input variables {{{
 function _inp_var { 
   #Variable inputs (leave blank if none)
-  echo BV:INPUT_DATAVEC BV:STATISTIC DATABLOCK RUNROOT STORAGEPATH
+  echo BV:INPUT_DATAVEC BV:DATAVEC_TYPE DATABLOCK RUNROOT STORAGEPATH
 } 
 }
 #}}}
@@ -57,57 +57,44 @@ function _inp_data {
 # Output data {{{ 
 function _outputs { 
   #Data outputs (leave blank if none)
-  STATISTIC=@BV:STATISTIC@
-  STATISTIC=`_parse_blockvars ${STATISTIC}`
-  MODES=@BV:MODES@
-  MODES=`_parse_blockvars ${MODES}`
-  if [ "${STATISTIC^^}" == "COSEBIS" ] #{{{
+  DATAVEC_TYPE=@BV:DATAVEC_TYPE@
+  if [ "${DATAVEC_TYPE^^}" == "COSEBIS" ] #{{{
   then
-    if [[ .*\ $MODES\ .* =~ " EE " ]]
-    then
-      output="cosebis_vec"
+    output="cosebis_vec"
   #}}}
-    if [[ .*\ $MODES\ .* =~ " NE " ]]
-    then
-      output="psi_stats_gm_vec"
-  #}}}
-    if [[ .*\ $MODES\ .* =~ " NN " ]]
-    then
-      output="psi_stats_gg_vec"
-  #}}}
-  elif [ "${STATISTIC^^}" == "BANDPOWERS" ] #{{{
+  elif [ "${DATAVEC_TYPE^^}" == "PSI_STATS_GM" ] #{{{
   then
-    if [[ .*\ $MODES\ .* =~ " EE " ]]
-    then
-      output="bandpowers_ee_vec"
+    output="psi_stats_gm_vec"
   #}}}
-    if [[ .*\ $MODES\ .* =~ " NE " ]]
-    then
-      output="bandpowers_ne_vec"
+  elif [ "${DATAVEC_TYPE^^}" == "PSI_STATS_GG" ] #{{{
+  then
+    output="psi_stats_gg_vec"
   #}}}
-    if [[ .*\ $MODES\ .* =~ " NN " ]]
-    then
-      output="bandpowers_nn_vec"
+  elif [ "${DATAVEC_TYPE^^}" == "BANDPOWERS_EE" ] #{{{
+  then
+    output="bandpowers_ee_vec"
   #}}}
-  elif [ "${STATISTIC^^}" == "XIPM" ] #{{{
+  elif [ "${DATAVEC_TYPE^^}" == "BANDPOWERS_NE" ] #{{{
+  then
+    output="bandpowers_ne_vec"
+  #}}}
+  elif [ "${DATAVEC_TYPE^^}" == "BANDPOWERS_NN" ] #{{{
+  then
+    output="bandpowers_nn_vec"
+  #}}}
+  elif [ "${DATAVEC_TYPE^^}" == "XIPM" ] #{{{
   then
     output="xipm_vec"
   #}}}
-  elif [ "${STATISTIC^^}" == "2PCF" ] #{{{
+  elif [ "${DATAVEC_TYPE^^}" == "GT" ] #{{{
   then
-    if [[ .*\ $MODES\ .* =~ " EE " ]]
-    then
-      output="xipm_vec"
+    output="gt_vec"
   #}}}
-    if [[ .*\ $MODES\ .* =~ " NE " ]]
-    then
-      output="gt_vec"
+  elif [ "${DATAVEC_TYPE^^}" == "WT" ] #{{{
+  then
+    output="wt_vec"
   #}}}
-    if [[ .*\ $MODES\ .* =~ " NN " ]]
-    then
-      output="wt_vec"
-  #}}}
-  elif [ "${STATISTIC^^}" == "OBS" ] #{{{
+  elif [ "${DATAVEC_TYPE^^}" == "OBS" ] #{{{
   then
     output="obs_vec"
   fi

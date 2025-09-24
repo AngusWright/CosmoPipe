@@ -39,11 +39,12 @@ trap '_abort' 0
 set -e 
 #}}}
 
-# Input variables {{{ 
+# Input variables {{{
 function _inp_var { 
   #Variable inputs (leave blank if none)
-  echo BV:DATAVECBLOCK BV:DATAVECPATH DATABLOCK RUNROOT STORAGEPATH
+  echo BV:INPUT_DATAVEC BV:STATISTIC DATABLOCK RUNROOT STORAGEPATH
 } 
+}
 #}}}
 
 # Input data {{{ 
@@ -56,8 +57,63 @@ function _inp_data {
 # Output data {{{ 
 function _outputs { 
   #Data outputs (leave blank if none)
-  echo cosebis_vec
-} 
+  STATISTIC=@BV:STATISTIC@
+  STATISTIC=`_parse_blockvars ${STATISTIC}`
+  MODES=@BV:MODES@
+  MODES=`_parse_blockvars ${MODES}`
+  if [ "${STATISTIC^^}" == "COSEBIS" ] #{{{
+  then
+    if [[ .*\ $MODES\ .* =~ " EE " ]]
+    then
+      output="cosebis_vec"
+  #}}}
+    if [[ .*\ $MODES\ .* =~ " NE " ]]
+    then
+      output="psi_stats_gm_vec"
+  #}}}
+    if [[ .*\ $MODES\ .* =~ " NN " ]]
+    then
+      output="psi_stats_gg_vec"
+  #}}}
+  elif [ "${STATISTIC^^}" == "BANDPOWERS" ] #{{{
+  then
+    if [[ .*\ $MODES\ .* =~ " EE " ]]
+    then
+      output="bandpowers_ee_vec"
+  #}}}
+    if [[ .*\ $MODES\ .* =~ " NE " ]]
+    then
+      output="bandpowers_ne_vec"
+  #}}}
+    if [[ .*\ $MODES\ .* =~ " NN " ]]
+    then
+      output="bandpowers_nn_vec"
+  #}}}
+  elif [ "${STATISTIC^^}" == "XIPM" ] #{{{
+  then
+    output="xipm_vec"
+  #}}}
+  elif [ "${STATISTIC^^}" == "2PCF" ] #{{{
+  then
+    if [[ .*\ $MODES\ .* =~ " EE " ]]
+    then
+      output="xipm_vec"
+  #}}}
+    if [[ .*\ $MODES\ .* =~ " NE " ]]
+    then
+      output="gt_vec"
+  #}}}
+    if [[ .*\ $MODES\ .* =~ " NN " ]]
+    then
+      output="wt_vec"
+  #}}}
+  elif [ "${STATISTIC^^}" == "OBS" ] #{{{
+  then
+    output="obs_vec"
+  fi
+  #}}}
+  echo ${output}
+}
 #}}}
 
 # Execution command {{{ 

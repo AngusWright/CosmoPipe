@@ -58,7 +58,7 @@ then
   fi 
 #}}}
 elif [ "${STATISTIC^^}" == "XIPM" ] #{{{
-then 
+then
   input_datavector="@DB:xipm_vec@"
   input_covariance="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_xipm/covariance_matrix_${non_linear_model}.mat"
   if [ -n "$ITERATION" ] && [ "$ITERATION" -eq "$ITERATION" ]

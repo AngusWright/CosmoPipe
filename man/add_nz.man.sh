@@ -42,7 +42,7 @@ set -e
 # Input variables {{{ 
 function _inp_var { 
   #Variable inputs (leave blank if none)
-  echo BLU BV:NZNAME_BASEBLOCK BV:NZPATH DATABLOCK DEF NZFILESUFFIX RUNROOT STORAGEPATH
+  echo BLU BV:NZNAME_BASEBLOCK BV:NZPATH_SOURCE DATABLOCK DEF NZFILESUFFIX RUNROOT STORAGEPATH
 } 
 #}}}
 

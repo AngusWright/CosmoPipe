@@ -8,7 +8,7 @@
 #=========================================
 
 ### Combine the patch corrrelation functions ### {{{
-_message "Combining Correlation Functions by patch\n"
+_message "Combining Cosmic Shear Correlation Functions by patch\n"
 headfiles="@DB:ALLHEAD@"
 
 NTOMO=`echo @BV:TOMOLIMS@ | awk '{print NF-1}'`

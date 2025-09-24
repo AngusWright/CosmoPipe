@@ -15,7 +15,7 @@ delta_p=np.loadtxt(file,comments='#')
 file=open(args.cov_file)
 cov_p=np.atleast_2d(np.loadtxt(file,comments='#'))
 
-L = np.linalg.cholesky(cov_p) 
+L = np.linalg.cholesky(cov_p)
 inv_L = np.linalg.inv(L)
 delta_x = np.dot(inv_L,delta_p)
 

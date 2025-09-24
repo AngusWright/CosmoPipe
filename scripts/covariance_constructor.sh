@@ -503,8 +503,8 @@ lower_calc_limit = 1e-200
 num_cores = @BV:COVNCORES@
 
 [tabulated inputs files]
-npair_directory = @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_xipm/
-npair_mm_file = @BV:NPAIRBASE@_nBins_${NTOMO}_Bin?_Bin?.ascii
+npair_directory = @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_npair/
+npair_mm_file = @BV:NPAIRBASE_XI@_nBins_${NTOMO}_Bin?_Bin?.ascii
 # These files should not be required anymore.
 # cosebi_directory = @RUNROOT@/@CONFIGPATH@/cosebis/
 # wn_log_file = ${WnLog_filelist}

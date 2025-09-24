@@ -44,22 +44,22 @@ set -e
 function _inp_var { 
   #Variable inputs (leave blank if none)
   list=''
-  patchvar="@BV:PATCHLIST@"
-  patchvar=`_parse_blockvars ${patchvar}`
-  for patch in ${patchvar} @ALLPATCH@ 
-  do 
+  patchlist=`_parse_blockvars @BV:PATCHLIST@`
+  allpatch=`_parse_blockvars @ALLPATCH@`
+  for patch in ${patchlist} ${allpatch}
+  do
     list="${list} BV:SURVEYAREA_${patch}"
   done
   echo ALLPATCH BLU BV:BLIND BV:E1NAME BV:E2NAME BV:WEIGHTNAME DATABLOCK DEF BV:PATCHLIST PYTHON3BIN RED RUNROOT SCRIPTPATH STORAGEPATH ${list}
-} 
+}
 #}}}
 
 # Input data {{{ 
 function _inp_data { 
   #Data inputs (leave blank if none)
   outlist=''
-  for patch in @BV:PATCHLIST@ @ALLPATCH@ 
-  do 
+  for patch in @BV:PATCHLIST@ @ALLPATCH@
+  do
     outlist="${outlist} mbias_${patch}_@BV:BLIND@"
   done 
   echo ALLHEAD ${outlist}
@@ -71,7 +71,7 @@ function _outputs {
   #Data outputs (leave blank if none)
   outlist=''
   for patch in @BV:PATCHLIST@ @ALLPATCH@ @ALLPATCH@comb
-  do 
+  do
     outlist="${outlist} cov_inp_${patch}_@BV:BLIND@ neff_${patch}_@BV:BLIND@ sigmae_${patch}_@BV:BLIND@" 
   done 
   echo ${outlist}

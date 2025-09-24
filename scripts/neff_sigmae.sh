@@ -16,7 +16,7 @@ do
   catname=${catname##*/}
   found="FALSE"
   for patch in @BV:PATCHLIST@ @ALLPATCH@ @ALLPATCH@comb
-  do 
+  do
     #Find files with matching patch strings
     if [[ "${catname}" =~ .*"_${patch}_".* ]]
     then
@@ -61,10 +61,10 @@ do
     mkdir @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cov_input_${patch}_@BV:BLIND@
   fi 
   #If doesn't exist, make the neff folder
-  if [ ! -d @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/neff_${patch}_@BV:BLIND@ ]
-  then 
-    mkdir @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/neff_${patch}_@BV:BLIND@
-  fi 
+  if [ ! -d @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/neff_source_${patch}_@BV:BLIND@ ]
+  then
+    mkdir @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/neff_source_${patch}_@BV:BLIND@
+  fi
   #If doesn't exist, make the output folder
   if [ ! -d @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/sigmae_${patch}_@BV:BLIND@ ]
   then 
@@ -107,7 +107,7 @@ do
       --area ${SurveyArea} > @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cov_input_${patch}_@BV:BLIND@/${catbase}_neff_sigmae.txt 
     #Construct the separated files 
     tail -n +2 @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cov_input_${patch}_@BV:BLIND@/${catbase}_neff_sigmae.txt \
-      | awk '{ printf $2" " }' >  @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/neff_${patch}_@BV:BLIND@/${catbase}_neff.txt 
+      | awk '{ printf $2" " }' >  @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/neff_source_${patch}_@BV:BLIND@/${catbase}_neff.txt
     tail -n +2 @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cov_input_${patch}_@BV:BLIND@/${catbase}_neff_sigmae.txt \
       | awk '{ printf $7" " }' > @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/sigmae_${patch}_@BV:BLIND@/${catbase}_sigmae.txt 
     #Save the output names 
@@ -118,7 +118,7 @@ do
   done 
   
   #Add the new file to the datablock 
-  _write_datablock neff_${patch}_@BV:BLIND@ "${patchoutlist_neff}"
+  _write_datablock neff_source_${patch}_@BV:BLIND@ "${patchoutlist_neff}"
   _write_datablock sigmae_${patch}_@BV:BLIND@ "${patchoutlist_sigmae}"
 
 done 

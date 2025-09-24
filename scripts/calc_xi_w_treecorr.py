@@ -64,7 +64,7 @@ if __name__ == '__main__':
              help='Name of the Dec column in the first catalogue')
     parser.add_argument('--file2dec', dest="cat2decname", type=str,default='DELTA_J2000',
              help='Name of the Dec column in the second catalogue')
-    parser.add_argument('--patch_centers', dest="center_file", type=str, nargs='?',default='',
+    parser.add_argument('--patch_centers', dest="center_file", type=str, nargs='?',default=None,
              help='File containing centers for performing jackknife/bootstrap covariance calculations')
     parser.add_argument('--nthreads', dest="num_threads", type=int,default=None,
              help='Number of desired parallel threads. If None (default) then uses all available')
@@ -137,18 +137,11 @@ if __name__ == '__main__':
         #cat1.write_patch_centers(file_name=outfile+"cens.txt")
         cat2 = treecorr.Catalog(fitscat2, ra_col=cat2raname, dec_col=cat2decname, ra_units='deg', dec_units='deg', \
                                           g1_col=cat2e1name, g2_col=cat2e2name, w_col=cat2wname,patch_centers=cat1.patch_centers)
-    else: 
+    else:
         cat1 = treecorr.Catalog(fitscat1, ra_col=cat1raname, dec_col=cat1decname, ra_units='deg', dec_units='deg', \
                                           g1_col=cat1e1name, g2_col=cat1e2name, w_col=cat1wname)
         cat2 = treecorr.Catalog(fitscat2, ra_col=cat2raname, dec_col=cat2decname, ra_units='deg', dec_units='deg', \
                                           g1_col=cat2e1name, g2_col=cat2e2name, w_col=cat2wname)
-    # This check is implemented in calc_xi_with_treecorr
-    # if nbins > 100: ## Fine-binning
-    #     inbinslop = 1.5
-    #     print(f"binslop = {inbinslop} (because of fine binning)")
-    # else: ## Broad bins
-    #     inbinslop = 0.08
-    #     print(f"binslop = {inbinslop} (because of coarse binning)")
 
     # Define the binning based on command line input
     if(binning=='lin'): 
@@ -222,6 +215,6 @@ if __name__ == '__main__':
         # Write it out unweighted npairs and praise-be again for Jarvis and his well documented code
         gg.write(outfile, precision=12)
 
-    if center_file != "": 
+    if center_file is not None:
         np.savetxt(covoutfile,gg.cov)
 

@@ -1,12 +1,7 @@
 import numpy as np
-import matplotlib.pylab as pl
-from   matplotlib.font_manager import FontProperties
-from   matplotlib.ticker import ScalarFormatter
-import math, os
-from matplotlib.patches import Rectangle
+import os
 from scipy.interpolate import interp1d
-from scipy import pi,sqrt,exp
-from measure_cosebis import tminus_quad, tplus,tminus, str2bool
+from measure_cosebis import tplus,tminus, str2bool
 from argparse import ArgumentParser
 
 # Written by Marika Asgari (ma@roe.ac.uk)

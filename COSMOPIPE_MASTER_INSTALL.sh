@@ -161,7 +161,10 @@ then
   then 
     rm -fr cosmosis-standard-library
   fi
-  git clone https://github.com/joezuntz/cosmosis-standard-library.git >> gitclone_output.log 2>&1
+  git clone --single-branch -b two-point-one-point https://github.com/andrejdvornik/cosmosis-standard-library.git >> gitclone_output.log 2>&1
+  # The two-point-one-point branch has one-point function enabled and some further non-PR fixes to CAMB
+  # We will try to merge that with the oficial CSL, until then the rest of CSL is in sync!
+  #git clone https://github.com/joezuntz/cosmosis-standard-library.git >> gitclone_output.log 2>&1
   _message "${BLU} - Done! ${DEF}\n"
   _message "   >${RED} Installing cosmosis-standard-library ${DEF}"
   #Replace the cpdef instances with cdef in classy.pyx
@@ -228,6 +231,24 @@ EOF
     rm -fr 2pt_stats
   fi
   git clone https://github.com/maricool/2pt_stats.git >> gitclone_output.log 2>&1
+  _message "${BLU} - Done! ${DEF}\n"
+  #}}}
+
+  #Clone the Datavec Blinding repository {{{
+  _message "   >${RED} Cloning the Datavector Blinding Git repository${DEF}"
+  #Clone the repository
+  if [ -d ${RUNROOT}/INSTALL/legacy_blinding ]
+  then
+    rm -fr legacy_blinding
+  fi
+  git clone --single-branch -b kids https://github.com/andrejdvornik/legacy_blinding.git >> gitclone_output.log 2>&1
+  _message "${BLU} - Done! ${DEF}\n"
+  cat > blinding_make.sh <<-EOF
+cd legacy_blinding
+python -m pip install -e .
+cd ..
+EOF
+  conda run -n ${CONDAPIPENAME} bash blinding_make.sh > blinding_install_output.log 2>&1
   _message "${BLU} - Done! ${DEF}\n"
   #}}}
   

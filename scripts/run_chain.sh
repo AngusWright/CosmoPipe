@@ -56,7 +56,7 @@ then
 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 OMP_NUM_THREADS=1 ${pythonbin}/cosmosis @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_@BV:STATISTIC@.ini 2>&1
 else
 objstr=''
-# Run mpi chain 
+# Run mpi chain
 {
 mpirun -n @BV:NTHREADS@ -x MKL_NUM_THREADS=1 -x NUMEXPR_NUM_THREADS=1 -x OMP_NUM_THREADS=1 ${pythonbin}/cosmosis --mpi @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_@BV:STATISTIC@.ini 2>&1 && echo "MPI command worked!" || objstr="FAIL"
 } >&1
@@ -64,7 +64,8 @@ mpirun -n @BV:NTHREADS@ -x MKL_NUM_THREADS=1 -x NUMEXPR_NUM_THREADS=1 -x OMP_NUM
 if [ "${objstr}" == "FAIL" ]
 then
   _message "MPI chain failed. Trying with --use-hwthread-cpu option (required for openmpi>4.0.3)\n" 
-  MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 OMP_NUM_THREADS=1 mpirun --use-hwthread-cpus -n @BV:NTHREADS@ ${pythonbin}/cosmosis --mpi @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_@BV:STATISTIC@.ini 2>&1 
-fi 
+  MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 OMP_NUM_THREADS=1 mpirun --use-hwthread-cpus -n @BV:NTHREADS@ ${pythonbin}/cosmosis --mpi @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_@BV:STATISTIC@.ini 2>&1
+  #MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 OMP_NUM_THREADS=1 ${pythonbin}/cosmosis --smp @BV:NTHREADS@ @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_@BV:STATISTIC@.ini 2>&1
+fi
 fi
 _message " >@RED@ Chain finished! (`date +'%a %H:%M'`)@DEF@\n"

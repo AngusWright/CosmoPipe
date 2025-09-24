@@ -18,7 +18,7 @@ output=${output##*/}
 NTOMO=`echo @BV:TOMOLIMS@ | awk '{print NF-1}'`
 
 if [ ! -f @RUNROOT@/@CONFIGPATH@/cosebis/Tplus/Tp_@BV:THETAMINXI@_@BV:THETAMAXXI@_@BV:NMAXCOSEBIS@.table  ] 
-then 
+then
   #Compute the Tpm files 
   @PYTHON3BIN@ @RUNROOT@/@SCRIPTPATH@/get_weights_cosebis.py \
     --ncores @BV:NTHREADS@ \

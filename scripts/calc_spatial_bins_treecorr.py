@@ -7,9 +7,6 @@
 # ----------------------------------------------------------------
 
 import treecorr
-import sys
-import numpy as np
-import astropy.io.fits as fits
 from argparse import ArgumentParser
 
 if __name__ == '__main__':

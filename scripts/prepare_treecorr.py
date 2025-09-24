@@ -66,6 +66,11 @@ dec=ldac_table[deccolname]
 #Npair calculation hack with Treecorr
 wsq=weight*weight
 
+if psfe1colname == e1colname:
+    psfe1colname = psfe1colname + 'PSF'
+if psfe2colname == e2colname:
+    psfe2colname = psfe2colname + 'PSF'
+
 #Write out to output file - crucial that RA/DEC (in degrees) are double precision
 #If you don't have that you round to a couple of arcsec for fields with ra > 100
 hdulist = fits.BinTableHDU.from_columns(

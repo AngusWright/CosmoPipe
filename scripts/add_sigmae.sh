@@ -24,7 +24,7 @@ do
   file=${file%.*}_sigmae.txt
   echo -n " ${sigmae} " > @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/sigmae/${file}
   outputlist="${outputlist} ${file}"
-done 
+done
 
 #Update the datablock contents file 
 _write_datablock "sigmae" "${outputlist}"

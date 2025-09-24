@@ -7,7 +7,6 @@
 #
 #=========================================
 
-
 #Loop over patches & allpatch 
 for patch in @BV:PATCHLIST@ @ALLPATCH@ 
 do 

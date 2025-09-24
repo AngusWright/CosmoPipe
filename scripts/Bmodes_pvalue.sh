@@ -1,6 +1,6 @@
 #Statistic
 BOLTZMAN="@BV:BOLTZMAN@"
-if [ "${BOLTZMAN^^}" == "COSMOPOWER_HM2020" ] || [ "${BOLTZMAN^^}" == "CAMB_HM2020" ]
+if [ "${BOLTZMAN^^}" == "COSMOPOWER_HM2020" ] || [ "${BOLTZMAN^^}" == "CAMB_HM2020" ] || [ "${BOLTZMAN^^}" == "HALO_MODEL" ]  || [ "${BOLTZMAN^^}" == "COSMOPOWER_HALO_MODEL" ]
 then
   non_linear_model=mead2020_feedback
 elif [ "${BOLTZMAN^^}" == "COSMOPOWER_HM2015" ] || [ "${BOLTZMAN^^}" == "COSMOPOWER_HM2015_S8" ] || [ "${BOLTZMAN^^}" == "CAMB_HM2015" ]
@@ -24,7 +24,7 @@ then
   inputfile=@DB:mcmc_inp_bandpowers@
 #}}}
 elif [ "${STATISTIC^^}" == "XIPM" ] #{{{
-then 
+then
   _message "B-modes are not defined for vanilla xipm! Use xiEB instead!\n"
 #}}}
 elif [ "${STATISTIC^^}" == "XIEB" ] #{{{

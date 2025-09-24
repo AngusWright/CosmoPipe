@@ -1,12 +1,7 @@
 import numpy as np
-import matplotlib.pylab as pl
-from   matplotlib.font_manager import FontProperties
-from   matplotlib.ticker import ScalarFormatter
-import math, os
-from matplotlib.patches import Rectangle
+import os
 from scipy.interpolate import interp1d
-from scipy import pi,sqrt,exp
-from measure_statistics import tminus_quad, tplus, tminus, gplus, gminus, T, str2bool, h, f, rebin, psi_filter
+from measure_statistics import tplus, tminus, gplus, gminus, T, str2bool, h, f, rebin, psi_filter
 from argparse import ArgumentParser
 import treecorr
 
@@ -23,7 +18,7 @@ import treecorr
 
 # Specify the input arguments
 parser = ArgumentParser(description='Take input 2pcfs files and calculate 2pt statistics')
-parser.add_argument("-d", "--statistic", dest="statistic", type=str, required=True, choices = ['cosebis', 'bandpowers_ee', 'bandpowers_ne', 'bandpowers_nn', 'xipm', 'psi_gg', 'psi_gm'],
+parser.add_argument("-d", "--statistic", dest="statistic", type=str, required=True, choices = ['cosebis', 'bandpowers_ee', 'bandpowers_ne', 'bandpowers_nn', 'xipm', 'psi_gg', 'psi_gm', 'gt', 'wt'],
     help="Desired 2pt statistic, must be either cosebis, bandpowers_ee, bandpowers_ne, bandpowers_nn, xipm, or psi")
 
 # Input file, columns, theta range, and other options
@@ -57,7 +52,7 @@ parser.add_argument('--save_kernels',dest="save_kernels",nargs='?',default=False
     help='Write kernels to disk. Default is FALSE.')
 
 # COSEBIs options
-parser.add_argument('-n','--nCOSEBIs', dest="nCOSEBIs", type=int, default=10, nargs='?',
+parser.add_argument('-n','--nCOSEBIs', dest="nCOSEBIs", type=int, default=10, nargs='?', required=False,
     help='number of COSEBIs modes to produce, default is 10')
 parser.add_argument('--tfoldername', dest="tfoldername", default="Tplus_minus", required=False,
     help='name and full address of the folder for Tplus Tminus files for COSEBIs, will make it if it does not exist')
@@ -85,8 +80,8 @@ parser.add_argument('-x','--ellmax', dest="ellmax", type=float,default=1500, nar
 parser.add_argument('-k','--nbins_bp', dest="nbins_bp", type=int,default=8, nargs='?',
     help='number of logarithmic bandpowers bins between ellmin and ellmax to produce, default is 8')
 
-# xipm options
-parser.add_argument('--nbins_xipm', dest="nbins_xipm", type=int,default=9, nargs='?',
+# 2pcf options
+parser.add_argument('--nbins_2pcf', dest="nbins_2pcf", type=int,default=9, nargs='?',
     help='number of xipm bins to produce, default is 9')
 
 # psi options
@@ -138,7 +133,7 @@ ellmax=args.ellmax
 nbins_bp=args.nbins_bp
 save_kernels=args.save_kernels
 # xipm options
-nbins_xipm=args.nbins_xipm
+nbins_2pcf=args.nbins_2pcf
 # psi options
 ufile=args.ufile
 qfile=args.qfile
@@ -225,13 +220,15 @@ else:
     raise ValueError('Please choose either lin or log with the --binning option, exiting now ...')
 
 #Lets check that the user has provided enough bins
+"""
 if(binning=='log'):
     if(nbins_within_range<100):
         raise ValueError("The low number of bins in the input 2pt correlation function data will result in low accuracy.  Provide finer log binned data with bins>100, exiting now ...")
 elif(binning=='lin'):
     if(nbins_within_range<1000):
         raise ValueError("The low number of bins in the input 2pt correlation function data will result in low accuracy.  Provide finer linear binned data with bins>100, exiting now ...")
-
+"""
+        
 #OK now we can perform the integrals
 arcmin=180*60/np.pi
 arcmin2rad = 2*np.pi/360/60
@@ -401,7 +398,7 @@ elif mode == 'bandpowers_ne':
     CnBfileName=cfoldername+"/CnB_"+outputfile+".asc"
     np.savetxt(CnEfileName,CnE)
     np.savetxt(CnBfileName,CnB)
-    if save:
+    if save_kernels:
         FilterFileName=cfoldername+"/FilterNE_"+outputfile+".asc"
         np.savetxt(FilterFileName,filter)
 
@@ -444,7 +441,7 @@ elif mode == 'xipm':
     valueBlock[sigma_idx] = valueBlock[sigma_idx]**2
 
     ## Rebin
-    ctrBin, binned_r, binned_lnr, binned_valueBlock, binned_wgtBlock = rebin(thetamin, thetamax, nbins_xipm, lin_not_log, meanr, meanlnr, weight, valueBlock, wgtBlock)
+    ctrBin, binned_r, binned_lnr, binned_valueBlock, binned_wgtBlock = rebin(thetamin, thetamax, nbins_2pcf, lin_not_log, meanr, meanlnr, weight, valueBlock, wgtBlock)
 
     ## Turn sigma^2 into sigma
     valueBlock[sigma_idx] = np.sqrt(valueBlock[sigma_idx])
@@ -457,6 +454,89 @@ elif mode == 'xipm':
     all_binned_data = np.vstack((ctrBin, binned_r, binned_lnr, binned_valueBlock, binned_wgtBlock))
     print(all_binned_data.shape)
     # Write it out to a file and praise-be for Jarvis and his well documented code
-    treecorr.util.gen_write(xipmfileName, all_keys, all_binned_data, precision=12)
+    #treecorr.util.gen_write(xipmfileName, all_keys, all_binned_data, precision=12)
+    with treecorr.util.make_writer(xipmfileName, precision=12) as writer:
+        writer.write(all_keys, all_binned_data)
+    
+elif mode == 'gt':
+    if binning=='lin':
+        lin_not_log = True
+    else:
+        lin_not_log = False
+    meanr = tpcf_data['meanr']
+    meanlnr = tpcf_data['meanlogr']
+    weight = tpcf_data['weight']
+    keys = tpcf_data.keys()
+    
+    wgtBlock_keys = ['weight', 'npairs_weighted']#, 'npairs_weighted']
+    valueBlock_keys = [k for k in keys if (k not in wgtBlock_keys) and (k not in ['r_nom','meanr', 'meanlogr'])]
+
+    valueBlock = np.array([tpcf_data[key] for key in valueBlock_keys])
+    wgtBlock = np.array([tpcf_data[key] for key in wgtBlock_keys])
+
+    gtfileName=cfoldername+"/gt_binned_"+outputfile+".asc"
+
+    ## Turn sigma into sigma^2
+    sigma_idx = [i for i,k in enumerate(valueBlock_keys) if k.startswith('sigma')]
+    valueBlock[sigma_idx] = valueBlock[sigma_idx]**2
+
+    ## Rebin
+    ctrBin, binned_r, binned_lnr, binned_valueBlock, binned_wgtBlock = rebin(thetamin, thetamax, nbins_2pcf, lin_not_log, meanr, meanlnr, weight, valueBlock, wgtBlock)
+
+    ## Turn sigma^2 into sigma
+    valueBlock[sigma_idx] = np.sqrt(valueBlock[sigma_idx])
+
+    all_keys = np.concatenate((['r_nom','meanr', 'meanlogr'], valueBlock_keys, wgtBlock_keys))
+    print(all_keys)
+    print(ctrBin.shape)
+    print(binned_valueBlock.shape)
+    print(binned_wgtBlock.shape)
+    all_binned_data = np.vstack((ctrBin, binned_r, binned_lnr, binned_valueBlock, binned_wgtBlock))
+    print(all_binned_data.shape)
+    # Write it out to a file and praise-be for Jarvis and his well documented code
+    #treecorr.util.gen_write(gtfileName, all_keys, all_binned_data, precision=12)
+    with treecorr.util.make_writer(gtfileName, precision=12) as writer:
+        writer.write(all_keys, all_binned_data)
+    
+elif mode == 'wt':
+    if binning=='lin':
+        lin_not_log = True
+    else:
+        lin_not_log = False
+    meanr = tpcf_data['meanr']
+    meanlnr = tpcf_data['meanlogr']
+    weight = tpcf_data['weight']
+    keys = tpcf_data.keys()
+    
+    wgtBlock_keys = ['weight', 'npairs_weighted']#, 'npairs_weighted']
+    valueBlock_keys = [k for k in keys if (k not in wgtBlock_keys) and (k not in ['r_nom','meanr', 'meanlogr'])]
+
+    valueBlock = np.array([tpcf_data[key] for key in valueBlock_keys])
+    wgtBlock = np.array([tpcf_data[key] for key in wgtBlock_keys])
+
+    wtfileName=cfoldername+"/wt_binned_"+outputfile+".asc"
+
+    ## Turn sigma into sigma^2
+    sigma_idx = [i for i,k in enumerate(valueBlock_keys) if k.startswith('sigma')]
+    valueBlock[sigma_idx] = valueBlock[sigma_idx]**2
+
+    ## Rebin
+    ctrBin, binned_r, binned_lnr, binned_valueBlock, binned_wgtBlock = rebin(thetamin, thetamax, nbins_2pcf, lin_not_log, meanr, meanlnr, weight, valueBlock, wgtBlock)
+
+    ## Turn sigma^2 into sigma
+    valueBlock[sigma_idx] = np.sqrt(valueBlock[sigma_idx])
+
+    all_keys = np.concatenate((['r_nom','meanr', 'meanlogr'], valueBlock_keys, wgtBlock_keys))
+    print(all_keys)
+    print(ctrBin.shape)
+    print(binned_valueBlock.shape)
+    print(binned_wgtBlock.shape)
+    all_binned_data = np.vstack((ctrBin, binned_r, binned_lnr, binned_valueBlock, binned_wgtBlock))
+    print(all_binned_data.shape)
+    # Write it out to a file and praise-be for Jarvis and his well documented code
+    #treecorr.util.gen_write(wtfileName, all_keys, all_binned_data, precision=12)
+    with treecorr.util.make_writer(wtfileName, precision=12) as writer:
+        writer.write(all_keys, all_binned_data)
+    
 else:
     raise Exception('Unknown mode!')

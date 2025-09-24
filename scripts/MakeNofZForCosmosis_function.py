@@ -98,6 +98,7 @@ if __name__ == '__main__':
     #parser.add_argument('--blinds'       , dest='blinds'       , type=str, required=True, help="Blinding variable")
     #parser.add_argument('--input_folder' , dest='input_folder' , type=str, required=True, help="folder containing inputs")
     #parser.add_argument('--nzfile_string', dest='nzfile_string', type=str, required=True, help="String designating the Nz files")
+    parser.add_argument('--suffix', dest='suffix', type=str, required=True, help="String designating nz suffix (source, lens, obs)")
     
     args = parser.parse_args()
     
@@ -128,5 +129,5 @@ if __name__ == '__main__':
     MakeNofz_fits(input_files=inputs,
                   outputfileName=output_filename,
                   OneBin_nofzFileName=onebin_output_filename,
-                  neff=neff,single_bin=False,type='lowerEdge',suffix='source')
+                  neff=neff,single_bin=False,type='lowerEdge',suffix=args.suffix)
     

@@ -43,7 +43,7 @@ set -e
 # Input variables {{{ 
 function _inp_var { 
   #Variable inputs (leave blank if none)
-  echo ALLPATCH BLU BV:BLIND BV:COSMOSIS_PATCHLIST BV:PATCHLIST BV:TOMOLIMS DATABLOCK DEF RED RUNROOT STORAGEPATH SURVEY
+  echo ALLPATCH BLU BV:BLIND BV:COSMOSIS_PATCHLIST BV:MODES BV:NLENSBINS BV:PATCHLIST BV:TOMOLIMS DATABLOCK DEF RED RUNROOT STORAGEPATH SURVEY
 } 
 #}}}
 
@@ -63,16 +63,16 @@ function _outputs {
   patchvar=`_parse_blockvars ${patchvar}`
   #Define the patches to loop over {{{
   if [ "${patchvar}" == "ALL" ] || [ "${patchvar}" == "@BV:COSMOSIS_PATCHLIST@" ]
-  then 
-    patchlist=`echo @BV:PATCHLIST@ @ALLPATCH@ @ALLPATCH@comb` 
-  else 
+  then
+    patchlist=`echo @BV:PATCHLIST@ @ALLPATCH@ @ALLPATCH@comb`
+  else
     patchlist="${patchvar}"
   fi 
   #}}}
   for patch in ${patchlist}
   do 
-    outlist="${outlist} cosmosis_neff_${patch}_@BV:BLIND@ cosmosis_sigmae_${patch}_@BV:BLIND@ cosmosis_xipm_${patch}_@BV:BLIND@"
-  done 
+    outlist="${outlist} cosmosis_neff_source_${patch}_@BV:BLIND@ cosmosis_neff_lens_${patch}_@BV:BLIND@ cosmosis_neff_obs_${patch}_@BV:BLIND@ cosmosis_sigmae_${patch}_@BV:BLIND@ cosmosis_npair_${patch}_@BV:BLIND@"
+  done
   echo ${outlist}
 } 
 #}}}

@@ -27,8 +27,8 @@ rootfile_dimless=${SRCLOC}/TLogsRootsAndNorms_dimless/Root_@BV:THETAMINXI@-@BV:T
 
 if [ ! -f ${normfile_dimless} ] || [ ! -f ${rootfile_dimless} ]
 then 
-  if [ "@BINNING@" == "log" ] 
-  then 
+  if [ "@BINNING@" == "log" ]
+  then
     _message "    -> @BLU@Computing COSEBIs root and norm files@DEF@"
     @PYTHON3BIN@ @RUNROOT@/@SCRIPTPATH@/cosebis_compute_log_weight.py \
       --thetamin @BV:THETAMINXI@ \

@@ -320,7 +320,7 @@ xi_plus_extension_name = xiP
 xi_minus_extension_name = xiM
 xi_plus_section_name = shear_xi_plus_binned
 xi_minus_section_name = shear_xi_minus_binned
-keep_ang_xiP  = @BV:THETAMINXI@ @BV:THETAMAXXI@ 
+keep_ang_xiP  = @BV:THETAMINXI@ @BV:THETAMAXXI@
 keep_ang_xiM  = @BV:THETAMINXIM@ @BV:THETAMAXXIM@
 EOF
 cat >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_scalecut_2.ini <<- EOF
@@ -329,7 +329,7 @@ xi_plus_extension_name = xiP
 xi_minus_extension_name = xiM
 xi_plus_section_name = shear_xi_plus_binned
 xi_minus_section_name = shear_xi_minus_binned
-keep_ang_xiP  = @BV:THETAMINXI@ @BV:THETAMAXXI@ 
+keep_ang_xiP  = @BV:THETAMINXI@ @BV:THETAMAXXI@
 keep_ang_xiM  = @BV:THETAMINXIM@ @BV:THETAMAXXIM@
 EOF
 if [ "${SPLITMODE^^}" == "ZBIN" ] || [ "${SPLITMODE^^}" == "ACCC" ]
@@ -340,7 +340,7 @@ xi_plus_extension_name = xiP
 xi_minus_extension_name = xiM
 xi_plus_section_name = shear_xi_plus_binned
 xi_minus_section_name = shear_xi_minus_binned
-keep_ang_xiP  = @BV:THETAMINXI@ @BV:THETAMAXXI@ 
+keep_ang_xiP  = @BV:THETAMINXI@ @BV:THETAMAXXI@
 keep_ang_xiM  = @BV:THETAMINXIM@ @BV:THETAMAXXIM@
 
 EOF
@@ -387,7 +387,7 @@ nTheta=@BV:NXIPM@
 
 weighted_binning = 1 
 
-InputNpair = @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_xipm/@BV:NPAIRBASE@
+InputNpair = @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_npair/@BV:NPAIRBASE_XI@
 InputNpair_suffix = .ascii
 Column_theta_Name = meanr 
 Column_Npair_Name = npairs_weighted
@@ -407,7 +407,7 @@ theta_max = @BV:THETAMAXXI@
 nTheta = @BV:NXIPM@
 
 weighted_binning = 1 
-InputNpair = @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_xipm/@BV:NPAIRBASE@
+InputNpair = @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_npair/@BV:NPAIRBASE_XI@
 InputNpair_suffix = .ascii
 Column_theta_Name = meanr 
 Column_Npair_Name = npairs_weighted
@@ -694,10 +694,10 @@ do
 	if [ "${STATISTIC^^}" == "BANDPOWERS" ] 
 	then
       tpdparams="${tpdparams} bandpowers_set1/bin_${tomo2}_${tomo1}#@BV:NBANDPOWERS@ bandpowers_set2/bin_${tomo2}_${tomo1}#@BV:NBANDPOWERS@"
-	elif [ "${STATISTIC^^}" == "COSEBIS" ] 
+	elif [ "${STATISTIC^^}" == "COSEBIS" ]
 	then
 	  tpdparams="${tpdparams} cosebis_set1/bin_${tomo2}_${tomo1}#@BV:NMAXCOSEBIS@ cosebis_set2/bin_${tomo2}_${tomo1}#@BV:NMAXCOSEBIS@"
-	elif [ "${STATISTIC^^}" == "XIPM" ] 
+	elif [ "${STATISTIC^^}" == "XIPM" ]
 	then
 	  tpdparams="${tpdparams} xip_set1/bin_${tomo2}_${tomo1}#@BV:NXIPM@ xim_set1/bin_${tomo2}_${tomo1}#@BV:NXIPM@ xip_set2/bin_${tomo2}_${tomo1}#@BV:NXIPM@ xim_set2/bin_${tomo2}_${tomo1}#@BV:NXIPM@"
 	fi

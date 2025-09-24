@@ -55,13 +55,14 @@ function _inp_data {
 #}}}
 
 # Output data {{{ 
-function _outputs { 
+function _outputs {
   #Data outputs (leave blank if none)
   outlist=''
-  for patch in @BV:PATCHLIST@ @ALLPATCH@ 
-  do 
+  blind=`_parse_blockvars "@BV:BLIND@"`
+  for patch in @BV:PATCHLIST@ @ALLPATCH@
+  do
     outlist="${outlist} mbias_${patch}_@BV:BLIND@ mcov_${patch}_@BV:BLIND@"
-  done 
+  done
   echo DATAHEAD ${outlist}
 } 
 #}}}

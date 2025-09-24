@@ -8,10 +8,10 @@
 #=========================================
 
 
-if [ ! -d @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/neff ]
-then 
-  mkdir @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/neff
-fi 
+if [ ! -d @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/neff_source ]
+then
+  mkdir @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/neff_source
+fi
 
 outputlist=''
 filelist="@DB:ALLHEAD@"
@@ -22,9 +22,9 @@ do
   neff=`echo @BV:NEFFLIST@ | awk -v n=$inp '{print $n}'`
   file=${file##*/}
   file=${file%.*}_neff.txt
-  echo -n " ${neff} " > @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/neff/${file}
+  echo -n " ${neff} " > @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/neff_source/${file}
   outputlist="${outputlist} ${file}"
 done 
 
 #Update the datablock contents file 
-_write_datablock "neff" "${outputlist}"
+_write_datablock "neff_source" "${outputlist}"

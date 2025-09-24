@@ -43,7 +43,7 @@ set -e
 # Input variables {{{ 
 function _inp_var { 
   #Variable inputs (leave blank if none)
-  echo ALLPATCH BLU BV:STATISTIC BV:TOMOLIMS DATABLOCK DEF BV:PATCHLIST PYTHON3BIN RED RUNROOT SCRIPTPATH STORAGEPATH
+  echo ALLPATCH BLU BV:MODES BV:NLENSBINS BV:PATCHLIST BV:STATISTIC BV:TOMOLIMS DATABLOCK DEF PYTHON3BIN RED RUNROOT SCRIPTPATH STORAGEPATH
 } 
 #}}}
 
@@ -51,34 +51,154 @@ function _inp_var {
 function _inp_data { 
   #Data inputs (leave blank if none)
   #Input data vectors
-  STATISTIC=@BV:STATISTIC@
+  STATISTIC=`_parse_blockvars @BV:STATISTIC@`
+  MODES=`_parse_blockvars @BV:MODES@`
+  inputs=""
   if [ "${STATISTIC^^}" == "COSEBIS" ] #{{{
   then
-    input="cosebis"
+    if [[ .*\ $MODES\ .* =~ " EE " ]]
+    then
+      inputs="${inputs} cosebis"
+    fi
+    if [[ .*\ $MODES\ .* =~ " NE " ]]
+    then
+      inputs="${inputs} psi_stats_gm"
+    fi
+    if [[ .*\ $MODES\ .* =~ " NN " ]]
+    then
+      inputs="${inputs} psi_stats_gg"
+    fi
+  #}}}
+  elif [ "${STATISTIC^^}" == "COSEBIS_DIMLESS" ] #{{{
+  then
+    inputs="${inputs} cosebis_dimless"
   #}}}
   elif [ "${STATISTIC^^}" == "BANDPOWERS" ] #{{{
-  then 
-    input="bandpowers"
+  then
+    if [[ .*\ $MODES\ .* =~ " EE " ]]
+    then
+      inputs="${inputs} bandpowers_ee"
+    fi
+    if [[ .*\ $MODES\ .* =~ " NE " ]]
+    then
+      inputs="${inputs} bandpowers_ne"
+    fi
+    if [[ .*\ $MODES\ .* =~ " NN " ]]
+    then
+      inputs="${inputs} bandpowers_nn"
+    fi
+  #}}}
+  elif [ "${STATISTIC^^}" == "XIPSF" ] #{{{
+  then
+    inputs="${inputs} xipsf_binned"
+  #}}}
+  elif [ "${STATISTIC^^}" == "XIGPSF" ] #{{{
+  then
+    inputs="${inputs} xigpsf_binned"
   #}}}
   elif [ "${STATISTIC^^}" == "XIPM" ] #{{{
-  then 
-    input="xipm_binned"
+  then
+    inputs="${inputs} xipm_binned"
+  #}}}
+  elif [ "${STATISTIC^^}" == "2PCF" ] #{{{
+  then
+    if [[ .*\ $MODES\ .* =~ " EE " ]]
+    then
+      inputs="${inputs} xipm_binned"
+    fi
+    if [[ .*\ $MODES\ .* =~ " NE " ]]
+    then
+      inputs="${inputs} gt_binned"
+    fi
+    if [[ .*\ $MODES\ .* =~ " NN " ]]
+    then
+      inputs="${inputs} wt_binned"
+    fi
+  #}}}
   fi
   #}}}
-  echo ${input} mbias
-} 
+  echo ${inputs} mbias
+}
 #}}}
 
 # Output data {{{ 
 function _outputs { 
   #Data outputs (leave blank if none)
-  outlist=''
+  STATISTIC=`_parse_blockvars @BV:STATISTIC@`
+  MODES=`_parse_blockvars @BV:MODES@`
+  outputs=""
+  if [ "${STATISTIC^^}" == "COSEBIS" ] #{{{
+  then
+    if [[ .*\ $MODES\ .* =~ " EE " ]]
+    then
+      outputs="${outputs} cosebis"
+    fi
+    if [[ .*\ $MODES\ .* =~ " NE " ]]
+    then
+      outputs="${outputs} psi_stats_gm"
+    fi
+    if [[ .*\ $MODES\ .* =~ " NN " ]]
+    then
+      outputs="${outputs} psi_stats_gg"
+    fi
+  #}}}
+  elif [ "${STATISTIC^^}" == "COSEBIS_DIMLESS" ] #{{{
+  then
+    outputs="${outputs} cosebis_dimless"
+  #}}}
+  elif [ "${STATISTIC^^}" == "BANDPOWERS" ] #{{{
+  then
+    if [[ .*\ $MODES\ .* =~ " EE " ]]
+    then
+      outputs="${outputs} bandpowers_ee"
+    fi
+    if [[ .*\ $MODES\ .* =~ " NE " ]]
+    then
+      outputs="${outputs} bandpowers_ne"
+    fi
+    if [[ .*\ $MODES\ .* =~ " NN " ]]
+    then
+      outputs="${outputs} bandpowers_nn"
+    fi
+  #}}}
+  elif [ "${STATISTIC^^}" == "XIPSF" ] #{{{
+  then
+    outputs="${outputs} xipsf_binned"
+  #}}}
+  elif [ "${STATISTIC^^}" == "XIGPSF" ] #{{{
+  then
+    outputs="${outputs} xigpsf_binned"
+  #}}}
+  elif [ "${STATISTIC^^}" == "XIPM" ] #{{{
+  then
+    outputs="${outputs} xipm"
+  #}}}
+  elif [ "${STATISTIC^^}" == "2PCF" ] #{{{
+  then
+    if [[ .*\ $MODES\ .* =~ " EE " ]]
+    then
+      outputs="${outputs} xipm"
+    fi
+    if [[ .*\ $MODES\ .* =~ " NE " ]]
+    then
+      outputs="${outputs} gt"
+    fi
+    if [[ .*\ $MODES\ .* =~ " NN " ]]
+    then
+      outputs="${outputs} wt"
+    fi
+  #}}}
+  fi
+  outlist=""
   for patch in @BV:PATCHLIST@ @ALLPATCH@ @ALLPATCH@comb
-  do 
-    outlist="${outlist} @BV:STATISTIC@_vec_${patch}"
-  done 
-  echo ${outlist}
-} 
+  do
+    for out in ${outputs}
+    do
+      outlist="${outlist} ${out}_vec_${patch}"
+    done
+  done
+  echo "${outlist}"
+}
 #}}}
 
 # Execution command {{{ 

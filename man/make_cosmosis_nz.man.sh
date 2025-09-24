@@ -43,7 +43,7 @@ set -e
 # Input variables {{{ 
 function _inp_var { 
   #Variable inputs (leave blank if none)
-  echo ALLPATCH BLU BV:COSMOSIS_PATCHLIST BV:PATCHLIST BV:TOMOLIMS BV:TOMOLIMS DATABLOCK DEF PYTHON3BIN RED RUNROOT SCRIPTPATH STORAGEPATH
+  echo ALLPATCH BLU BV:NLENSBINS BV:NSMFLENSBINS BV:PATCHLIST BV:TOMOLIMS DATABLOCK DEF PYTHON3BIN RED RUNROOT SCRIPTPATH STORAGEPATH
 } 
 #}}}
 
@@ -54,19 +54,36 @@ function _inp_data {
   #input is dynamic, depending on the value of BV:COSMOSIS_PATCHLIST
   patchvar="@BV:COSMOSIS_PATCHLIST@"
   patchvar=`_parse_blockvars ${patchvar}`
+  MODES_IN=`_parse_blockvars @BV:MODES@`
+  modes=''
+  if [[ .*\ $MODES_IN\ .* =~ " EE " ]] || [[ .*\ $MODES_IN\ .* =~ " NE " ]]
+  then
+    modes="${modes} source"
+  fi
+  if [[ .*\ $MODES_IN\ .* =~ " NE " ]] || [[ .*\ $MODES_IN\ .* =~ " NN " ]]
+  then
+    modes="${modes} lens"
+  fi
+  if [[ .*\ $MODES_IN\ .* =~ " OBS " ]]
+  then
+    modes="${modes} obs"
+  fi
   #Define the patches to loop over {{{
   if [ "${patchvar}" == "ALL" ] || [ "${patchvar}" == "@BV:COSMOSIS_PATCHLIST@" ]
   then 
-    patchlist=`echo @BV:PATCHLIST@ @ALLPATCH@ @ALLPATCH@comb` 
-  else 
+    patchlist=`echo @BV:PATCHLIST@ @ALLPATCH@ @ALLPATCH@comb`
+  else
     patchlist="${patchvar}"
   fi 
   #}}}
-  for patch in ${patchlist}
-  do 
-    #>&2 echo ${patch}
-    outlist="${outlist} cosmosis_neff nz_${patch}"
-  done 
+  for mode in ${modes}
+  do
+    for patch in ${patchlist}
+    do
+      #>&2 echo ${patch}
+      outlist="${outlist} cosmosis_neff_${mode} nz_${mode}_${patch}"
+    done
+  done
   echo ${outlist}
 } 
 #}}}
@@ -75,10 +92,36 @@ function _inp_data {
 function _outputs { 
   #Data outputs (leave blank if none)
   outlist=''
-  for patch in @BV:PATCHLIST@ @ALLPATCH@ 
-  do 
-    outlist="${outlist} cosmosis_nz_${patch}"
-  done 
+  patchvar="@BV:COSMOSIS_PATCHLIST@"
+  patchvar=`_parse_blockvars ${patchvar}`
+  MODES_IN=`_parse_blockvars @BV:MODES@`
+  modes=''
+  if [[ .*\ $MODES_IN\ .* =~ " EE " ]] || [[ .*\ $MODES_IN\ .* =~ " NE " ]]
+  then
+    modes="${modes} source"
+  fi
+  if [[ .*\ $MODES_IN\ .* =~ " NE " ]] || [[ .*\ $MODES_IN\ .* =~ " NN " ]]
+  then
+    modes="${modes} lens"
+  fi
+  if [[ .*\ $MODES_IN\ .* =~ " OBS " ]]
+  then
+    modes="${modes} obs"
+  fi
+  #Define the patches to loop over {{{
+  if [ "${patchvar}" == "ALL" ] || [ "${patchvar}" == "@BV:COSMOSIS_PATCHLIST@" ]
+  then
+    patchlist=`echo @BV:PATCHLIST@ @ALLPATCH@ @ALLPATCH@comb`
+  else
+    patchlist="${patchvar}"
+  fi
+  for mode in ${modes}
+  do
+    for patch in ${patchlist}
+    do
+      outlist="${outlist} cosmosis_nz_${mode}_${patch}"
+    done
+  done
   echo ${outlist}
 } 
 #}}}

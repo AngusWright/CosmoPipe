@@ -71,8 +71,8 @@ do
   links="FALSE"
   for file in ${current_target} ${output_file}
   do 
-    if [ ${#file} -gt 255 ] 
-    then 
+    if [ ${#file} -gt 250 ]
+    then
       links="TRUE"
     fi 
   done 
@@ -139,6 +139,7 @@ do
   #Merge the new column {{{
   _message "   -> @BLU@Merging new @BV:LABELNAME@ column @DEF@"
   @RUNROOT@/INSTALL/theli-1.6.1/bin/@MACHINE@/ldacjoinkey \
+    -t OBJECTS \
     -i ${current_target} \
     -p ${output_file} \
     -o ${output_file}_tmp \

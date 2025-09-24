@@ -17,7 +17,7 @@ import os
 from argparse import ArgumentParser
 
 # set the path to scale_cuts here
-sys.path.append("@RUNROOT@/INSTALL/kcap/modules/scale_cuts/")
+sys.path.append("@RUNROOT@/INSTALL/kcap/modules/scale_cuts_new/")
 sys.path.append("@RUNROOT@/@SCRIPTPATH@/")
 import wrapper_twopoint as wtp
 import wrapper_twopoint2 as wtp2
@@ -26,16 +26,25 @@ import wrapper_twopoint2 as wtp2
 ## Main functions
 #{{{
 def saveFitsTwoPoint(
-        nbTomoN=2, nbTomoG=5,
-        N_theta=9, theta_min=0.5, theta_max=300,
-        N_ell=8, ell_min=100, ell_max=1500,
+        nbTomoN=2,
+        nbTomoG=5,
+        N_theta=9,
+        theta_min=0.5,
+        theta_max=300,
+        N_ell=8,
+        ell_min=100,
+        ell_max=1500,
         nbModes=5,
         prefix_Flinc='',
         prefix_CosmoSIS='',
         scDict={},
-        meanTag=None, meanName=None,
-        covTag=None, covName=None,
-        nOfZNameList=None, nGalList=None, sigmaEpsList=None,
+        meanTag=None,
+        meanName=None,
+        covTag=None,
+        covName=None,
+        nOfZNameList=None,
+        nGalList=None,
+        sigmaEpsList=None,
         saveName=None
     ):
     """
@@ -142,16 +151,25 @@ def saveFitsTwoPoint(
     """
     
     wtp2.saveFitsTwoPoint(
-        nbTomoN=nbTomoN, nbTomoG=nbTomoG,
-        N_theta=N_theta, theta_min=theta_min, theta_max=theta_max,
-        N_ell=N_ell, ell_min=ell_min, ell_max=ell_max,
-        nbModes=nbModes,
+        nbTomoN=nbTomoN,
+        nbTomoG=nbTomoG,
+        N_theta_ee=N_theta,
+        theta_min_ee=theta_min,
+        theta_max_ee=theta_max,
+        N_ell_ee=N_ell,
+        ell_min_ee=ell_min,
+        ell_max_ee=ell_max,
+        nbModes_ee=nbModes,
         prefix_Flinc=prefix_Flinc,
         prefix_CosmoSIS=prefix_CosmoSIS,
         scDict=scDict,
-        meanTag=meanTag, meanName=meanName,
-        covTag=covTag, covName=covName,
-        nOfZNameList=nOfZNameList, nGalList=nGalList, sigmaEpsList=sigmaEpsList,
+        meanTag=meanTag,
+        meanName=meanName,
+        covTag=covTag,
+        covName=covName,
+        nOfZNameList=nOfZNameList,
+        nGalList=nGalList,
+        sigmaEpsList=sigmaEpsList,
         saveName=saveName
     )
     return
@@ -219,7 +237,8 @@ def saveFitsCOSEBIs(datavec,covariance, outputFilename):
     print(nOfZNameList)
     print(nz.values())
     saveFitsTwoPoint(
-        nbTomoN=0, nbTomoG=len(nOfZNameList),
+        nbTomoN=0,
+        nbTomoG=len(nOfZNameList),
         nbModes=args.nmaxcosebis,
         prefix_Flinc=None,
         prefix_CosmoSIS=None,
@@ -246,8 +265,9 @@ def saveFitsBP(datavec,covariance, outputFilename):
     sigmaEpsList = sigma_e#.tolist()
     
     saveFitsTwoPoint(
-        nbTomoN=0, nbTomoG=len(nOfZNameList),
-        N_ell=args.nbandpowers, 
+        nbTomoN=0,
+        nbTomoG=len(nOfZNameList),
+        N_ell=args.nbandpowers,
         ell_min=args.ellmin, 
         ell_max=args.ellmax,
         # nbModes=5,
@@ -276,7 +296,8 @@ def saveFitsXipm(datavec,covariance, outputFilename):
     sigmaEpsList = sigma_e#.tolist()
     
     saveFitsTwoPoint(
-        nbTomoN=0, nbTomoG=len(nOfZNameList),
+        nbTomoN=0,
+        nbTomoG=len(nOfZNameList),
         N_theta=args.nxipm,
         theta_min=args.thetamin,
         theta_max=args.thetamax,

@@ -1,21 +1,21 @@
 #This is a template for module description files
-name: lin_z_dependent_ia_model
+name: mass_dependent_ia_model
 version: '1.0'
 purpose: adds redshift dependence to IA, with a linear equation
 url: ''
-interface: lin_z_dependent_ia_model.py
-attribution: [Marika Asgari, Benjamin Joachimi, Konrad Kuijken]
+interface: mass_dependent_ia_model.py
+attribution: [Marika Asgari, Benjamin Joachimi, Konrad Kuijken, Andrej Dvornik]
 rules: ''
 cite: []
 assumptions:
 -   Input model only produces E-modes.
--   Currently only works for cosmic shear IA 
 
 explanation: |
-    Takes input IA Cls, Cl^ij_II and Cl^ij_GI. Then creates 
+    Takes input IA Cls, Cl^ij_II, Cl^ij_GI and CL^ij_gI. Then creates 
     new Cl^ij_II = [f_r^(i) * (<M_*>^(i) / M_{*, pivot})^beta] * [f_r^(j) * (<M_*>^(j) / M_{*, pivot})^beta]  * Cl^ij_II
     new Cl^ij_GI = [f_r^(j) * (<M_*>^(j) / M_{*, pivot})^beta] * Cl^ij_GI
     new Cl^ij_IG = [f_r^(i) * (<M_*>^(i) / M_{*, pivot})^beta] * Cl^ij_IG
+	new Cl^ij_iG = [f_r^(i) * (<M_*>^(i) / M_{*, pivot})^beta] * Cl^ij_iG
 
 params: 
         suffix:
@@ -26,6 +26,10 @@ params:
             meaning: "If provided will save the resulting IA Cls using this suffix"
             type: str
             default: ""
+		do_position_shear:
+			meaning: "If the position-shear IA is requested"
+			type: bool
+			defailt: "False"
         # sample:
         #     meaning: "sample name used to retrieve the correct redshift distribution, only used if a_mean not given."
         #     type: str
@@ -71,6 +75,20 @@ inputs:
                 C_ell
             type: real 1d
             default:
+    galaxy_shear_cl:
+		nbin_a:
+            meaning: Number of lens bins
+            type: int
+            default:
+		nbin_b:
+            meaning: Number of source bins
+            type: int
+            default:
+        bin_{i}_{j}:
+            meaning: Galaxy-intrinsic angular spectra for pairs of i,j values
+                C_ell
+            type: real 1d
+            default:
 outputs:
     shear_cl_ii:
         nbin_a:
@@ -90,6 +108,20 @@ outputs:
             default:
         bin_{j}_{i}:
             meaning: Intrinsic-shear angular spectra for pairs of i,j values
+                C_ell
+            type: real 1d
+            default:
+    galaxy_shear_cl:
+		nbin_a:
+            meaning: Number of lens bins
+            type: int
+            default:
+		nbin_b:
+            meaning: Number of source bins
+            type: int
+            default:
+        bin_{i}_{j}:
+            meaning: Galaxy-intrinsic angular spectra for pairs of i,j values
                 C_ell
             type: real 1d
             default:

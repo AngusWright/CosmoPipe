@@ -25,7 +25,7 @@ rootfile=${SRCLOC}/TLogsRootsAndNorms/Root_@BV:THETAMINXI@-@BV:THETAMAXXI@.table
 
 if [ ! -f ${normfile} ] || [ ! -f ${rootfile} ]
 then 
-  if [ "@BINNING@" == "log" ] 
+  if [ "@BINNING@" == "log" ]
   then 
     _message "    -> @BLU@Computing COSEBIs root and norm files@DEF@"
     @PYTHON3BIN@ @RUNROOT@/@SCRIPTPATH@/cosebis_compute_log_weight.py \

@@ -14,11 +14,11 @@ then
 fi 
 
 #Check that the Nz file(s) exists
-if [ -d "@BV:NZPATH@" ]
-then 
+if [ -d "@BV:NZPATH_SOURCE@" ]
+then
   _message " > @BLU@ Nz Path is a directory: assuming that @DEF@\`ls\`@BLU@ ordering is tomographic order!@DEF@\n"
   #we have a directory {{{
-  inputlist=`ls @BV:NZPATH@`
+  inputlist=`ls @BV:NZPATH_SOURCE@`
   filelist=""
   #This just makes sure that the files are added correctly
   for file in ${inputlist} 
@@ -28,22 +28,22 @@ then
     #}}}
     _message " --> @BLU@ ${inpname}@DEF@\n"
     #Save the output file to the list {{{
-    filelist="$filelist @BV:NZPATH@/$inpname"
+    filelist="$filelist @BV:NZPATH_SOURCE@/$inpname"
     #}}}
   done 
   #}}}
-elif [ -f "@BV:NZPATH@" ]
-then 
+elif [ -f "@BV:NZPATH_SOURCE@" ]
+then
   #we have a single file {{{
-  _message " > @BLU@ Nz Path is a single file: @DEF@@BV:NZPATH@\n"
-  filelist=@BV:NZPATH@
+  _message " > @BLU@ Nz Path is a single file: @DEF@@BV:NZPATH_SOURCE@\n"
+  filelist=@BV:NZPATH_SOURCE@
   #}}}
 else 
   _message " > @BLU@ Nz Path is a file list:@DEF@\n"
   #we have a file list {{{
   filelist=""
-  for inp in @BV:NZPATH@
-  do 
+  for inp in @BV:NZPATH_SOURCE@
+  do
     _message " --> @BLU@ ${inp}@DEF@\n"
     if [ ! -f ${inp} ]
     then 

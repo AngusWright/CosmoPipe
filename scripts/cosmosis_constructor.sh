@@ -95,8 +95,8 @@ then
   then 
     echo "cut_pair_PeeE = $rempairs " >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_scalecut.ini 
     echo "cut_pair_PeeB = $rempairs " >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_scalecut.ini 
-  elif [ "${STATISTIC^^}" == "XIPM" ] 
-  then 
+  elif [ "${STATISTIC^^}" == "XIPM" ]
+  then
     echo "cut_pair_xiP = $rempairs " >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_scalecut.ini 
     echo "cut_pair_xiM = $rempairs " >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_scalecut.ini 
   fi 
@@ -339,18 +339,18 @@ then
     #Keep consistency between plus and minus 
     ximinus_min=@BV:THETAMINXI@
     ximinus_max=@BV:THETAMAXXI@
-  else 
+  else
     #Use the appropriate scale cut  
     ximinus_min=@BV:THETAMINXIM@
     ximinus_max=@BV:THETAMAXXIM@
-  fi 
+  fi
 cat >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_scalecut.ini <<- EOF
 use_stats = xiP xiM
 xi_plus_extension_name = xiP
 xi_minus_extension_name = xiM
 xi_plus_section_name = shear_xi_plus_binned
 xi_minus_section_name = shear_xi_minus_binned
-keep_ang_xiP  = @BV:THETAMINXI@ @BV:THETAMAXXI@ 
+keep_ang_xiP  = @BV:THETAMINXI@ @BV:THETAMAXXI@
 keep_ang_xiM  = ${ximinus_min}  ${ximinus_max}
 
 EOF
@@ -379,7 +379,7 @@ nTheta=@BV:NXIPM@
 
 weighted_binning = 1 
 
-InputNpair = @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_xipm/@BV:NPAIRBASE@
+InputNpair = @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_npair/@BV:NPAIRBASE_XI@
 InputNpair_suffix = .ascii
 Column_theta_Name = meanr 
 #Column_Npair_Name = npairs_weighted
@@ -400,7 +400,7 @@ theta_max = @BV:THETAMAXXI@
 nTheta = @BV:NXIPM@
 
 weighted_binning = 1 
-InputNpair = @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_xipm/@BV:NPAIRBASE@
+InputNpair = @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_npair/@BV:NPAIRBASE_XI@
 InputNpair_suffix = .ascii
 Column_theta_Name = meanr 
 #Column_Npair_Name = npairs_weighted
@@ -549,7 +549,7 @@ then
   if [ "${STATISTIC^^}" == "COSEBIS" ]
   then
     ndat=`echo "$ncombinations @BV:NMAXCOSEBIS@" | awk '{printf "%u", $1*$2 }'`
-  elif [ "${STATISTIC^^}" == "BANDPOWERS" ] 
+  elif [ "${STATISTIC^^}" == "BANDPOWERS" ]
   then 
 	ndat=`echo "$ncombinations @BV:NBANDPOWERS@" | awk '{printf "%u", $1*$2 }'`
   elif [ "${STATISTIC^^}" == "XIPM" ]
@@ -658,7 +658,6 @@ then
 	elif [ "${STATISTIC^^}" == "BANDPOWERS_B" ] #{{{
 	then 
 		COSMOSIS_PIPELINE="sample_S8 correlated_dz_priors load_nz_fits ${boltzmann_pipeline} extrapolate_power source_photoz_bias ${iamodel_pipeline} bandpowers scale_cuts bandpowers_b scale_cuts_b likelihood likelihood_b"
-  #}}}
 	elif [ "${STATISTIC^^}" == "XIPM" ] #{{{
 	then 
 		COSMOSIS_PIPELINE="sample_S8 correlated_dz_priors load_nz_fits ${boltzmann_pipeline} extrapolate_power source_photoz_bias ${iamodel_pipeline} cl2xi xip_binned xim_binned scale_cuts likelihood"
@@ -695,10 +694,10 @@ do
         if [ "${STATISTIC^^}" == "BANDPOWERS" ] 
         then
             tpdparams="${tpdparams} bandpower_shear_e/bin_${tomo2}_${tomo1}#@BV:NBANDPOWERS@"
-        elif [ "${STATISTIC^^}" == "COSEBIS" ] 
+        elif [ "${STATISTIC^^}" == "COSEBIS" ]
         then
             tpdparams="${tpdparams} cosebis/bin_${tomo2}_${tomo1}#@BV:NMAXCOSEBIS@"
-        elif [ "${STATISTIC^^}" == "XIPM" ] 
+        elif [ "${STATISTIC^^}" == "XIPM" ]
         then
             tpdparams="${tpdparams} shear_xi_plus_binned/bin_${tomo2}_${tomo1}#@BV:NXIPM@ shear_xi_minus_binned/bin_${tomo2}_${tomo1}#@BV:NXIPM@"
         fi

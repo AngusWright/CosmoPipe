@@ -12,7 +12,7 @@ calib_cats="@DB:som_weight_calib_gold@"
 refr_cats="@DB:som_weight_refr_gold@"
 
 for patch in @BV:PATCHLIST@ @ALLPATCH@ @ALLPATCH@comb
-do 
+do
   nfile=`echo ${calib_cats} | grep -c "_${patch}_" || echo `
   if [ ${nfile} -gt 0 ]
   then 

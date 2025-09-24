@@ -10,8 +10,8 @@
 ### Estimate corrrelation functions ### {{{
 _message "Estimating Correlation Functions:"
 headfiles="@DB:ALLHEAD@"
-for patch in @ALLPATCH@ @BV:PATCHLIST@ 
-do 
+for patch in @ALLPATCH@ @BV:PATCHLIST@
+do
   _message " > Patch ${patch} {\n"
   #Select the catalogues from DATAHEAD in this patch 
   filelist=''

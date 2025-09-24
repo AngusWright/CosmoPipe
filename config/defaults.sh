@@ -483,7 +483,7 @@ MASKDATAPOINT=
 REMOVETOMOBIN=
 
 #Statistics to use for summary plot construction (if available) 
-SUMMARY_STATISTICS='cosebis bandpowers 2pcf'
+SUMMARY_STATISTICS='cosebis bandpowers xipm'
 
 
 # 3x2pt bright setting

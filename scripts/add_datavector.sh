@@ -7,11 +7,11 @@
 #
 #=========================================
 
-STATISTIC="@BV:STATISTIC@"
+DATAVEC_TYPE="@BV:DATAVEC_TYPE@"
 #If needed, create the output directory
-if [ ! -d @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/${STATISTIC,,}_vec ]
+if [ ! -d @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/${DATAVEC_TYPE,,}_vec ]
 then
-  mkdir @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/${STATISTIC,,}_vec/
+  mkdir @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/${DATAVEC_TYPE,,}_vec/
 fi
 
 
@@ -21,7 +21,7 @@ file="${file_in}"
 file=${file##*/}
 
 #Create the uncertainty file
-cp ${file_in} @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/${STATISTIC,,}_vec/${file}
+cp ${file_in} @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/${DATAVEC_TYPE,,}_vec/${file}
 
 #Update the datablock contents file
-_write_datablock "${STATISTIC,,}_vec" "${file}"
+_write_datablock "${DATAVEC_TYPE,,}_vec" "${file}"

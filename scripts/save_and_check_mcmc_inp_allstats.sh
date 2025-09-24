@@ -57,7 +57,7 @@ then
     input_covariance_iterative=@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_bandpowers/covariance_matrix_${non_linear_model}${filename_extension}.mat
   fi 
 #}}}
-elif [ "${STATISTIC^^}" == "2PCF" ] #{{{
+elif [ "${STATISTIC^^}" == "XIPM" ] #{{{
 then
   input_datavector="@DB:xipm_vec@"
   input_covariance="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_xipm/covariance_matrix_${non_linear_model}.mat"

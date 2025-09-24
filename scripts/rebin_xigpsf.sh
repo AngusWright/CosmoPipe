@@ -35,7 +35,7 @@ _message "    -> @BLU@Rebinning xigpsf for file @RED@${input##*/}@DEF@"
   -i ${input} \
   -t "meanr" -p "xip" -m "xim" \
   --cfoldername ${outfold} \
-  -o ${output} -b @BINNING@ --nbins_xipm @BV:NXIPM@ \
+  -o ${output} -b @BINNING@ --nbins_2pcf @BV:NXIPM@ \
   -s @BV:THETAMINXI@ -l @BV:THETAMAXXI@  \
  -d "xipm" 2>&1
 _message " - @RED@Done! (`date +'%a %H:%M'`)@DEF@\n"

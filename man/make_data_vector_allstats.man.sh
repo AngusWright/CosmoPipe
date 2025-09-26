@@ -117,7 +117,7 @@ function _inp_data {
   #}}}
   fi
   #}}}
-  echo ${inputs} mbias
+  echo "$inputs mbias"
 }
 #}}}
 

@@ -89,12 +89,10 @@ then
     input_datavector_nn=
   fi
   input_covariance="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_bandpowers/covariance_matrix_${non_linear_model}.mat"
-  #input_covariance="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_bandpowers/covariance_list_${non_linear_model}.dat"
   if [ -n "$ITERATION" ] && [ "$ITERATION" -eq "$ITERATION" ]
   then
     filename_extension=${CHAINSUFFIX}_iteration_${ITERATION}
     input_covariance_iterative=@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_bandpowers/covariance_matrix_${non_linear_model}${filename_extension}.mat
-    #input_covariance_iterative=@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_bandpowers/covariance_list_${non_linear_model}${filename_extension}.dat
   fi
 #}}}
 elif [ "${STATISTIC^^}" == "2PCF" ] #{{{
@@ -118,12 +116,10 @@ then
     input_datavector_nn=
   fi
   input_covariance="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_2pcf/covariance_matrix_${non_linear_model}.mat"
-  #input_covariance="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_2pcf/covariance_list_${non_linear_model}.dat"
   if [ -n "$ITERATION" ] && [ "$ITERATION" -eq "$ITERATION" ]
   then
     filename_extension=${CHAINSUFFIX}_iteration_${ITERATION}
     input_covariance_iterative=@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_2pcf/covariance_matrix_${non_linear_model}${filename_extension}.mat
-    #input_covariance_iterative=@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_2pcf/covariance_list_${non_linear_model}${filename_extension}.dat
   fi
 elif [ "${STATISTIC^^}" == "XIEB" ] #{{{
 then

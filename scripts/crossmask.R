@@ -3,7 +3,7 @@
 # File Name : spatial_split.R
 # Created By : awright
 # Creation Date : 10-07-2023
-# Last Modified : Thu Sep 11 19:31:26 2025
+# Last Modified : Mon Sep 29 14:15:17 2025
 #
 #=========================================
 
@@ -83,6 +83,7 @@ keys<-gsub('>'," ",keys)
 keys<-gsub('='," ",keys)
 keys<-unique((helpRfuncs::vecsplit(gsub('[-+*\\/\\)\\(]'," ",keys),' ')))
 keys<-keys[which(is.na(as.numeric(keys)))]
+keys<-keys[keys!=""]
 #}}}
 
 #Initialise the mask: TRUE if AND, FALSE is OR {{{

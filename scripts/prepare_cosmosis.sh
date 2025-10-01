@@ -3,7 +3,7 @@
 # File Name : prepare_cosmosis.sh
 # Created By : awright
 # Creation Date : 31-03-2023
-# Last Modified : Tue Jul 22 13:19:38 2025
+# Last Modified : Sat Sep  6 11:22:55 2025
 #
 #=========================================
 
@@ -141,10 +141,10 @@ then
         appendstr2="_ZB${ZB_lo_str2}t${ZB_hi_str2}"
         #}}}
         #Define the input file id {{{
-        filestr="${appendstr}${appendstr2}_ggcorr.txt"
+        filestr="${appendstr}${appendstr2}_"
         #}}}
         #Get the file {{{
-        file=`echo ${headfiles} | sed 's/ /\n/g' | grep "[\^_]${patch}_" | grep ${filestr} || echo `
+        file=`echo ${headfiles} | sed 's/ /\n/g' | grep -i "[\^_]${patch}_" | grep ${filestr} || echo `
         #}}}
         #Check if the output file exists {{{
         if [ "${file}" == "" ] 

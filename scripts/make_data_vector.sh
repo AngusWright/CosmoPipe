@@ -3,7 +3,7 @@
 # File Name : make_data_vector.sh
 # Created By : awright
 # Creation Date : 01-04-2023
-# Last Modified : Mon 19 Jun 2023 08:31:03 PM CEST
+# Last Modified : Sat Sep  6 04:13:59 2025
 #
 #=========================================
 
@@ -17,9 +17,9 @@ do
   #Remove the 'comb' if needed 
   patchuse=${patch%comb}
   #Get the input files for this patch (there should be NTOMO catalogues)
-  filelist=`echo ${inputs} | sed 's/ /\n/g' | grep "_${patch}_" || echo `
+  filelist=`echo ${inputs} | sed 's/ /\n/g' | grep -i "_${patch}_" || echo `
   #Get the m-bias file for this patch (there should be one, with NTOMO entries)
-  biaslist=`echo ${mfiles} | sed 's/ /\n/g' | grep "_${patchuse}_" | grep "_biases" || echo `
+  biaslist=`echo ${mfiles} | sed 's/ /\n/g' | grep -i "_${patchuse}_" | grep "_biases" || echo `
 
   #Check if there are any matching files {{{
   if [ "${filelist}" == "" ] 

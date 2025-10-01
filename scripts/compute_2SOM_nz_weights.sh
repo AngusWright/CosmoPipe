@@ -3,7 +3,7 @@
 # File Name : compute_2SOM_nz_weights.sh
 # Created By : awright
 # Creation Date : 18-07-2025
-# Last Modified : Tue Sep  2 18:07:02 2025
+# Last Modified : Tue Sep 30 07:46:11 2025
 #
 #=========================================
 
@@ -33,7 +33,7 @@ do
   
   _message "  @RED@Spec:@DEF@ ${spec##*/}@DEF@\n"
   _message "  @RED@Wide:@DEF@ ${wide##*/}@DEF@\n"
-  _message "  @RED@Transfer:@DEF@ ${transfer##*/}@DEF@\n"
+  _message "  @RED@Transfer:@DEF@ ${tran##*/}@DEF@\n"
   _message "   -> @BLU@Computing SOM weights@DEF@"
   @P_RSCRIPT@ @RUNROOT@/@SCRIPTPATH@/compute_2SOM_nz_weights.R \
     -w ${wide} \

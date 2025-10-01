@@ -3,7 +3,7 @@
 # File Name : neff_sigmae.sh
 # Created By : awright
 # Creation Date : 28-03-2023
-# Last Modified : Mon Jul 21 22:00:32 2025
+# Last Modified : Sat Sep  6 04:07:44 2025
 #
 #=========================================
 
@@ -25,7 +25,7 @@ do
   for patch in @BV:PATCHLIST@ @ALLPATCH@ @ALLPATCH@comb
   do 
     #Find files with matching patch strings
-    if [[ "${catname}" =~ .*"_${patch}_".* ]] || [[ "$catname" =~ ^"${patch}_".* ]]
+    if [[ "${catname}" =~ .*"_${patch}_".* ]] || [[ "$catname" =~ ^"${patch}_".* ]] || [[ "${catname}" =~ .*"_${patch,,}_".* ]] || [[ "${catname}" =~ .*"_${patch^^}_".* ]]
     then
       found='TRUE'
       found_patches="${found_patches} ${patch}"
@@ -82,7 +82,7 @@ do
   for catname in ${headlist} 
   do 
     catbase=${catname##*/}
-    if [[ "${catbase}" =~ .*"_${patch}_".* ]] || [[ "$catbase" =~ ^"${patch}_".* ]]
+    if [[ "${catbase}" =~ .*"_${patch}_".* ]] || [[ "$catbase" =~ ^"${patch}_".* ]] || [[ "${catbase}" =~ .*"_${patch,,}_".* ]] || [[ "${catbase}" =~ .*"_${patch^^}_".* ]]
     then
       patchlist="${patchlist} ${catname}"
     fi

@@ -42,15 +42,15 @@ set -e
 # Input variables {{{ 
 function _inp_var { 
   #Variable inputs (leave blank if none)
-  echo BLINDING BV:BOLTZMAN BV:CHAINSUFFIX BV:MULT BV:STATISTIC BV:THETAMAXXI BV:THETAMINXI BV:TOMOLIMS PYTHON3BIN RUNROOT SCRIPTPATH STORAGEPATH SURVEY
+  echo BLINDING BV:BOLTZMAN BV:CHAINSUFFIX BV:MULT BV:STATISTIC BV:THETAMAXXI BV:THETAMINXI BV:TOMOLIMS PYTHON3BIN P_RSCRIPT RUNROOT SCRIPTPATH STORAGEPATH SURVEY
 } 
 #}}}
 stat="BV:STATISTIC@"
 # Input data {{{ 
 function _inp_data { 
   #Data inputs (leave blank if none)
-  if [ "${stat^^}" == "COSEBIS" ]
-  then
+  echo mcmc_inp_bandpowers mcmc_inp_cosebis mcmc_inp_xiB mcmc_inp_xiE
+} 
     echo mcmc_inp_cosebis
   elif [ "${stat^^}" == "BANDPOWERS" ]
   then

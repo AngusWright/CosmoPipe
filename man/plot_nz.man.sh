@@ -43,7 +43,7 @@ set -e
 # Input variables {{{ 
 function _inp_var { 
   #Variable inputs (leave blank if none)
-  echo BV:TOMOLIMS P_RSCRIPT RUNROOT SCRIPTPATH
+  echo BV:TOMOLIMS DATABLOCK P_RSCRIPT RUNROOT SCRIPTPATH STORAGEPATH
 } 
 #}}}
 

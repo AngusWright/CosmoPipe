@@ -43,14 +43,14 @@ set -e
 # Input variables {{{ 
 function _inp_var { 
   #Variable inputs (leave blank if none)
-  echo BLINDING BV:BLIND BV:BOLTZMAN BV:LIST_INPUT_SAMPLER BV:TOMOLIMS BV:STATISTIC P_RSCRIPT RUNROOT SCRIPTPATH STORAGEPATH SURVEY
+  echo BLINDING BV:BLIND BV:BOLTZMAN BV:CHAINSUFFIX BV:LIST_INPUT_SAMPLER BV:LMAXBANDPOWERS BV:LMINBANDPOWERS BV:NBANDPOWERS BV:NMAXCOSEBIS BV:NMINCOSEBIS BV:SAMPLER BV:STATISTIC BV:THETAMAXXI BV:THETAMINXI BV:THETAMINXIM BV:TOMOLIMS P_RSCRIPT RUNROOT SCRIPTPATH STORAGEPATH SURVEY
 } 
 #}}}
 
 # Input data {{{ 
 function _inp_data { 
   #Data inputs (leave blank if none)
-  echo 
+  echo bandpowers_vec cosebis_vec covariance_bandpowers covariance_cosebis covariance_xipm xipm_binned xipm_vec
 } 
 #}}}
 

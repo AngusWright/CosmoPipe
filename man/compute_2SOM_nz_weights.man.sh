@@ -42,7 +42,7 @@ set -e
 # Input variables {{{ 
 function _inp_var { 
   #Variable inputs (leave blank if none)
-  echo BLU DEF MACHINE P_RSCRIPT RED RUNROOT SCRIPTPATH
+  echo BLU DATABLOCK DEF MACHINE P_RSCRIPT RED RUNROOT SCRIPTPATH STORAGEPATH
 } 
 #}}}
 

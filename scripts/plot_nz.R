@@ -3,7 +3,7 @@
 # File Name : plot_nz.R
 # Created By : awright
 # Creation Date : 23-03-2023
-# Last Modified : Sat Sep 13 12:12:40 2025
+# Last Modified : Wed Sep 24 15:40:06 2025
 #
 #=========================================
 
@@ -81,7 +81,7 @@ for (tomo in 1:length(binstrings)) {
   binfiles<-which(grepl(binstrings[tomo],filelist,fixed=T))
   #initialise the nz list 
   truth[[tomo]]<-nz[[tomo]]<-list()
-  if (length(binfiles)==0) { 
+  if (length(binfiles)!=0) { 
     col.count<-0
     for (file in binfiles) {
       #Increment the colour counter
@@ -99,7 +99,7 @@ for (tomo in 1:length(binstrings)) {
   }
   #Get the files in this bin of the truth 
   binfiles<-which(grepl(binstrings[tomo],truth.list,fixed=T))
-  if (length(binfiles)==0) { 
+  if (length(binfiles)!=0) { 
     col.count<-0
     for (file in binfiles) {
       #Increment the colour counter

@@ -163,7 +163,7 @@ flip = ${flip}
 galaxy_density_cosebi_section = psi_stats_gg
 galaxy_shearDensity_cosebi_e_section = psi_stats_gm
 galaxy_shear_cosebi_ee_section = cosebis
-galaxy_stellarmassfunction = smf
+galaxy_stellarmassfunction_section = smf
 
 angle_range_galaxy_density_cosebi = ${lo_nn} ${hi_nn}
 angle_range_galaxy_shearDensity_cosebi_e = ${lo_ne} ${hi_ne}
@@ -307,7 +307,7 @@ flip = ${flip}
 galaxy_density_cl_section = bandpower_clustering
 galaxy_shearDensity_cl_e_section = bandpower_ggl
 galaxy_shear_cl_ee_section = bandpower_shear_e
-galaxy_stellarmassfunction = smf
+galaxy_stellarmassfunction_section = smf
 
 angle_range_galaxy_density_cl = @BV:LMINBANDPOWERSNN@ @BV:LMAXBANDPOWERSNN@
 angle_range_galaxy_shearDensity_cl_e = @BV:LMINBANDPOWERSNE@ @BV:LMAXBANDPOWERSNE@
@@ -562,7 +562,7 @@ galaxy_density_xi_section = galaxy_xi
 galaxy_shearDensity_xi_t_section = galaxy_shear_xi
 galaxy_shear_xi_plus_section = shear_xi_plus
 galaxy_shear_xi_minus_section = shear_xi_minus
-galaxy_stellarmassfunction = smf
+galaxy_stellarmassfunction_section = smf
 
 angle_range_galaxy_density_xi = @BV:THETAMINWT@ @BV:THETAMAXWT@
 angle_range_galaxy_shearDensity_xi_t = @BV:THETAMINGT@ @BV:THETAMAXGT@
@@ -596,7 +596,7 @@ output_units = arcmin
 section_name = shear_xi_plus
 
 [xim_conv]
-file = %(CSL_PATH)s/utility/convert_theta/convert_theta.py
+file = %(HMPATH)s/cosmosis_modules/convert_theta/convert_theta.py
 output_units = arcmin
 section_name = shear_xi_minus
 
@@ -620,7 +620,7 @@ input_section_name = galaxy_shear_cl
 output_section_name = galaxy_shear_xi
 
 [gt_conv]
-file = %(CSL_PATH)s/utility/convert_theta/convert_theta.py
+file = %(HMPATH)s/cosmosis_modules/convert_theta/convert_theta.py
 output_units = arcmin
 section_name = galaxy_shear_xi
 
@@ -645,7 +645,7 @@ input_section_name = galaxy_cl
 output_section_name = galaxy_xi
 
 [wth_conv]
-file = %(CSL_PATH)s/utility/convert_theta/convert_theta.py
+file = %(HMPATH)s/cosmosis_modules/convert_theta/convert_theta.py
 output_units = arcmin
 section_name = galaxy_xi
 
@@ -873,7 +873,7 @@ fi
 #}}}
 
 #Prepare the pipeline section {{{ 
-extraparams="cosmological_parameters/S_8 cosmological_parameters/sigma_8 cosmological_parameters/A_s cosmological_parameters/omega_m cosmological_parameters/omega_nu cosmological_parameters/omega_lambda cosmological_parameters/cosmomc_theta"
+extraparams="cosmological_parameters/S_8 cosmological_parameters/sigma_8 cosmological_parameters/A_s cosmological_parameters/omega_m cosmological_parameters/omega_nu cosmological_parameters/omega_lambda"
 
 #Add source nz shift values to outputs {{{
 shifts_source=""
@@ -1042,7 +1042,8 @@ then
 	then
 		for tomo1 in `seq ${NSMFLENSBINS}`
 		do
-			tpdparams="${tpdparams} smf/bin_${tomo1}#@BV:NSMFBINS@"
+			#tpdparams="${tpdparams} smf/bin_${tomo1}#@BV:NSMFBINS@"
+			tpdparams="${tpdparams} data_vector/galaxy_stellarmassfunction_mass_theory#@BV:NSMFBINS@"
 		done
 	fi
 fi

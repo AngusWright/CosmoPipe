@@ -15,7 +15,7 @@ explanation: |
     new Cl^ij_II = [f_r^(i) * (<M_*>^(i) / M_{*, pivot})^beta] * [f_r^(j) * (<M_*>^(j) / M_{*, pivot})^beta]  * Cl^ij_II
     new Cl^ij_GI = [f_r^(j) * (<M_*>^(j) / M_{*, pivot})^beta] * Cl^ij_GI
     new Cl^ij_IG = [f_r^(i) * (<M_*>^(i) / M_{*, pivot})^beta] * Cl^ij_IG
-	new Cl^ij_iG = [f_r^(i) * (<M_*>^(i) / M_{*, pivot})^beta] * Cl^ij_iG
+    new Cl^ij_iG = [f_r^(i) * (<M_*>^(i) / M_{*, pivot})^beta] * Cl^ij_iG
 
 params: 
         suffix:
@@ -26,10 +26,10 @@ params:
             meaning: "If provided will save the resulting IA Cls using this suffix"
             type: str
             default: ""
-		do_position_shear:
-			meaning: "If the position-shear IA is requested"
-			type: bool
-			defailt: "False"
+        do_position_shear:
+            meaning: "If the position-shear IA is requested"
+            type: bool
+            default: "False"
         # sample:
         #     meaning: "sample name used to retrieve the correct redshift distribution, only used if a_mean not given."
         #     type: str
@@ -76,11 +76,11 @@ inputs:
             type: real 1d
             default:
     galaxy_shear_cl:
-		nbin_a:
+        nbin_a:
             meaning: Number of lens bins
             type: int
             default:
-		nbin_b:
+        nbin_b:
             meaning: Number of source bins
             type: int
             default:
@@ -112,11 +112,11 @@ outputs:
             type: real 1d
             default:
     galaxy_shear_cl:
-		nbin_a:
+        nbin_a:
             meaning: Number of lens bins
             type: int
             default:
-		nbin_b:
+        nbin_b:
             meaning: Number of source bins
             type: int
             default:

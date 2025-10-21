@@ -84,8 +84,8 @@ def execute(block, config):
         galaxy_intrinsic = 'galaxy_intrinsic_cl'+suffix
         galaxy_intrinsic_new = 'galaxy_intrinsic_cl'+new_suffix
 
-        nbins_a = block[shear_intrinsic, 'nbin_a']
-        nbins_b = block[shear_intrinsic, 'nbin_b']
+        nbins_a = block[galaxy_intrinsic, 'nbin_a']
+        nbins_b = block[galaxy_intrinsic, 'nbin_b']
         # calcualte a_mean from the redshift distributions:
         M_mean = [(10 ** block[parameters, "log10_M_mean_"+ str(i + 1)]) for i in range(nbins_b)]
         f_r    = [block[parameters, "f_r_"+ str(i + 1)] for i in range(nbins_b)]

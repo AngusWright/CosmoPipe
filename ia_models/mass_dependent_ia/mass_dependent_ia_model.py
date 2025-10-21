@@ -43,15 +43,15 @@ def execute(block, config):
 
 
     if do_shear_shear:
-        nbins = block[shear_intrinsic, 'nbin_a']
-        # calcualte a_mean from the redshift distributions:
-        M_mean = [(10 ** block[parameters, "log10_M_mean_"+ str(i + 1)]) for i in range(nbins)]
-        f_r    = [block[parameters, "f_r_"+ str(i + 1)] for i in range(nbins)]
-    
         shear_intrinsic = 'shear_cl_gi'+suffix
         intrinsic_intrinsic = 'shear_cl_ii'+suffix
         shear_intrinsic_new = 'shear_cl_gi'+new_suffix
         intrinsic_intrinsic_new = 'shear_cl_ii'+new_suffix
+
+        nbins = block[shear_intrinsic, 'nbin_a']
+        # calcualte a_mean from the redshift distributions:
+        M_mean = [(10 ** block[parameters, "log10_M_mean_"+ str(i + 1)]) for i in range(nbins)]
+        f_r    = [block[parameters, "f_r_"+ str(i + 1)] for i in range(nbins)]
     
         block[intrinsic_intrinsic,'M_mean'] = M_mean
         block[shear_intrinsic,'M_mean'] = M_mean
@@ -81,14 +81,14 @@ def execute(block, config):
                 block[shear_intrinsic_new, bin_ji] = coef_i * block[shear_intrinsic, bin_ji]
     
     if do_position_shear:
+        galaxy_intrinsic = 'galaxy_intrinsic_cl'+suffix
+        galaxy_intrinsic_new = 'galaxy_intrinsic_cl'+new_suffix
+
         nbins_a = block[shear_intrinsic, 'nbin_a']
         nbins_b = block[shear_intrinsic, 'nbin_b']
         # calcualte a_mean from the redshift distributions:
         M_mean = [(10 ** block[parameters, "log10_M_mean_"+ str(i + 1)]) for i in range(nbins_b)]
         f_r    = [block[parameters, "f_r_"+ str(i + 1)] for i in range(nbins_b)]
-
-        galaxy_intrinsic = 'galaxy_intrinsic_cl'+suffix
-        galaxy_intrinsic_new = 'galaxy_intrinsic_cl'+new_suffix
         
         block[galaxy_intrinsic,'M_mean'] = M_mean
         block[galaxy_intrinsic,'M_piv'] = M_piv

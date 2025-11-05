@@ -30,10 +30,10 @@ params:
             meaning: "sample name used to retrieve the correct redshift distribution, only used if a_mean not given."
             type: str
             default: ""
-		do_position_shear:
-			meaning: "If the position-shear IA is requested"
-			type: bool
-			defailt: "False"
+        do_position_shear:
+            meaning: "If the position-shear IA is requested"
+            type: bool
+            default : "False"
 
 inputs:
     intrinsic_alignment_parameters_{suffix}:
@@ -76,11 +76,11 @@ inputs:
             type: real 1d
             default:
     galaxy_shear_cl:
-		nbin_a:
+        nbin_a:
             meaning: Number of lens bins
             type: int
             default:
-		nbin_b:
+        nbin_b:
             meaning: Number of source bins
             type: int
             default:
@@ -112,11 +112,11 @@ outputs:
             type: real 1d
             default:
     galaxy_shear_cl:
-		nbin_a:
+        nbin_a:
             meaning: Number of lens bins
             type: int
             default:
-		nbin_b:
+        nbin_b:
             meaning: Number of source bins
             type: int
             default:

@@ -42,7 +42,7 @@ set -e
 # Input variables {{{ 
 function _inp_var { 
   #Variable inputs (leave blank if none)
-  echo BINNING BLU BV:MODE BV:NMAXCOSEBISNE BV:NMAXCOSEBISNN BV:THETAMAXGT BV:THETAMAXWT BV:THETAMINGT BV:THETAMINWT CONFIGPATH DATABLOCK DEF PYTHON3BIN RED RUNROOT SCRIPTPATH STORAGEPATH
+  echo BINNING BLU BV:MODES BV:NMAXCOSEBISNE BV:NMAXCOSEBISNN BV:THETAMAXGT BV:THETAMAXWT BV:THETAMINGT BV:THETAMINWT CONFIGPATH DATABLOCK DEF PYTHON3BIN RED RUNROOT SCRIPTPATH STORAGEPATH
 } 
 #}}}
 
@@ -56,7 +56,8 @@ function _inp_data {
 # Output data {{{ 
 function _outputs { 
   #Data outputs (leave blank if none)
-  echo psi_stats_gm psi_stats_gg
+  output=`_parse_blockvars psi_stats_@BV:MODES@`
+  echo $output
 }
 #}}}
 

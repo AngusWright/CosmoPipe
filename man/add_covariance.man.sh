@@ -57,7 +57,7 @@ function _inp_data {
 # Output data {{{ 
 function _outputs { 
   #Data outputs (leave blank if none)
-  STATISTIC=@BV:STATISTIC@
+  STATISTIC=`_parse_blockvars @BV:STATISTIC@`
   if [ "${STATISTIC^^}" == "COSEBIS" ] #{{{
   then
     output="covariance_cosebis"

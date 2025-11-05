@@ -3,7 +3,7 @@
 # File Name : prepare_cosmosis.sh
 # Created By : awright
 # Creation Date : 31-03-2023
-# Last Modified : Sat Feb 24 08:55:24 2024
+# Last Modified : Tue Oct 14 20:10:04 2025
 #
 #=========================================
 
@@ -36,8 +36,11 @@ else
 fi 
 #}}}
 
+blocklist="neff_source neff_lens neff_obs sigmae"
+blocklist="neff_source sigmae"
+
 #N_effective & sigmae {{{
-for stat in neff_source neff_lens neff_obs sigmae
+for stat in $blocklist
 do
   found="FALSE"
   foundlist=""

@@ -126,6 +126,7 @@ function _outputs {
   #Data outputs (leave blank if none)
   STATISTIC=`_parse_blockvars @BV:STATISTIC@`
   MODES=`_parse_blockvars @BV:MODES@`
+  MODES=${MODES^^}
   outputs=""
   if [ "${STATISTIC^^}" == "COSEBIS" ] #{{{
   then

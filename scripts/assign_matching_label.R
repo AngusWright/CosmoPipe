@@ -52,23 +52,25 @@ train.cols<-NULL
 for (f in c(args$features,args$label)) { 
   train.cols<-c(train.cols,colnames[which(tolower(colnames)==tolower(f))])
 }
+if (length(train.cols)!=length(args$features)+1) stop("missing training columns")
 colnames<-helpRfuncs::read.colnames(args$input)
 test.cols<-NULL
 for (f in args$features) { 
   test.cols<-c(test.cols,colnames[which(tolower(colnames)==tolower(f))])
 }
+if (length(test.cols)!=length(args$features)) stop("missing training columns")
 
 cat("reading input data\n")
-train_data = helpRfuncs::read.file(args$train, cols=train.cols)
+train_data = helpRfuncs::read.file(args$train, cols=train.cols,verbose=T)
 if (args$sparse>1) { 
   train_data = train_data[sample(nrow(train_data),size=nrow(train_data)/args$sparse),]
 }
-test_data = helpRfuncs::read.file(args$input,cols=c(test.cols))
+test_data = helpRfuncs::read.file(args$input,cols=c(test.cols),verbose=T)
 for (i in 1:length(args$features)) { 
   train_data[[args$features[i]]]<-train_data[[train.cols[i]]]
   test_data[[args$features[i]]]<-test_data[[test.cols[i]]]
 }
-train_data[[args$label]]<-train.data[[train.cols[i+1]]]
+train_data[[args$label]]<-train_data[[train.cols[i+1]]]
 
 
 cat("running matching\n")

@@ -3,7 +3,7 @@
 # File Name : apply_noise_realisations.R
 # Created By : awright
 # Creation Date : 17-07-2025
-# Last Modified : Sat Jul 19 12:06:17 2025
+# Last Modified : Fri Oct 10 05:47:18 2025
 #
 #=========================================
 
@@ -41,7 +41,10 @@ input_colnames<-helpRfuncs::read.colnames(args$input)
 #Get the input column names 
 infilt<-NULL
 for (col in helpRfuncs::vecsplit(args$infilt,by=',')) { 
-  tmp<-which(grepl(col,input_colnames))[1]
+  tmp<-which(input_colnames==col)[1]
+  if (is.na(tmp)) { 
+    tmp<-which(grepl(col,input_colnames))[1]
+  }
   if (is.na(tmp)) stop(paste0("No matching column found for input filter",col))
   infilt<-c(infilt,input_colnames[tmp])
 }

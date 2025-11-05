@@ -3,7 +3,7 @@
 # File Name : plot_nz.R
 # Created By : awright
 # Creation Date : 23-03-2023
-# Last Modified : Wed Sep 24 15:40:06 2025
+# Last Modified : Fri Oct 17 10:25:10 2025
 #
 #=========================================
 
@@ -40,6 +40,7 @@ while (length(inputs)!=0) {
       truth.list<-inputs
       inputs<-NULL
     } 
+    truth.list<-helpRfuncs::vecsplit(truth.list,by=' ')
     #/*fold*/}}}
   } else if (inputs[1]=='--binstrings') { 
     #Read the input catalogue(s) /*fold*/ {{{

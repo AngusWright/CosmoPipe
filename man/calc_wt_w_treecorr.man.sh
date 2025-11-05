@@ -1,5 +1,5 @@
 #
-# Bmodes_pvalue.sh Documentation & Housekeeping functions
+# calc_wt_treecorr.sh Documentation & Housekeeping functions
 #
 
 #Starting Prompt {{{
@@ -7,9 +7,9 @@ function _prompt {
   #Check if we do want verbose output
   if [ "$1" != "0" ] 
   then
-    _message "@BLU@=====================================@DEF@\n"
-    _message "@BLU@== @RED@ Running Bmodes_pvalue.sh Mode @BLU@ ==@DEF@\n"
-    _message "@BLU@=====================================@DEF@\n"
+    _message "@BLU@==========================================@DEF@\n"
+    _message "@BLU@== @RED@ Running calc_wt_w_treecorr.sh Mode @BLU@ ==@DEF@\n"
+    _message "@BLU@==========================================@DEF@\n"
   fi 
 }
 #}}}
@@ -17,7 +17,8 @@ function _prompt {
 #Mode description {{{
 function _description { 
   echo "#"
-  echo '# Calculates p values for bmodes'
+  echo '# Compute galaxy clustering correlation function patch-wise for all '
+  echo '# lens catalogues specified in the pipeline/variables.sh '
   echo "#"
   echo "# Function takes input data:"
   echo "# `_inp_data`"
@@ -42,42 +43,29 @@ set -e
 # Input variables {{{ 
 function _inp_var { 
   #Variable inputs (leave blank if none)
-  echo BLINDING BV:BOLTZMAN BV:CHAINSUFFIX BV:MULT BV:STATISTIC BV:THETAMAXXI BV:THETAMINXI BV:TOMOLIMS PYTHON3BIN P_RSCRIPT RUNROOT SCRIPTPATH STORAGEPATH SURVEY
+  echo ALLPATCH BINNING BLU BV:BINSLOPNG BV:BINSLOPNN BV:LENSDECNAME BV:LENSRANAME BV:LENSWEIGHTNAME BV:LENS_CATS BV:NLENSBINS BV:NTHETABINWT BV:NTHREADS BV:PATCHLIST BV:PATCH_CENTERFILE BV:RANDDECNAME BV:RANDRANAME BV:RAND_CATS BV:THETAMAXWT BV:THETAMINWT DATABLOCK DEF PYTHON3BIN RED RUNROOT SCRIPTPATH STORAGEPATH
 } 
 #}}}
-stat="BV:STATISTIC@"
+
 # Input data {{{ 
 function _inp_data { 
   #Data inputs (leave blank if none)
-  STATISTIC=`_parse_blockvars @BV:STATISTIC@`
-  if [ "${STATISTIC^^}" == "COSEBIS" ] 
-  then 
-    echo mcmc_inp_cosebis 
-  elif [ "${STATISTIC^^}" == "BANDPOWERS" ] 
-  then 
-    echo mcmc_inp_bandpowers 
-  elif [ "${STATISTIC^^}" == "XIPM" ] 
-  then 
-    echo mcmc_inp_xiE
-  elif [ "${STATISTIC^^}" == "XIEB" ] 
-  then 
-    echo mcmc_inp_xiB
-  fi
-} 
+  echo lens_cats rand_cats
+}
 #}}}
 
 # Output data {{{ 
 function _outputs { 
   #Data outputs (leave blank if none)
-  echo ''
-} 
+  echo wt jackknife_cov_wt
+}
 #}}}
 
 # Execution command {{{ 
 function _runcommand { 
   #Command for running the script 
-  echo bash @RUNROOT@/@SCRIPTPATH@/Bmodes_pvalue.sh
-} 
+  echo bash @RUNROOT@/@SCRIPTPATH@/calc_wt_w_treecorr.sh
+}
 #}}}
 
 # Unset Function command {{{ 

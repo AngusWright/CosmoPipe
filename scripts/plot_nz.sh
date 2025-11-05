@@ -3,7 +3,7 @@
 # File Name : plot_nz.sh
 # Created By : awright
 # Creation Date : 23-03-2023
-# Last Modified : Sat Sep 13 12:40:03 2025
+# Last Modified : Fri Oct 10 10:36:20 2025
 #
 #=========================================
 
@@ -40,5 +40,5 @@ else
 fi 
 
 #Run the R plotting code 
-@P_RSCRIPT@ @RUNROOT@/@SCRIPTPATH@/plot_nz.R -i @DB:nz@ --truth ${truth} --binstrings ${binstrings} 2>&1
+@P_RSCRIPT@ @RUNROOT@/@SCRIPTPATH@/plot_nz.R -i @DB:nz@ --truth "${truth}" --binstrings ${binstrings} 2>&1
 

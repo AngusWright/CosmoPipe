@@ -218,9 +218,15 @@ then
     f_tomo_file="@DB:f_tomo@" # This assumes one file, currently we have NSMFLENSBINS
   else
     _message "No SMF lens catalog metadata found, setting default CSMF parameters from saved variables.\n"
+    if [ "${NOBS}" = "1" ]
+    then
+      csmf_Mmin=$(echo @BV:SMFLENSLIMSX@ | awk '{print $1}')
+      csmf_Mmax=$(echo @BV:SMFLENSLIMSX@ | awk '{print $2}')
+    else
+      csmf_Mmin=$(echo @BV:SMFLENSLIMSX@ | awk '{for(i=1; i<NF; i++) printf "%s,", $i; print ""}' | sed 's/,$//')
+      csmf_Mmax=$(echo @BV:SMFLENSLIMSX@ | awk '{for(i=2; i<=NF; i++) printf "%s,", $i; print ""}' | sed 's/,$//')
+    fi
     cstellar_mf=True
-    csmf_Min=$(echo @BV:SMFLENSLIMSX@ | awk '{for(i=1; i<NF; i++) printf "%s,", $i; print ""}' | sed 's/,$//')
-    csmf_Mmax=$(echo @BV:SMFLENSLIMSX@ | awk '{for(i=2; i<=NF; i++) printf "%s,", $i; print ""}' | sed 's/,$//')
     csmf_N_log10M_bin=10
     csmf_directory="@RUNROOT@/INSTALL/OneCovariance/input/conditional_smf/"
     V_max_file="V_max.asc"
@@ -285,9 +291,14 @@ then
     #bias_mass=$(echo "$obs_mins $obs_maxs" | tr ' ' '\n' | sort -n | uniq | tr '\n' ',' | sed 's/,$//')
   else  
     _message "No lens catalog metadata found, setting default bias mass parameters from saved variables.\n"
-    bias_Mmin=$(echo @BV:LENSLIMSX@ | awk '{for(i=1; i<NF; i++) printf "%s,", $i; print ""}' | sed 's/,$//')
-    bias_Mmax=$(echo @BV:LENSLIMSX@ | awk '{for(i=2; i<=NF; i++) printf "%s,", $i; print ""}' | sed 's/,$//')
-    #bias_mass="9.0,13.0"
+    if [ "${NLENS}" = "1" ]
+    then
+      bias_Mmin=$(echo @BV:LENSLIMSX@ | awk '{print $1}')
+      bias_Mmax=$(echo @BV:LENSLIMSX@ | awk '{print $2}')
+    else
+      bias_Mmin=$(echo @BV:LENSLIMSX@ | awk '{for(i=1; i<NF; i++) printf "%s,", $i; print ""}' | sed 's/,$//')
+      bias_Mmax=$(echo @BV:LENSLIMSX@ | awk '{for(i=2; i<=NF; i++) printf "%s,", $i; print ""}' | sed 's/,$//')
+    fi
   fi
 else
   bias_Mmin=9.0

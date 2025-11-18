@@ -220,7 +220,7 @@ then
     _message "No SMF lens catalog metadata found, setting default CSMF parameters from saved variables.\n"
     cstellar_mf=True
     csmf_Min=$(echo @BV:SMFLENSLIMSX@ | awk '{for(i=1; i<NF; i++) printf "%s,", $i; print ""}' | sed 's/,$//')
-    csmf_Mmax=$(echo @BV:SMFLENSLIMSX@ | awk '{for(i=2; i<NF; i++) printf "%s,", $i; print ""}' | sed 's/,$//')
+    csmf_Mmax=$(echo @BV:SMFLENSLIMSX@ | awk '{for(i=2; i<=NF; i++) printf "%s,", $i; print ""}' | sed 's/,$//')
     csmf_N_log10M_bin=10
     csmf_directory="@RUNROOT@/INSTALL/OneCovariance/input/conditional_smf/"
     V_max_file="V_max.asc"
@@ -286,7 +286,7 @@ then
   else  
     _message "No lens catalog metadata found, setting default bias mass parameters from saved variables.\n"
     bias_Mmin=$(echo @BV:LENSLIMSX@ | awk '{for(i=1; i<NF; i++) printf "%s,", $i; print ""}' | sed 's/,$//')
-    bias_Mmax=$(echo @BV:LENSLIMSX@ | awk '{for(i=2; i<NF; i++) printf "%s,", $i; print ""}' | sed 's/,$//')
+    bias_Mmax=$(echo @BV:LENSLIMSX@ | awk '{for(i=2; i<=NF; i++) printf "%s,", $i; print ""}' | sed 's/,$//')
     #bias_mass="9.0,13.0"
   fi
 else

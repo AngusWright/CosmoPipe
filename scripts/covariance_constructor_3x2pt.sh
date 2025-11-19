@@ -622,6 +622,7 @@ est_clust = ${est_clust}
 cstellar_mf = ${cstellar_mf}
 cross_terms = True
 unbiased_clustering = True
+# combinations_clustering = $(seq 0 $((NLENS-1)) | sed 's/.*/&-&/' | paste -sd, -)
 
 [csmf settings]
 csmf_log10Mmin = ${csmf_Mmin}

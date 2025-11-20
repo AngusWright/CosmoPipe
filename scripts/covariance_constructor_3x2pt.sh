@@ -622,7 +622,7 @@ est_clust = ${est_clust}
 cstellar_mf = ${cstellar_mf}
 cross_terms = True
 unbiased_clustering = True
-# combinations_clustering = $(seq 0 $((NLENS-1)) | sed 's/.*/&-&/' | paste -sd, -)
+; combinations_clustering = $(seq 0 $((NLENS-1)) | sed 's/.*/&-&/' | paste -sd, -)
 
 [csmf settings]
 csmf_log10Mmin = ${csmf_Mmin}
@@ -695,10 +695,10 @@ theta_type = log
 theta_type_lensing = log
 theta_type_clustering = log
 theta_list = 1, 2, 3
+clustering = ${clustering}
+ggl   = ${ggl}
 xi_pp = ${cosmic_shear}
 xi_mm = ${cosmic_shear}
-ggl   = ${ggl}
-clustering = ${clustering}
 theta_accuracy = 1e-5
 integration_intervals = 50
 

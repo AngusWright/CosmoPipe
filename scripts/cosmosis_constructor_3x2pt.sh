@@ -591,7 +591,7 @@ input_section_name = shear_cl
 output_section_name = shear_xi
 
 [xip_conv]
-file = %(CSL_PATH)s/utility/convert_theta/convert_theta.py
+file = %(HMPATH)s/cosmosis_modules/convert_theta/convert_theta.py
 output_units = arcmin
 section_name = shear_xi_plus
 
@@ -699,12 +699,12 @@ EOF
 #}}}
 elif [ "${SAMPLER^^}" == "MULTINEST" ] #{{{
 then 
-fast_slow="T"
+fast_slow="F"
 cat > @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_sampler.ini <<- EOF
 [multinest]
-max_iterations=100000
+max_iterations=1000 ; 100000
 multinest_outfile_root= %(OUTPUT_FOLDER)s/%(RUN_NAME)s_
-resume=T
+resume=F
 tolerance = 0.01
 constant_efficiency = F
 live_points = 1000
@@ -738,17 +738,18 @@ fast_slow="F"
 n_batch=`echo "@BV:NTHREADS@" | awk '{printf "%d", 4*$1}'`
 cat > @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_sampler.ini <<- EOF
 [nautilus]
-live_points = 4000
-enlarge_per_dim = 1.1
+n_live = 1000 ; 4000
+enlarge_per_dim = 2.0 ; 1.1
 split_threshold = 100
 n_networks = 8
 n_batch = $n_batch
 filepath = %(OUTPUT_FOLDER)s/run_nautilus.hdf5
-resume = False ; True
-f_live = 0.01
+resume =  False
+f_live = 0.5 ; 0.01
 discard_exploration = True
 verbose = True
-n_eff = 10000
+n_eff = 2000 ; 1000 ; 10000
+; n_like_max = 10000
 
 EOF
 
@@ -1062,7 +1063,6 @@ EOF
 fi
 cat >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_pipe.ini <<- EOF
 extra_output = ${extraparams} ${shifts} ${listparam} ${tpdparams}
-quiet = T
 timing = F ; T
 debug = F
 fast_slow = ${fast_slow}
@@ -1070,7 +1070,7 @@ first_fast_module = hod ; halo_model_ingredients_halomod
 
 [runtime]
 sampler = %(SAMPLER_NAME)s
-verbosity = quiet
+verbosity = quiet ; normal ; quiet
 pool_stdout = F ; T
 
 [output]
@@ -1215,15 +1215,15 @@ do
 			sets=""
 			if [[ .*\ $MODES\ .* =~ " EE " ]] || [[ .*\ $MODES\ .* =~ " NE " ]]
 			then
-			    sets="${sets} %(redshift_name)s"
+				sets="${sets} %(redshift_name)s"
 			fi
 			if [[ .*\ $MODES\ .* =~ " NE " ]] || [[ .*\ $MODES\ .* =~ " NN " ]]
 			then
-			    sets="${sets} %(redshift_name_lens)s"
+				sets="${sets} %(redshift_name_lens)s"
 			fi
 			if [[ .*\ $MODES\ .* =~ " OBS " ]]
 			then
-			    sets="${sets} %(redshift_name_obs)s"
+				sets="${sets} %(redshift_name_obs)s"
 			fi
 			cat >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_other.ini <<- EOF
 			[$module]
@@ -1432,8 +1432,8 @@ do
 			
 			if [ "$add_intrinsic" == "True" ]
 			then
-			cat >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_other.ini <<- EOF
-			[$module]
+				cat >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_other.ini <<- EOF
+				[$module]
 				file= %(HMPATH)s/cosmosis_modules/onepower_interface.py
 				p_mm = ${ee}
 				p_gg = ${nn}
@@ -1445,15 +1445,15 @@ do
 				
 				EOF
 			else
-			cat >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_other.ini <<- EOF
-			[$module]
+				cat >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_other.ini <<- EOF
+				[$module]
 				file= %(HMPATH)s/cosmosis_modules/onepower_interface.py
-			p_mm = ${ee}
-			p_gg = ${nn}
-			p_gm = ${ne}
-			p_gI = False
-			p_mI = False
-			p_II = False
+				p_mm = ${ee}
+				p_gg = ${nn}
+				p_gm = ${ne}
+				p_gI = False
+				p_mI = False
+				p_II = False
 				split_ia = True
 				
 				EOF

@@ -699,10 +699,10 @@ EOF
 #}}}
 elif [ "${SAMPLER^^}" == "MULTINEST" ] #{{{
 then 
-fast_slow="F"
+fast_slow="T"
 cat > @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_sampler.ini <<- EOF
 [multinest]
-max_iterations=1000 ; 100000
+max_iterations=100000
 multinest_outfile_root= %(OUTPUT_FOLDER)s/%(RUN_NAME)s_
 resume=F
 tolerance = 0.01
@@ -738,18 +738,17 @@ fast_slow="F"
 n_batch=`echo "@BV:NTHREADS@" | awk '{printf "%d", 4*$1}'`
 cat > @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_sampler.ini <<- EOF
 [nautilus]
-n_live = 1000 ; 4000
-enlarge_per_dim = 2.0 ; 1.1
+n_live = 4000
+enlarge_per_dim = 1.1
 split_threshold = 100
 n_networks = 8
 n_batch = $n_batch
 filepath = %(OUTPUT_FOLDER)s/run_nautilus.hdf5
-resume =  False
-f_live = 0.5 ; 0.01
+resume =  False ; True
+f_live = 0.01
 discard_exploration = True
 verbose = True
-n_eff = 2000 ; 1000 ; 10000
-; n_like_max = 10000
+n_eff = 10000
 
 EOF
 

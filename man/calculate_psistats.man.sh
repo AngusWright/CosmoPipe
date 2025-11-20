@@ -56,9 +56,11 @@ function _inp_data {
 # Output data {{{ 
 function _outputs { 
   #Data outputs (leave blank if none)
-  output=`_parse_blockvars psi_stats_@BV:MODES@`
-  output=${output,,}
-  echo $output
+  # Need to fix this to output gg and gm instad of nn and ne
+  echo psi_stats_gm psi_stats_gg
+  #output=`_parse_blockvars psi_stats_@BV:MODES@`
+  #output=${output,,}
+  #echo $output
 }
 #}}}
 

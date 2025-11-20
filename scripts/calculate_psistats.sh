@@ -8,7 +8,8 @@
 #Input file 
 input=@DB:DATAHEAD@
 #Psi stats mode: NE, or NN
-mode=@BV:MODE@
+for mode in @BV:MODES@ 
+do 
 
 if [ "${mode^^}" == "NE" ]
 then
@@ -102,4 +103,6 @@ else
   _message "PSI stats mode unknown: ${mode^^}\n"
   exit 1
 fi
+
+done 
 

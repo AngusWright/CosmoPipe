@@ -8,9 +8,8 @@
 #Input file 
 input=@DB:DATAHEAD@
 #Bandpower mode: EE, NE, or NN
-mode=@BV:MODE@
-
-
+for mode in @BV:MODES@ 
+do 
 # Now Integrate output from treecorr with bandpowers filter functions
 # -i = input file
 # -t = treecorr output theta_col - the first column is zero so -t 1 uses the meanR from Treecorr
@@ -120,3 +119,4 @@ else
   _message "Bandpower mode unknown: ${mode^^}\n"
   exit 1
 fi
+done 

@@ -1,5 +1,5 @@
 #
-# calculate_bandpowers.sh Documentation & Housekeeping functions
+# prepare_cosmosis.sh Documentation & Housekeeping functions
 #
 
 #Starting Prompt {{{
@@ -7,9 +7,9 @@ function _prompt {
   #Check if we do want verbose output
   if [ "$1" != "0" ] 
   then
-    _message "@BLU@============================================@DEF@\n"
-    _message "@BLU@== @RED@ Running calculate_psistats.sh Mode @BLU@ ==@DEF@\n"
-    _message "@BLU@============================================@DEF@\n"
+    _message "@BLU@========================================@DEF@\n"
+    _message "@BLU@== @RED@ Running prepare_cobaya.sh Mode @BLU@ ==@DEF@\n"
+    _message "@BLU@========================================@DEF@\n"
   fi 
 }
 #}}}
@@ -17,7 +17,7 @@ function _prompt {
 #Mode description {{{
 function _description { 
   echo "#"
-  echo '# Calculate Psi statistics from input gamma_t/gamma_x or w_theta'
+  echo '# Prepare cobaya configuration'
   echo "#"
   echo "# Function takes input data:"
   echo "# `_inp_data`"
@@ -42,30 +42,31 @@ set -e
 # Input variables {{{ 
 function _inp_var { 
   #Variable inputs (leave blank if none)
-  echo BINNING BLU BV:MODES BV:NMAXCOSEBISNE BV:NMAXCOSEBISNN BV:THETAMAXGT BV:THETAMAXWT BV:THETAMINGT BV:THETAMINWT CONFIGPATH DATABLOCK DEF PYTHON3BIN RED RUNROOT SCRIPTPATH STORAGEPATH
+  echo BLU BV:BOLTZMAN BV:COBAYATHEORYCODE BV:COBAYASAMPLER BV:COBAYASAMPLERCOVMAT DATABLOCK DEF RED RUNROOT STORAGEPATH SURVEY
 } 
 #}}}
 
 # Input data {{{ 
 function _inp_data { 
-  #Data inputs (leave blank if none)
-  echo DATAHEAD
+  # Need ALLHEAD cosmosis_inputs  ?
+  :
 } 
 #}}}
+
 
 # Output data {{{ 
 function _outputs { 
   #Data outputs (leave blank if none)
-  output=`_parse_blockvars psi_stats_@BV:MODES@`
-  echo $output
-}
+  outlist='cobaya_inputs'
+  echo ${outlist}
+} 
 #}}}
 
 # Execution command {{{ 
 function _runcommand { 
   #Command for running the script 
-  echo bash @RUNROOT@/@SCRIPTPATH@/calculate_psistats.sh
-}
+  echo bash @RUNROOT@/@SCRIPTPATH@/prepare_cobaya.sh
+} 
 #}}}
 
 # Unset Function command {{{ 
@@ -74,6 +75,3 @@ function _unset_functions {
   unset -f _prompt _description _inp_data _inp_var _abort _outputs _runcommand _unset_functions
 } 
 #}}}
-
-#Additional Functions 
-

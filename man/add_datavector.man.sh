@@ -43,7 +43,6 @@ set -e
 function _inp_var { 
   #Variable inputs (leave blank if none)
   echo BV:INPUT_DATAVEC BV:DATAVEC_TYPE DATABLOCK RUNROOT STORAGEPATH
-} 
 }
 #}}}
 
@@ -57,7 +56,7 @@ function _inp_data {
 # Output data {{{ 
 function _outputs { 
   #Data outputs (leave blank if none)
-  DATAVEC_TYPE=@BV:DATAVEC_TYPE@
+  DATAVEC_TYPE=`_parse_blockvars @BV:DATAVEC_TYPE@`
   if [ "${DATAVEC_TYPE^^}" == "COSEBIS" ] #{{{
   then
     output="cosebis_vec"
@@ -97,6 +96,9 @@ function _outputs {
   elif [ "${DATAVEC_TYPE^^}" == "OBS" ] #{{{
   then
     output="obs_vec"
+  else 
+    _message "BV:DATAVEC_TYPE is not set to a known value: ${DATAVEC_TYPE^^} is not one of {COSEBIS,PSI_STATS_GM,PSI_STATS_GG,BANDPOWERS_EE,BANDPOWERS_NE,BANDPOWERS_NN,XIPM,GT,WT}"
+    exit 1
   fi
   #}}}
   echo ${output}

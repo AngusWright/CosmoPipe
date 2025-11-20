@@ -378,8 +378,8 @@ if __name__ == "__main__":
         add_1pt_points(sacc_data_no_mbias, smfvec)
     
     
-    #covariance = np.loadtxt(args.covarianceFile[0])
-    covariance = 0.1 * np.eye(len(sacc_data.data))  # Placeholder for covariance matrix, replace with actual loading if needed
+    covariance = np.loadtxt(args.covarianceFile[0])
+    #covariance = 0.1 * np.eye(len(sacc_data.data))  # Placeholder for covariance matrix, replace with actual loading if needed
 
     sacc_data.add_covariance(covariance)
     sacc_data_no_mbias.add_covariance(covariance)

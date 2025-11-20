@@ -57,6 +57,7 @@ function _inp_data {
 function _outputs { 
   #Data outputs (leave blank if none)
   output=`_parse_blockvars psi_stats_@BV:MODES@`
+  output=${output,,}
   echo $output
 }
 #}}}

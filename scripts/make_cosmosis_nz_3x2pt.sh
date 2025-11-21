@@ -33,11 +33,6 @@ then
   need_obs="TRUE"
 fi
 
-
-_message "${MODES}\n"
-_message "${need_source} ${need_lens} ${need_obs}\n"
-_message "\n"
-
 if [ ${need_source} == "TRUE" ]
 then
   for patch in @BV:PATCHLIST@ @ALLPATCH@

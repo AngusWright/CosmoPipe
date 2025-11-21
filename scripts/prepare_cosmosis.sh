@@ -37,7 +37,6 @@ fi
 #}}}
 
 blocklist="neff_source neff_lens neff_obs sigmae"
-blocklist="neff_source sigmae"
 
 #N_effective & sigmae {{{
 for stat in $blocklist

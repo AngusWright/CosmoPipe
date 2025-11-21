@@ -7,6 +7,7 @@
 #
 #=========================================
 
+MODES="@BV:MODES@"
 NTOMO=`echo @BV:TOMOLIMS@ | awk '{print NF-1}'`
 NLENS="@BV:NLENSBINS@"
 NOBS="@BV:NSMFLENSBINS@"
@@ -19,24 +20,28 @@ need_source="FALSE"
 need_lens="FALSE"
 need_obs="FALSE"
 
-if [[ .*\ $MODES\ .* =~ " EE " ]]; then
+if [[ .*\ $MODES\ .* =~ " EE " ]] || [[ .*\ $MODES\ .* =~ " NE " ]]
+then
   need_source="TRUE"
 fi
-if [[ .*\ $MODES\ .* =~ " NE " ]]; then
-  need_source="TRUE"
+if [[ .*\ $MODES\ .* =~ " NE " ]] || [[ .*\ $MODES\ .* =~ " NN " ]]
+then
   need_lens="TRUE"
 fi
-if [[ .*\ $MODES\ .* =~ " NN " ]]; then
-  need_lens="TRUE"
-fi
-if [[ .*\ $MODES\ .* =~ " OBS " ]]; then
+if [[ .*\ $MODES\ .* =~ " OBS " ]]
+then
   need_obs="TRUE"
 fi
 
-for patch in @BV:PATCHLIST@ @ALLPATCH@
-do 
-  if [ ${need_source} == "TRUE" ]
-  then
+
+_message "${MODES}\n"
+_message "${need_source} ${need_lens} ${need_obs}\n"
+_message "\n"
+
+if [ ${need_source} == "TRUE" ]
+then
+  for patch in @BV:PATCHLIST@ @ALLPATCH@
+  do 
     _message " ->@BLU@ Patch @RED@${patch}@DEF@"
     #Get all the files in this stat and patch {{{
     inputs=`_read_datablock "nz_source_${patch}"`
@@ -109,11 +114,13 @@ do
 
     #Update the datablock 
     _write_datablock cosmosis_nz_source_${patch} "${output_base##*/}_comb_Nz.fits"
-  fi
+  done
+fi  
   
-  
-  if [ ${need_lens} == "TRUE" ]
-  then
+if [ ${need_lens} == "TRUE" ]
+then
+  for patch in @BV:PATCHLIST@ @ALLPATCH@
+  do 
     #Get all the files in this stat and patch {{{
     inputs_lens=`_read_datablock "nz_lens_${patch}"`
     inputs_lens=`_blockentry_to_filelist ${inputs_lens}`
@@ -180,10 +187,13 @@ do
 
     #Update the datablock
     _write_datablock cosmosis_nz_lens_${patch} "${output_base##*/}_comb_Nz.fits"
-  fi
+  done
+fi
   
-  if [ ${need_obs} == "TRUE" ]
-  then
+if [ ${need_obs} == "TRUE" ]
+then
+  for patch in @BV:PATCHLIST@ @ALLPATCH@
+  do 
     #Get all the files in this stat and patch {{{
     inputs_obs=`_read_datablock "nz_obs_${patch}"`
     inputs_obs=`_blockentry_to_filelist ${inputs_obs}`
@@ -250,9 +260,8 @@ do
 
     #Update the datablock
     _write_datablock cosmosis_nz_obs_${patch} "${output_base##*/}_comb_Nz.fits"
-  fi
-  
-done
+  done
+fi
 
 #Error if no stat files found {{{ 
 if [ "${found_source}" == "FALSE" ] && [ "${need_source}" == "TRUE" ]

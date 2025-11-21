@@ -15,36 +15,43 @@ if [[ .*\ $MODES\ .* =~ " EE " ]]
 then
   headfiles_xi="@DB:xipm_comb@"
   # add neff_source if not already present
-  if [[ " $required_stats " != *" neff_source "* ]]; then
+  if [[ " $required_stats " != *" neff_source "* ]]
+  then
     required_stats="$required_stats neff_source"
   fi
-  if [[ " $required_stats " != *" sigmae "* ]]; then
+  if [[ " $required_stats " != *" sigmae "* ]]
+  then
     required_stats="$required_stats sigmae"
   fi
 fi
 if [[ .*\ $MODES\ .* =~ " NE " ]]
 then
   headfiles_gt="@DB:gt_comb@"
-  if [[ " $required_stats " != *" neff_source "* ]]; then
+  if [[ " $required_stats " != *" neff_source "* ]]
+  then
     required_stats="$required_stats neff_source"
   fi
-  if [[ " $required_stats " != *" neff_lens "* ]]; then
+  if [[ " $required_stats " != *" neff_lens "* ]]
+  then
     required_stats="$required_stats neff_lens"
   fi
-  if [[ " $required_stats " != *" sigmae "* ]]; then
+  if [[ " $required_stats " != *" sigmae "* ]]
+  then
     required_stats="$required_stats sigmae"
   fi
 fi
 if [[ .*\ $MODES\ .* =~ " NN " ]]
 then
   headfiles_wt="@DB:wt_comb@"
-  if [[ " $required_stats " != *" neff_lens "* ]]; then
+  if [[ " $required_stats " != *" neff_lens "* ]]
+  then
     required_stats="$required_stats neff_lens"
   fi
 fi
 if [[ .*\ $MODES\ .* =~ " OBS " ]]
 then
-  if [[ " $required_stats " != *" neff_obs "* ]]; then
+  if [[ " $required_stats " != *" neff_obs "* ]]
+  then
     required_stats="$required_stats neff_obs"
   fi
 fi

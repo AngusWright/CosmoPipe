@@ -330,8 +330,8 @@ then
   then
     #If not, error
     _message " - @RED@ERROR!@DEF@\n"
-    _message "@RED@There were no catalogues added to the cosmosis xipm folder?!@DEF@"
-    _message "@BLU@You probably didn't load the xipm files into the datahead?!@DEF@"
+    _message "@RED@There were no catalogues added to the cosmosis npair folder?!@DEF@"
+    _message "@BLU@You probably didn't load the all correlation function files into the datahead?!@DEF@"
     exit 1
   fi
   #}}}

@@ -14,6 +14,25 @@ outputlist=''
 found_source="FALSE"
 found_lens="FALSE"
 found_obs="FALSE"
+
+need_source="FALSE"
+need_lens="FALSE"
+need_obs="FALSE"
+
+if [[ .*\ $MODES\ .* =~ " EE " ]]; then
+  need_source="TRUE"
+fi
+if [[ .*\ $MODES\ .* =~ " NE " ]]; then
+  need_source="TRUE"
+  need_lens="TRUE"
+fi
+if [[ .*\ $MODES\ .* =~ " NN " ]]; then
+  need_lens="TRUE"
+fi
+if [[ .*\ $MODES\ .* =~ " OBS " ]]; then
+  need_obs="TRUE"
+fi
+
 for patch in @BV:PATCHLIST@ @ALLPATCH@
 do 
   _message " ->@BLU@ Patch @RED@${patch}@DEF@"
@@ -232,7 +251,7 @@ do
 done
 
 #Error if no stat files found {{{ 
-if [ "${found_source}" == "FALSE" ] && [ "${NTOMO}" != 0 ]
+if [ "${found_source}" == "FALSE" ] && [ "${need_source}" == "TRUE" ]
 then
   #If not found, error 
   _message " - @RED@ERROR!@DEF@\n"
@@ -241,7 +260,7 @@ then
   exit 1
 fi
 
-if [ "${found_lens}" == "FALSE" ] && [ "${NLENS}" != 0 ]
+if [ "${found_lens}" == "FALSE" ] && [ "${need_lens}" == "TRUE" ]
 then
   #If not found, error
   _message " - @RED@ERROR!@DEF@\n"
@@ -250,7 +269,7 @@ then
   exit 1
 fi
 
-if [ "${found_obs}" == "FALSE" ] && [ "${NOBS}" != 0 ]
+if [ "${found_obs}" == "FALSE" ] && [ "${need_obs}" == "TRUE" ]
 then
   #If not found, error
   _message " - @RED@ERROR!@DEF@\n"

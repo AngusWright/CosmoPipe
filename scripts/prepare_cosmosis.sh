@@ -10,17 +10,43 @@
 #For each of the files in the nz directory
 
 MODES="@BV:MODES@"
+required_stats=""
 if [[ .*\ $MODES\ .* =~ " EE " ]]
 then
   headfiles_xi="@DB:xipm_comb@"
+  # add neff_source if not already present
+  if [[ " $required_stats " != *" neff_source "* ]]; then
+    required_stats="$required_stats neff_source"
+  fi
+  if [[ " $required_stats " != *" sigmae "* ]]; then
+    required_stats="$required_stats sigmae"
+  fi
 fi
 if [[ .*\ $MODES\ .* =~ " NE " ]]
 then
   headfiles_gt="@DB:gt_comb@"
+  if [[ " $required_stats " != *" neff_source "* ]]; then
+    required_stats="$required_stats neff_source"
+  fi
+  if [[ " $required_stats " != *" neff_lens "* ]]; then
+    required_stats="$required_stats neff_lens"
+  fi
+  if [[ " $required_stats " != *" sigmae "* ]]; then
+    required_stats="$required_stats sigmae"
+  fi
 fi
 if [[ .*\ $MODES\ .* =~ " NN " ]]
 then
   headfiles_wt="@DB:wt_comb@"
+  if [[ " $required_stats " != *" neff_lens "* ]]; then
+    required_stats="$required_stats neff_lens"
+  fi
+fi
+if [[ .*\ $MODES\ .* =~ " OBS " ]]
+then
+  if [[ " $required_stats " != *" neff_obs "* ]]; then
+    required_stats="$required_stats neff_obs"
+  fi
 fi
 
 #Number of tomographic bins
@@ -36,10 +62,8 @@ else
 fi 
 #}}}
 
-blocklist="neff_source neff_lens neff_obs sigmae"
-
 #N_effective & sigmae {{{
-for stat in $blocklist
+for stat in $required_stats
 do
   found="FALSE"
   foundlist=""
@@ -237,7 +261,7 @@ then
         _message " - @RED@ Done! (`date +'%a %H:%M'`)@DEF@\n"
         #}}}
         #Save the file to the output list {{{
-        outlist_gt="${outlist_gt} GT_@SURVEY@_${patch}_nBins_${NLENS}_Bin${ZBIN1}_Bin${ZBIN2}.ascii"
+        outlist_gt="${outlist_gt} GT_@SURVEY@_${patch}_nBins_${NLENS}_Bin${LBIN1}_Bin${ZBIN2}.ascii"
         #}}}
       done
       #}}}

@@ -116,6 +116,7 @@ if [ ${need_lens} == "TRUE" ]
 then
   for patch in @BV:PATCHLIST@ @ALLPATCH@
   do 
+    _message " ->@BLU@ Patch @RED@${patch}@DEF@"
     #Get all the files in this stat and patch {{{
     inputs_lens=`_read_datablock "nz_lens_${patch}"`
     inputs_lens=`_blockentry_to_filelist ${inputs_lens}`
@@ -189,6 +190,7 @@ if [ ${need_obs} == "TRUE" ]
 then
   for patch in @BV:PATCHLIST@ @ALLPATCH@
   do 
+    _message " ->@BLU@ Patch @RED@${patch}@DEF@"
     #Get all the files in this stat and patch {{{
     inputs_obs=`_read_datablock "nz_obs_${patch}"`
     inputs_obs=`_blockentry_to_filelist ${inputs_obs}`

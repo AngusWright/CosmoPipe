@@ -159,7 +159,7 @@ then
     #Construct the output base {{{
     file=${filelist_lens##* }
     output_base=${file##*/}
-    output_base=${output_base%%_ZB*}
+    output_base=${output_base%%_LB*}
     output_base="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_nz_lens_${patch}/${output_base}"
     #}}}
     #Remove existing files {{{
@@ -233,7 +233,7 @@ then
     #Construct the output base {{{
     file=${filelist_obs##* }
     output_base=${file##*/}
-    output_base=${output_base%%_ZB*}
+    output_base=${output_base%%_LB*}
     output_base="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_nz_obs_${patch}/${output_base}"
     #}}}
     #Remove existing files {{{

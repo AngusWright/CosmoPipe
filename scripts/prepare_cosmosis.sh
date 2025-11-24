@@ -153,11 +153,13 @@ done
 #}}}
 
 #npair {{{
-if [ "${headfiles_xi}" != "" ] || [ "${headfiles_gt}" != "" ] || [ "${headfiles_wt}" != "" ]
+outall=''
+if [[ .*\ $MODES\ .* =~ " EE " ]] && [ "${headfiles_xi}" != "" ]
 then
-  _message "Copying 2pcf catalogues from datahead into cosmosis_npair {\n"
+  _message "\n"
+  _message "Copying xipm catalogues from datahead into cosmosis_npair {\n"
   #Loop over patches {{{
-  outall=''
+  outlist_check=''
   for patch in ${patchlist}
   do
     outlist=''
@@ -219,10 +221,27 @@ then
     #Update the datablock {{{
     #_write_datablock "cosmosis_npair_${patch}_@BV:BLIND@" "${outlist}"
     outall="${outall} ${outlist}"
+    outlist_check="${outlist_check} ${outlist}"
     #}}}
-    #}}}
-    
-    
+  done
+  if [ "${outlist_check}" == "" ]
+    then
+    #If not, error
+    _message " - @RED@ERROR!@DEF@\n"
+    _message "@RED@There were no catalogues added to the cosmosis npair folder?!@DEF@"
+    _message "@BLU@You probably didn't load the all correlation function files into the datahead?!@DEF@"
+    exit 1
+  fi
+fi  
+  
+if [[ .*\ $MODES\ .* =~ " NE " ]] && [ "${headfiles_gt}" != "" ]
+then
+  _message "\n"
+  _message "Copying gamma_t catalogues from datahead into cosmosis_npair {\n"
+  #Loop over patches {{{
+  outlist_check=''
+  for patch in ${patchlist}
+  do
     outlist_gt=''
     #Loop over tomographic bins in this patch {{{
     for LBIN1 in `seq ${NLENS}`
@@ -276,9 +295,27 @@ then
     #Update the datablock {{{
     #_write_datablock "cosmosis_npair_${patch}_@BV:BLIND@" "${outlist_gt}"
     outall="${outall} ${outlist_gt}"
+    outlist_check="${outlist_check} ${outlist_gt}"
     #}}}
-    #}}}
-    
+  done
+  if [ "${outlist_check}" == "" ]
+    then
+    #If not, error
+    _message " - @RED@ERROR!@DEF@\n"
+    _message "@RED@There were no catalogues added to the cosmosis npair folder?!@DEF@"
+    _message "@BLU@You probably didn't load the all correlation function files into the datahead?!@DEF@"
+    exit 1
+  fi
+fi
+
+if [[ .*\ $MODES\ .* =~ " NN " ]] && [ "${headfiles_wt}" != "" ]
+then
+  _message "\n"
+  _message "Copying w(theta) catalogues from datahead into cosmosis_npair {\n"
+  #Loop over patches {{{
+  outlist_check=''
+  for patch in ${patchlist}
+  do
     outlist_wt=''
     #Loop over tomographic bins in this patch {{{
     for LBIN1 in `seq ${NLENS}`
@@ -326,22 +363,24 @@ then
     #Update the datablock {{{
     #_write_datablock "cosmosis_npair_${patch}_@BV:BLIND@" "${outlist_wt}"
     outall="${outall} ${outlist_wt}"
-    _write_datablock "cosmosis_npair_${patch}_@BV:BLIND@" "${outall}"
+    outlist_check="${outlist_check} ${outlist_wt}"
     #}}}
     #}}}
     
   done
-  #}}}
   #Were there any files in any of the patches? {{{
-  if [ "${outall}" == "" ]
-  then
+  if [ "${outlist_check}" == "" ]
+    then
     #If not, error
     _message " - @RED@ERROR!@DEF@\n"
     _message "@RED@There were no catalogues added to the cosmosis npair folder?!@DEF@"
     _message "@BLU@You probably didn't load the all correlation function files into the datahead?!@DEF@"
     exit 1
   fi
-  #}}}
-  _message "}\n"
 fi
 #}}}
+#Update the datablock {{{
+_write_datablock "cosmosis_npair_${patch}_@BV:BLIND@" "${outall}"
+#}}}
+_message "}\n"
+

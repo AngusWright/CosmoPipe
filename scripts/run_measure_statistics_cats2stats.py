@@ -155,7 +155,7 @@ print('Input file is '+inputfile+', making '+str(mode)+' for theta in ['+'%.2f' 
 
 # Load the input 2pt correlation function data
 file=open(inputfile)
-header=file.readline().strip('#').split()
+header = file.readline().lstrip('# ').split()
 tpcf_in=np.loadtxt(file,comments='#')
 tpcf_data={}
 for i, col in enumerate(header):

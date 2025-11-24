@@ -32,7 +32,7 @@ def make_2pt_vector(input_files, m_corr,col=1, xipm=False, correlations='EE'):
         for rp in range(len(input_files)):
             with open(input_files[rp]) as f:
                 header=f.readline().strip('#').split()
-            data = pd.read_csv(input_files[rp], delim_whitespace=True, comment = '#', names = header)
+            data = pd.read_csv(input_files[rp], sep='\s+', comment = '#', names = header)
             if correlations == 'EE':
                 data_xip = data['xip']
                 data_xim = data['xim']

@@ -61,7 +61,7 @@ ind_count<-function(x,y,xmax,ymax) {
   vals<-paste(x,y,sep=',') 
   all<-expand.grid(1:xmax,1:ymax)
   all<-paste(all[,1],all[,2],sep=',')
-  tab<-table(factor(paste(x,y,sep=','),levels=all))
+  tab<-table(factor(vals,levels=all))
   return=data.frame(x=as.numeric(helpRfuncs::vecsplit(names(tab),by=',',n=1)),
                     y=as.numeric(helpRfuncs::vecsplit(names(tab),by=',',n=2)),
                     n=as.numeric(tab))

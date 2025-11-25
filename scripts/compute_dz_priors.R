@@ -3,7 +3,7 @@
 # File Name : computs_dz_priors.R
 # Created By : awright
 # Creation Date : 29-03-2023
-# Last Modified : Sun Jul  6 18:20:51 2025
+# Last Modified : Tue Nov 25 10:09:28 2025
 #
 #=========================================
 
@@ -257,7 +257,7 @@ for (patch in patchstrings) {
       for (i in 1:ncol(orig_cov)) {
         for (j in 1:nrow(orig_cov)) {
           if (i != j) {
-            final_cov[i,j]<-(diag(final_cov)[i]+sys_error)*(diag(final_cov)[j]+sys_error)*orig_cor[i,j]
+            final_cov[i,j]<-(sqrt(diag(final_cov)[i]))*(sqrt(diag(final_cov)[j]))*orig_cor[i,j]
           }
         }
       }

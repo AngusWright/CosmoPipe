@@ -178,7 +178,7 @@ def add_1pt_points(sacc_data, files):
                 (log_grid <  log_mass_max[j])
             )[0]
             w[j, in_bin] = 1.0
-
+        w /= w.sum(axis=1)[:, None]  # Normalize
         window = sacc.Window(values=mass_grid, weight=w.T)
 
         # Add data points

@@ -174,46 +174,64 @@ then
   z_mins=""
   z_maxs=""
   file1="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/smf_lens_cats_metadata/stats_LB1.txt"
-  slice=`grep '^slice_in' ${file1} | awk '{printf $2}'`
-  if [ "${slice}" == "obs" ]
+  if [ -f ${file1} ]
   then
-    for i in `seq ${NOBS}`
-    do
-      file="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/smf_lens_cats_metadata/stats_LB${i}.txt"
-      x_lo=`grep '^x_lims_lo' ${file} | awk '{printf $2}'`
-      x_hi=`grep '^x_lims_hi' ${file} | awk '{printf $2}'`
-      y_lo=`grep '^y_lims_lo' ${file} | awk '{printf $2}'`
-      y_hi=`grep '^y_lims_hi' ${file} | awk '{printf $2}'`
-      obs_mins="${obs_mins} $(echo "$x_lo + l(@BV:H0_IN@)/l(10)" | bc -l)"
-      obs_maxs="${obs_maxs} $(echo "$x_hi + l(@BV:H0_IN@)/l(10)" | bc -l)"
-      z_mins="${z_mins} ${y_lo}"
-      z_maxs="${z_maxs} ${y_hi}"
-    done
-  elif [ "${slice}" == "z" ]
-  then
-    for i in `seq ${NOBS}`
-    do
-      file="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/smf_lens_cats_metadata/stats_LB${i}.txt"
-      x_lo=`grep '^x_lims_lo' ${file} | awk '{printf $2}'`
-      x_hi=`grep '^x_lims_hi' ${file} | awk '{printf $2}'`
-      y_lo=`grep '^y_lims_lo' ${file} | awk '{printf $2}'`
-      y_hi=`grep '^y_lims_hi' ${file} | awk '{printf $2}'`
-      obs_mins="${obs_mins} $(echo "$y_lo + l(@BV:H0_IN@)/l(10)" | bc -l)"
-      obs_maxs="${obs_maxs} $(echo "$y_hi + l(@BV:H0_IN@)/l(10)" | bc -l)"
-      z_mins="${z_mins} ${x_lo}"
-      z_maxs="${z_maxs} ${x_hi}"
-    done
+    slice=`grep '^slice_in' ${file1} | awk '{printf $2}'`
+    if [ "${slice}" == "obs" ]
+    then
+      for i in `seq ${NOBS}`
+      do
+        file="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/smf_lens_cats_metadata/stats_LB${i}.txt"
+        x_lo=`grep '^x_lims_lo' ${file} | awk '{printf $2}'`
+        x_hi=`grep '^x_lims_hi' ${file} | awk '{printf $2}'`
+        y_lo=`grep '^y_lims_lo' ${file} | awk '{printf $2}'`
+        y_hi=`grep '^y_lims_hi' ${file} | awk '{printf $2}'`
+        obs_mins="${obs_mins} $(echo "$x_lo + l(@BV:H0_IN@)/l(10)" | bc -l)"
+        obs_maxs="${obs_maxs} $(echo "$x_hi + l(@BV:H0_IN@)/l(10)" | bc -l)"
+        z_mins="${z_mins} ${y_lo}"
+        z_maxs="${z_maxs} ${y_hi}"
+      done
+    elif [ "${slice}" == "z" ]
+    then
+      for i in `seq ${NOBS}`
+      do
+        file="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/smf_lens_cats_metadata/stats_LB${i}.txt"
+        x_lo=`grep '^x_lims_lo' ${file} | awk '{printf $2}'`
+        x_hi=`grep '^x_lims_hi' ${file} | awk '{printf $2}'`
+        y_lo=`grep '^y_lims_lo' ${file} | awk '{printf $2}'`
+        y_hi=`grep '^y_lims_hi' ${file} | awk '{printf $2}'`
+        obs_mins="${obs_mins} $(echo "$y_lo + l(@BV:H0_IN@)/l(10)" | bc -l)"
+        obs_maxs="${obs_maxs} $(echo "$y_hi + l(@BV:H0_IN@)/l(10)" | bc -l)"
+        z_mins="${z_mins} ${x_lo}"
+        z_maxs="${z_maxs} ${x_hi}"
+      done
+    else
+      _message "Got wrong or no information about slicing of the lens sample.\n"
+      #exit 1
+    fi
+    cstellar_mf=True
+    csmf_Mmin=`echo ${obs_mins} | sed 's/ /,/g'`
+    csmf_Mmax=`echo ${obs_maxs} | sed 's/ /,/g'`
+    csmf_N_log10M_bin=@BV:NSMFBINS@
+    csmf_directory="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/smf/"
+    V_max_file="@DB:vmax@" # This assumes one file, currently we have NSMFLENSBINS
+    f_tomo_file="@DB:f_tomo@" # This assumes one file, currently we have NSMFLENSBINS
   else
-    _message "Got wrong or no information about slicing of the lens sample.\n"
-    #exit 1
+    _message "No SMF lens catalog metadata found, setting default CSMF parameters from saved variables.\n"
+    if [ "${NOBS}" = "1" ]
+    then
+      csmf_Mmin=$(echo @BV:SMFLENSLIMSX@ | awk '{print $1}')
+      csmf_Mmax=$(echo @BV:SMFLENSLIMSX@ | awk '{print $2}')
+    else
+      csmf_Mmin=$(echo @BV:SMFLENSLIMSX@ | awk '{for(i=1; i<NF; i++) printf "%s,", $i; print ""}' | sed 's/,$//')
+      csmf_Mmax=$(echo @BV:SMFLENSLIMSX@ | awk '{for(i=2; i<=NF; i++) printf "%s,", $i; print ""}' | sed 's/,$//')
+    fi
+    cstellar_mf=True
+    csmf_N_log10M_bin=10
+    csmf_directory="@RUNROOT@/INSTALL/OneCovariance/input/conditional_smf/"
+    V_max_file="V_max.asc"
+    f_tomo_file="f_tomo.asc"
   fi
-  cstellar_mf=True
-  csmf_Mmin=`echo ${obs_mins} | sed 's/ /,/g'`
-  csmf_Mmax=`echo ${obs_maxs} | sed 's/ /,/g'`
-  csmf_N_log10M_bin=@BV:NSMFBINS@
-  csmf_directory="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/smf/"
-  V_max_file="@DB:vmax@" # This assumes one file, currently we have NSMFLENSBINS
-  f_tomo_file="@DB:f_tomo@" # This assumes one file, currently we have NSMFLENSBINS
 else
   cstellar_mf=False
   csmf_Mmin=9.1
@@ -230,45 +248,58 @@ then
   obs_mins=""
   obs_maxs=""
   z_mins=""
-  z_maxs=""
+  z_maxs="" 
   file1="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/lens_cats_metadata/stats_LB1.txt"
-  slice=`grep '^slice_in' ${file1} | awk '{printf $2}'`
-  if [ "${slice}" == "obs" ]
+  if [ -f ${file1} ]
   then
-    for i in `seq ${NLENS}`
-    do
-      file="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/lens_cats_metadata/stats_LB${i}.txt"
-      x_lo=`grep '^x_lims_lo' ${file} | awk '{printf $2}'`
-      x_hi=`grep '^x_lims_hi' ${file} | awk '{printf $2}'`
-      y_lo=`grep '^y_lims_lo' ${file} | awk '{printf $2}'`
-      y_hi=`grep '^y_lims_hi' ${file} | awk '{printf $2}'`
-      obs_mins="${obs_mins} $(echo "$x_lo + l(@BV:H0_IN@)/l(10)" | bc -l)"
-      obs_maxs="${obs_maxs} $(echo "$x_hi + l(@BV:H0_IN@)/l(10)" | bc -l)"
-      z_mins="${z_mins} ${y_lo}"
-      z_maxs="${z_maxs} ${y_hi}"
-    done
-  elif [ "${slice}" == "z" ]
-  then
-    for i in `seq ${NLENS}`
-    do
-      file="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/lens_cats_metadata/stats_LB${i}.txt"
-      x_lo=`grep '^x_lims_lo' ${file} | awk '{printf $2}'`
-      x_hi=`grep '^x_lims_hi' ${file} | awk '{printf $2}'`
-      y_lo=`grep '^y_lims_lo' ${file} | awk '{printf $2}'`
-      y_hi=`grep '^y_lims_hi' ${file} | awk '{printf $2}'`
-      obs_mins="${obs_mins} $(echo "$y_lo + l(@BV:H0_IN@)/l(10)" | bc -l)"
-      obs_maxs="${obs_maxs} $(echo "$y_hi + l(@BV:H0_IN@)/l(10)" | bc -l)"
-      z_mins="${z_mins} ${x_lo}"
-      z_maxs="${z_maxs} ${x_hi}"
-    done
-  else
-    _message "Got wrong or no information about slicing of the lens sample.\n"
-    #exit 1
+    slice=`grep '^slice_in' ${file1} | awk '{printf $2}'`
+    if [ "${slice}" == "obs" ]
+    then
+      for i in `seq ${NLENS}`
+      do
+        file="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/lens_cats_metadata/stats_LB${i}.txt"
+        x_lo=`grep '^x_lims_lo' ${file} | awk '{printf $2}'`
+        x_hi=`grep '^x_lims_hi' ${file} | awk '{printf $2}'`
+        y_lo=`grep '^y_lims_lo' ${file} | awk '{printf $2}'`
+        y_hi=`grep '^y_lims_hi' ${file} | awk '{printf $2}'`
+        obs_mins="${obs_mins} $(echo "$x_lo + l(@BV:H0_IN@)/l(10)" | bc -l)"
+        obs_maxs="${obs_maxs} $(echo "$x_hi + l(@BV:H0_IN@)/l(10)" | bc -l)"
+        z_mins="${z_mins} ${y_lo}"
+        z_maxs="${z_maxs} ${y_hi}"
+      done
+    elif [ "${slice}" == "z" ]
+    then
+      for i in `seq ${NLENS}`
+      do
+        file="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/lens_cats_metadata/stats_LB${i}.txt"
+        x_lo=`grep '^x_lims_lo' ${file} | awk '{printf $2}'`
+        x_hi=`grep '^x_lims_hi' ${file} | awk '{printf $2}'`
+        y_lo=`grep '^y_lims_lo' ${file} | awk '{printf $2}'`
+        y_hi=`grep '^y_lims_hi' ${file} | awk '{printf $2}'`
+        obs_mins="${obs_mins} $(echo "$y_lo + l(@BV:H0_IN@)/l(10)" | bc -l)"
+        obs_maxs="${obs_maxs} $(echo "$y_hi + l(@BV:H0_IN@)/l(10)" | bc -l)"
+        z_mins="${z_mins} ${x_lo}"
+        z_maxs="${z_maxs} ${x_hi}"
+      done
+    else
+      _message "Got wrong or no information about slicing of the lens sample.\n"
+      #exit 1
+    fi
+    bias_Mmin=`echo ${obs_mins} | sed 's/ /,/g'`
+    bias_Mmax=`echo ${obs_maxs} | sed 's/ /,/g'`
+    # Merge, split into lines, sort uniquely, and turn back into comma-separated
+    #bias_mass=$(echo "$obs_mins $obs_maxs" | tr ' ' '\n' | sort -n | uniq | tr '\n' ',' | sed 's/,$//')
+  else  
+    _message "No lens catalog metadata found, setting default bias mass parameters from saved variables.\n"
+    if [ "${NLENS}" = "1" ]
+    then
+      bias_Mmin=$(echo @BV:LENSLIMSX@ | awk '{print $1}')
+      bias_Mmax=$(echo @BV:LENSLIMSX@ | awk '{print $2}')
+    else
+      bias_Mmin=$(echo @BV:LENSLIMSX@ | awk '{for(i=1; i<NF; i++) printf "%s,", $i; print ""}' | sed 's/,$//')
+      bias_Mmax=$(echo @BV:LENSLIMSX@ | awk '{for(i=2; i<=NF; i++) printf "%s,", $i; print ""}' | sed 's/,$//')
+    fi
   fi
-  bias_Mmin=`echo ${obs_mins} | sed 's/ /,/g'`
-  bias_Mmax=`echo ${obs_maxs} | sed 's/ /,/g'`
-  # Merge, split into lines, sort uniquely, and turn back into comma-separated
-  #bias_mass=$(echo "$obs_mins $obs_maxs" | tr ' ' '\n' | sort -n | uniq | tr '\n' ',' | sed 's/,$//')
 else
   bias_Mmin=9.0
   bias_Mmax=13.0
@@ -591,6 +622,7 @@ est_clust = ${est_clust}
 cstellar_mf = ${cstellar_mf}
 cross_terms = True
 unbiased_clustering = True
+; combinations_clustering = $(seq 0 $((NLENS-1)) | sed 's/.*/&-&/' | paste -sd, -)
 
 [csmf settings]
 csmf_log10Mmin = ${csmf_Mmin}
@@ -663,10 +695,10 @@ theta_type = log
 theta_type_lensing = log
 theta_type_clustering = log
 theta_list = 1, 2, 3
+clustering = ${clustering}
+ggl   = ${ggl}
 xi_pp = ${cosmic_shear}
 xi_mm = ${cosmic_shear}
-ggl   = ${ggl}
-clustering = ${clustering}
 theta_accuracy = 1e-5
 integration_intervals = 50
 

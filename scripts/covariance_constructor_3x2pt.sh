@@ -227,10 +227,10 @@ then
       csmf_Mmax=$(echo @BV:SMFLENSLIMSX@ | awk '{for(i=2; i<=NF; i++) printf "%s,", $i; print ""}' | sed 's/,$//')
     fi
     cstellar_mf=True
-    csmf_N_log10M_bin=10
-    csmf_directory="@RUNROOT@/INSTALL/OneCovariance/input/conditional_smf/"
-    V_max_file="V_max.asc"
-    f_tomo_file="f_tomo.asc"
+    csmf_N_log10M_bin=@BV:NSMFBINS@
+    csmf_directory="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/smf/"
+    V_max_file="@DB:vmax@" # This assumes one file, currently we have NSMFLENSBINS
+    f_tomo_file="@DB:f_tomo@" # This assumes one file, currently we have NSMFLENSBINS
   fi
 else
   cstellar_mf=False

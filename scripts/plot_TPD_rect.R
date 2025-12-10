@@ -3,7 +3,7 @@
 # File Name : plot_TPD.R
 # Created By : awright
 # Creation Date : 18-04-2023
-# Last Modified : Tue Feb  4 11:09:55 2025
+# Last Modified : Tue Nov 25 14:52:55 2025
 #
 #=========================================
 
@@ -78,15 +78,15 @@ args$xcoord<-helpRfuncs::vecsplit(args$xcoord,by=',')
 manual <- TRUE
 if (length(unlist(args$xcoord))>1) { 
   args$xcoord<-as.numeric(unlist(args$xcoord))
-  xcoord<-seq(log10(args$xcoord[1]),log10(args$xcoord[2]),len=args$xcoord[3])
-  xlog=FALSE
-  args$xused<-log10(args$xused)
-  unlog='x'
-  #manual <- args$xcoord[2])/(args$xcoord[1]) < 50 
-  #xcoord<-10^seq(log10(args$xcoord[1]),log10(args$xcoord[2]),len=args$xcoord[3])
+  #xcoord<-seq(log10(args$xcoord[1]),log10(args$xcoord[2]),len=args$xcoord[3])
   #xlog=FALSE
-  #args$xused<-(args$xused)
-  #unlog=''
+  #args$xused<-log10(args$xused)
+  #unlog='x'
+  #manual <- args$xcoord[2])/(args$xcoord[1]) < 50 
+  xcoord<-10^seq(log10(args$xcoord[1]),log10(args$xcoord[2]),len=args$xcoord[3])
+  xlog=FALSE
+  args$xused<-(args$xused)
+  unlog=''
 } else if (length(args$xcoord)==1 & file.exists(args$xcoord)) { 
   #Read in the x-coordinates 
   xcoord<-helpRfuncs::read.file(file=args$xcoord)[[1]]

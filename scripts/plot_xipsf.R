@@ -3,7 +3,7 @@
 # File Name : plot_TPD.R
 # Created By : awright
 # Creation Date : 18-04-2023
-# Last Modified : Thu 04 Apr 2024 01:28:16 PM CEST
+# Last Modified : Sat Dec  6 05:39:38 2025
 #
 #=========================================
 
@@ -84,29 +84,33 @@ if (ncol(gpsf)>2) {
 cov<-helpRfuncs::read.file(file=args$covariance,type='asc')
 cov<-as.matrix(cov)
 
-#Read the theory predictive distributions 
-tpd<-helpRfuncs::read.chain(file=args$xipm_tpd)
-#Read the samples for each theory prediction 
-samps<-helpRfuncs::read.chain(file=sub("_list_","_",args$xipm_tpd))
-#Assign the weights to the theory predictions 
-tpdweight<-samps$weight
-if (length(tpdweight)==0) { 
-  tpdweight<-exp(samps$log_weight)
+has_tpd<-FALSE
+if (file.exists(args$xipm_tpd)) { 
+  has_tpd<-TRUE
+  #Read the theory predictive distributions 
+  tpd<-helpRfuncs::read.chain(file=args$xipm_tpd)
+  #Read the samples for each theory prediction 
+  samps<-helpRfuncs::read.chain(file=sub("_list_","_",args$xipm_tpd))
+  #Assign the weights to the theory predictions 
+  tpdweight<-samps$weight
+  if (length(tpdweight)==0) { 
+    tpdweight<-exp(samps$log_weight)
+  }
+  if (length(tpdweight)==0) { 
+    tpdweight<-samps$post
+    tpdweight[which(tpdweight<quantile(tpdweight,prob=0.01))]<-quantile(tpdweight,prob=0.01)
+    tpdweight<-tpdweight/min(tpdweight,na.rm=T)
+  }
+  #Check sizes match 
+  if (length(tpdweight)!=nrow(tpd)) { 
+    stop(paste("TPD sample weights are not of the same length as the sample?!\n",length(tpdweight),"!=",nrow(tpd)))
+  }
+  print(summary(tpdweight))
+  #Select only the theory predictions, and convert to matrix format 
+  cols<-colnames(tpd)
+  cols<-cols[which(grepl("scale_cuts_output",cols,ignore.case=T))]
+  tpd<-as.matrix(tpd[,cols,with=F])
 }
-if (length(tpdweight)==0) { 
-  tpdweight<-samps$post
-  tpdweight[which(tpdweight<quantile(tpdweight,prob=0.01))]<-quantile(tpdweight,prob=0.01)
-  tpdweight<-tpdweight/min(tpdweight,na.rm=T)
-}
-#Check sizes match 
-if (length(tpdweight)!=nrow(tpd)) { 
-  stop(paste("TPD sample weights are not of the same length as the sample?!\n",length(tpdweight),"!=",nrow(tpd)))
-}
-print(summary(tpdweight))
-#Select only the theory predictions, and convert to matrix format 
-cols<-colnames(tpd)
-cols<-cols[which(grepl("scale_cuts_output",cols,ignore.case=T))]
-tpd<-as.matrix(tpd[,cols,with=F])
 
 dat<-(psf$V1)*sqrt(radius)
 
@@ -146,8 +150,13 @@ for (i in 1:args$ntomo) {
   ylims_upper[[i]]=list()
   for (j in i:args$ntomo) { 
     ind<-start_tmp+1:ndata
-    ylim=c(min(c(ylim[1],dat[ind]/10^mfact,(-0*sqrt(radius[ind])*sqrt(diag(cov)[ind]))/10^mfact/tpd[which.max(tpdweight),ind])),
-          max(c(ylim[2],dat[ind]/10^mfact,(+0*sqrt(radius[ind])*sqrt(diag(cov)[ind]))/10^mfact/tpd[which.max(tpdweight),ind])))
+    if (has_tpd) { 
+      ylim=c(min(c(ylim[1],dat[ind]/10^mfact,(-0*sqrt(radius[ind])*sqrt(diag(cov)[ind]))/10^mfact/tpd[which.max(tpdweight),ind])),
+            max(c(ylim[2],dat[ind]/10^mfact,(+0*sqrt(radius[ind])*sqrt(diag(cov)[ind]))/10^mfact/tpd[which.max(tpdweight),ind])))
+    } else { 
+      ylim=c(min(c(ylim[1],dat[ind]/10^mfact,(-0*sqrt(radius[ind])*sqrt(diag(cov)[ind]))/10^mfact)),
+             max(c(ylim[2],dat[ind]/10^mfact,(+0*sqrt(radius[ind])*sqrt(diag(cov)[ind]))/10^mfact)))
+    } 
     #ylim=c(min(c(ylim[1],(-3*sqrt(diag(cov)[ind]))/10^mfact)),
     #       max(c(ylim[2],(+3*sqrt(diag(cov)[ind]))/10^mfact)))
     start_tmp<-start_tmp+ndata
@@ -167,8 +176,13 @@ for (jj in 1:args$ntomo) {
       ind<-start_tmp+1:ndata
       if (j==jj) {  
         cat(paste0("[",i,",",j,"] "))
-        ylim=c(min(c(ylim[1],dat[ind]/10^mfact,(-0*sqrt(radius[ind])*sqrt(diag(cov)[ind]))/10^mfact/tpd[which.max(tpdweight),ind])),
-               max(c(ylim[2],dat[ind]/10^mfact,(+0*sqrt(radius[ind])*sqrt(diag(cov)[ind]))/10^mfact/tpd[which.max(tpdweight),ind])))
+        if (has_tpd) { 
+          ylim=c(min(c(ylim[1],dat[ind]/10^mfact,(-0*sqrt(radius[ind])*sqrt(diag(cov)[ind]))/10^mfact/tpd[which.max(tpdweight),ind])),
+                max(c(ylim[2],dat[ind]/10^mfact,(+0*sqrt(radius[ind])*sqrt(diag(cov)[ind]))/10^mfact/tpd[which.max(tpdweight),ind])))
+        } else { 
+          ylim=c(min(c(ylim[1],dat[ind]/10^mfact,(-0*sqrt(radius[ind])*sqrt(diag(cov)[ind]))/10^mfact)),
+                 max(c(ylim[2],dat[ind]/10^mfact,(+0*sqrt(radius[ind])*sqrt(diag(cov)[ind]))/10^mfact)))
+        }
       }
       start_tmp<-start_tmp+ndata
     }
@@ -197,23 +211,12 @@ for (uplo in 1:2) {
       } 
       plot(radius[ind],dat[ind]/10^mfact,xlab='',ylab='',type='n',
            axes=F,ylim=ylim,log='x',xlim=range(radius))
-      #Data points
-      #points(radius[ind],dat[ind]/10^mfact,pch=20,cex=0.8,lwd=2)
-      #magicaxis::magerr(x=radius[ind],dat[ind]/10^mfact,yhi=sqrt(diag(cov)[ind])/10^mfact,ylo=sqrt(diag(cov)[ind])/10^mfact,lwd=2)
-      polygon(col=rgb(232,243,247,maxColorValue=255),border=NA,
-              x=c(radius[ind],rev(radius[ind])),
-              y=c(-0*sqrt(radius[ind])*sqrt(diag(cov)[ind])/tpd[which.max(tpdweight),ind]/10^mfact,
-              rev( 0*sqrt(radius[ind])*sqrt(diag(cov)[ind])/tpd[which.max(tpdweight),ind]/10^mfact)))
       #Zero line 
       abline(h=0,lwd=1,lty=3)
       lines(col=rgb(238,87,75,maxColorValue=255),radius[ind],dat[ind]/10^mfact,lwd=1.5)
 
       magicaxis::magaxis(side=1:4,labels=labels,xlab='',ylab='',grid=FALSE)
 
-      #Add the samples 
-      #tpdsamp<-tpd[sample(nrow(tpd),prob=tpdweight,size=500),]
-      #matplot(radius[ind],t(tpdsamp)[ind,]/10^mfact,add=T,type='l',col=hsv(a=0.1),lty=1)
-  
       start=start+ndata
     }
   }

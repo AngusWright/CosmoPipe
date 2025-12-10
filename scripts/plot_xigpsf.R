@@ -3,7 +3,7 @@
 # File Name : plot_TPD.R
 # Created By : awright
 # Creation Date : 18-04-2023
-# Last Modified : Thu 04 Apr 2024 12:52:31 PM CEST
+# Last Modified : Sat Dec  6 05:41:01 2025
 #
 #=========================================
 
@@ -13,8 +13,6 @@ library(argparser)
 p <- arg_parser("Plot theory predictive distributions for a chain file")
 # Add a positional argument
 p <- add_argument(p, "--xipmvec", help="Observed xipm data vector")
-# Add a positional argument
-p <- add_argument(p, "--xipm_tpd", help="xipm data vector TPDs")
 # Add a positional argument
 p <- add_argument(p, "--xipsfvec", help="Observed PSF correlation function data vector")
 # Add a positional argument
@@ -84,34 +82,7 @@ if (ncol(gpsf)>2) {
 cov<-helpRfuncs::read.file(file=args$covariance,type='asc')
 cov<-as.matrix(cov)
 
-#Read the theory predictive distributions 
-tpd<-helpRfuncs::read.chain(file=args$xipm_tpd)
-#Read the samples for each theory prediction 
-samps<-helpRfuncs::read.chain(file=sub("_list_","_",args$xipm_tpd))
-#Assign the weights to the theory predictions 
-tpdweight<-samps$weight
-if (length(tpdweight)==0) { 
-  tpdweight<-exp(samps$log_weight)
-}
-if (length(tpdweight)==0) { 
-  tpdweight<-samps$post
-  tpdweight[which(tpdweight<quantile(tpdweight,prob=0.01))]<-quantile(tpdweight,prob=0.01)
-  tpdweight<-tpdweight/min(tpdweight,na.rm=T)
-}
-#Check sizes match 
-if (length(tpdweight)!=nrow(tpd)) { 
-  stop(paste("TPD sample weights are not of the same length as the sample?!\n",length(tpdweight),"!=",nrow(tpd)))
-}
-print(summary(tpdweight))
-#Select only the theory predictions, and convert to matrix format 
-cols<-colnames(tpd)
-cols<-cols[which(grepl("scale_cuts_output",cols,ignore.case=T))]
-tpd<-as.matrix(tpd[,cols,with=F])
-
 dat<-(gpsf$V1)*sqrt(radius)
-#dat<-dat$V1
-#print(c(length(radius),length(gpsf$V1),length(psf$V1),length(tpd[which.max(tpdweight),])))
-#dat<-psf*sqrt(radius)
 
 
 #Define the layout matrix for the figure 
@@ -200,9 +171,6 @@ for (uplo in 1:2) {
       } 
       plot(radius[ind],dat[ind]/10^mfact,xlab='',ylab='',type='n',
            axes=F,ylim=ylim,log='x',xlim=range(radius))
-      #Data points
-      #points(radius[ind],dat[ind]/10^mfact,pch=20,cex=0.8,lwd=2)
-      #magicaxis::magerr(x=radius[ind],dat[ind]/10^mfact,yhi=sqrt(diag(cov)[ind])/10^mfact,ylo=sqrt(diag(cov)[ind])/10^mfact,lwd=2)
       polygon(col=rgb(232,243,247,maxColorValue=255),border=NA,
               x=c(radius[ind],rev(radius[ind])),
               y=c(-1*sqrt(radius[ind])*sqrt(diag(cov)[ind])/10^mfact,
@@ -212,10 +180,6 @@ for (uplo in 1:2) {
       lines(col=rgb(238,87,75,maxColorValue=255),radius[ind],dat[ind]/10^mfact,lwd=1.5)
 
       magicaxis::magaxis(side=1:4,labels=labels,xlab='',ylab='',grid=FALSE)
-
-      #Add the samples 
-      #tpdsamp<-tpd[sample(nrow(tpd),prob=tpdweight,size=500),]
-      #matplot(radius[ind],t(tpdsamp)[ind,]/10^mfact,add=T,type='l',col=hsv(a=0.1),lty=1)
   
       start=start+ndata
     }

@@ -30,6 +30,10 @@ then
   if [ "@BINNING@" == "log" ] 
   then 
     _message "    -> @BLU@Computing COSEBIs root and norm files@DEF@"
+    if [ ! -d ${SRCLOC}/TLogsRootsAndNorms_dimless/ ]
+    then 
+      mkdir -p ${SRCLOC}/TLogsRootsAndNorms_dimless/
+    fi 
     @PYTHON3BIN@ @RUNROOT@/@SCRIPTPATH@/cosebis_compute_log_weight.py \
       --thetamin @BV:THETAMINXI@ \
       --thetamax @BV:THETAMAXXI@ \

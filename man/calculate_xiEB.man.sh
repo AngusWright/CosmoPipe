@@ -56,7 +56,7 @@ function _inp_data {
 # Output data {{{ 
 function _outputs { 
   #Data outputs (leave blank if none)
-  echo xiEB_vec covariance_xiEB
+  echo xiE_vec covariance_xiE xiB_vec covariance_xiB
 } 
 #}}}
 

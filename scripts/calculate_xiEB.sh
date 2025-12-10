@@ -49,7 +49,7 @@ _message "    -> @BLU@Computing xi_E/B from COSEBIs@DEF@"
   --ncores @BV:NTHREADS@ \
   --thetamin @BV:THETAMINXI@ \
   --thetamax @BV:THETAMAXXI@ \
-  --ntheta @BV:NXIPM@ \
+  --ntheta @BV:NXIEB@ \
   --binning @BINNING@ \
   --ntomo ${NTOMO} \
   --output_data_E @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/xiE_vec \

@@ -57,7 +57,7 @@ function _inp_data {
 # Output data {{{ 
 function _outputs { 
   #Data outputs (leave blank if none)
-  echo cosebis
+  echo cosebis_dimless
 } 
 #}}}
 

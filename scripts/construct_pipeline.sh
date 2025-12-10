@@ -539,7 +539,7 @@ do
           #
           #Add the missing item to the absent_block list 
           echo "${inp} is missing!"
-          absent_block="${absent_block}($step) ${inp}"
+          absent_block="${absent_block} \n($step) ${inp}"
         fi 
       fi 
       #}}}
@@ -588,11 +588,11 @@ do
   fi 
 done
 #Check for absent block elements {{{
-absent_block=`echo ${absent_block}`
+absent_block=`echo ${absent_block} | sort | uniq`
 if [ "${absent_block}" != "" ] 
 then 
   echo "Error: missing block elements"
-  absent_block=`echo ${absent_block} | sed 's/ /\n/g' | sort | uniq | awk '{printf $0" "}'`
+  #absent_block=`echo ${absent_block} | sed 's/ /\n/g' | sort | uniq | awk '{printf $0" "}'`
   #Error {{{
   VERBOSE=1 _message " - @RED@ERROR!@DEF@\n"
   VERBOSE=1 _message "   ${RED}ERROR: ${BLU}There are requested or input block elements that do not exist in the data-head when needed. These are: ${DEF}\n" 

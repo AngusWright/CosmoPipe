@@ -727,10 +727,10 @@ function _parse_blockvars {
     do 
       #>&2 echo ${string}
       #Pull out the block variable
-      _var=${string#*@BV:}
+      _var=${string##*@BV:}
       _var=${_var%%@*}
       #The variable assignment is a reference: assign the referred value 
-      _filelist=`_read_blockvars ${_var}`
+      _filelist=`_read_blockvars ${_var^^}`
       _baklist=${_filelist}
       #Remove variable name and brackets 
       _filelist=${_filelist#*=}

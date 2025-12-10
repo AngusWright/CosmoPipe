@@ -3,9 +3,11 @@
 # File Name : add_prior_weights.R
 # Created By : awright
 # Creation Date : 18-10-2023
-# Last Modified : Mon 20 Nov 2023 09:53:26 AM CET
+# Last Modified : Tue Nov 11 22:49:51 2025
 #
 #=========================================
+
+cat("Starting!\nReading options\n")
 
 #Loop through the command arguments /*fold*/ {{{
 bw=0.01
@@ -83,9 +85,12 @@ while (length(inputs)!=0) {
 }
 #}}}
 
+cat("Reading data\n")
+
 #Read the input catalogue 
 cat<-helpRfuncs::read.file(input.catalogue)
 
+cat("Selecting data\n")
 #If the magnitude label is provided 
 if (mag.label!="") { 
   #If magcut isn't defined, use the maglim values {{{ 
@@ -101,8 +106,15 @@ if (mag.label!="") {
   #Otherwise use all sources 
   cat.ind<-1:nrow(cat)
 }
+cat(paste("there are",length(cat.ind),"valid data sources\n"))
 
-if (original.weight!="") { 
+if (length(cat.ind)==0) stop("there are no data sources in the magnitude window requested?!")
+
+if (!z.label%in%colnames(cat)) stop("the redshift column is not in the catalogue?!") 
+
+cat("Computing data Nz\n")
+
+if (original.weight!="" & original.weight %in% colnames(cat)) { 
   #Compute the data Nz using weights 
   nz_data<-density(cat[[z.label]][cat.ind],weight=cat[[original.weight]][cat.ind],bw=bw/sqrt(12),kern='rect',from=0,to=max(cat[[z.label]]),n=1e4)
 } else { 
@@ -110,12 +122,16 @@ if (original.weight!="") {
   nz_data<-density(cat[[z.label]][cat.ind],bw=bw/sqrt(12),kern='rect',from=0,to=max(cat[[z.label]]),n=1e4)
 }
 
+cat("Computing analytic Nz\n")
+
 #Compute the analytic Nz 
 nz_lo<-helpRfuncs::analytic_nz(filter=filter,maglim=maglim_lo)
 nz_hi<-helpRfuncs::analytic_nz(filter=filter,maglim=maglim_hi) 
 nz_eff<-nz_hi(nz_data$x)-nz_lo(nz_data$x)
 #Normalise to unit area 
-nz_eff<-nz_eff/sum(nz_eff)
+nz_eff<-nz_eff/sum(nz_eff,na.rm=T)
+
+cat("Computing prior weight ratios\n")
 
 #Compute the prior weights function 
 ratio<-nz_eff/nz_data$y
@@ -124,8 +140,12 @@ test<-nz_eff/zapsmall(nz_data$y)
 #Catch limiting cases 
 ratio[nz_eff==0]<-0
 ratio[!is.finite(ratio)|!is.finite(test)]<-NA
+
+cat("Computing prior weight function\n")
 #Define the weight function 
 weight_func<-approxfun(nz_data$x,ratio)
+
+cat("Assigning prior weight to data sources\n")
 
 #Assign the weight to each source within the magnitude limits 
 cat$PriorWeight<-NA 
@@ -134,6 +154,11 @@ cat$PriorWeight[cat.ind]<-weight_func(cat[[z.label]][cat.ind])
 cat$PriorWeight[which(!is.finite(cat$PriorWeight))]<-0
 #Normalise the weights 
 cat$PriorWeight<-cat$PriorWeight/sum(cat$PriorWeight)
+
+cat("Writing results to disk\n") 
+
 #Output the weights 
 helpRfuncs::write.file(file=input.catalogue,cat)
+
+cat("Finished!\n")
 

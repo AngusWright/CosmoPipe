@@ -39,11 +39,13 @@ def tplus(tmin,tmax,n,norm,root,ntheta=10000):
 
 # integrant for T_minus
 def tminus_integ(y,z,tplus_func):
+    y = np.array(y.tolist(), dtype=float)
     return 4.*tplus_func(y)*(np.exp(2.*(y-z))-3.*np.exp(4.*(y-z)))
 
 # T_minus using Gauss-Legendre integration
 def tminus(tmin,tmax,n,norm,root,tp,ntheta=10000,nG=20):
-    tplus_func=interp1d(np.log(tp[:,0]/tmin),tp[:,1])
+    #tplus_func=interp1d(np.log(tp[:,0]/tmin),tp[:,1])
+    tplus_func=interp1d(np.log(tp[:,0]/tmin),tp[:,1], fill_value = "extrapolate")
     theta=np.logspace(np.log10(tmin),np.log10(tmax),ntheta)
     # 
     tminus=np.zeros((ntheta,2))

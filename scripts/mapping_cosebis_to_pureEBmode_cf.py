@@ -61,6 +61,7 @@ theta_min_mm = args.thetamin
 theta_max_mm = args.thetamax
 arcmintorad = 1./60./180.*np.pi
 thetaRange='%.2f-%.2f'%(args.thetamin, args.thetamax)
+thetaRange='%s-%s'%(str(args.thetamin), str(args.thetamax))
 
 signalfile = args.data[1]
 covfile = args.covariance

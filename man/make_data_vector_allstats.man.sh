@@ -51,7 +51,7 @@ function _inp_var {
 function _inp_data { 
   #Data inputs (leave blank if none)
   #Input data vectors
-  STATISTIC=@BV:STATISTIC@
+  STATISTIC=`_parse_blockvars @BV:STATISTIC@`
   if [ "${STATISTIC^^}" == "COSEBIS" ] #{{{
   then
     input="cosebis"
@@ -63,6 +63,18 @@ function _inp_data {
   elif [ "${STATISTIC^^}" == "XIPM" ] #{{{
   then 
     input="xipm_binned"
+  #}}}
+  elif [ "${STATISTIC^^}" == "COSEBIS_DIMLESS" ] #{{{
+  then
+    inputs="cosebis_dimless"
+  #}}}
+  elif [ "${STATISTIC^^}" == "XIPSF" ] #{{{
+  then 
+    inputs="xipsf_binned"
+  #}}}
+  elif [ "${STATISTIC^^}" == "XIGPSF" ] #{{{
+  then 
+    inputs="xigpsf_binned"
   fi
   #}}}
   echo ${input} mbias

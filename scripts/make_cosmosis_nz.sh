@@ -3,7 +3,7 @@
 # File Name : make_cosmosis_nz.sh
 # Created By : awright
 # Creation Date : 30-03-2023
-# Last Modified : Tue 21 Nov 2023 12:55:58 AM CET
+# Last Modified : Fri Nov 28 06:16:03 2025
 #
 #=========================================
 
@@ -35,8 +35,13 @@ do
     #Check if the output file exists {{{
     if [ "${file}" == "" ] 
     then 
-      #If not, loop
-      continue
+      #Check for numeric ids
+      file=`echo ${inputs} | sed 's/ /\n/g' | grep _${ZBIN1}_somweight_Nz || echo `
+      if [ "${file}" == "" ] 
+      then 
+        #If not, loop
+        continue
+      fi
     fi 
     #}}}
     filelist="${filelist} @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/nz_${patch}/${file}"

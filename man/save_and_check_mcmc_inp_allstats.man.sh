@@ -50,14 +50,26 @@ function _inp_var {
 # Input data {{{ 
 function _inp_data { 
   #Data inputs (leave blank if none)
-  echo @BV:STATISTIC@_vec covariance_@BV:STATISTIC@ cosmosis_neff cosmosis_sigmae nz
+  stat=`_parse_blockvars @BV:STATISTIC@`
+  if [ "${stat^^}" != "XIEB" ] 
+  then 
+    echo @BV:STATISTIC@_vec covariance_@BV:STATISTIC@ cosmosis_neff cosmosis_sigmae nz
+  else 
+    echo xiE_vec xiB_vec covariance_xiE covariance_xiB cosmosis_neff cosmosis_sigmae nz
+  fi 
 } 
 #}}}
 
 # Output data {{{ 
 function _outputs { 
   #Data outputs (leave blank if none)
-  echo mcmc_inp_@BV:STATISTIC@
+  stat=`_parse_blockvars @BV:STATISTIC@`
+  if [ "${stat^^}" != "XIEB" ] 
+  then 
+    echo mcmc_inp_@BV:STATISTIC@
+  else 
+    echo mcmc_inp_xiE mcmc_inp_xiB
+  fi 
 } 
 #}}}
 

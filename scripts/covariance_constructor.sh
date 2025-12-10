@@ -3,7 +3,7 @@
 # File Name : covariance_constructor.sh
 # Created By : awright
 # Creation Date : 14-04-2023
-# Last Modified : Fri 08 Dec 2023 10:48:51 AM CET
+# Last Modified : Fri Dec  5 13:31:54 2025
 #
 #=========================================
 
@@ -31,8 +31,10 @@ fi
 # Infer statistic {{{
 STATISTIC="@BV:STATISTIC@"
 SECONDSTATISTIC="@BV:SECONDSTATISTIC@"
+arb_base=@RUNROOT@/@CONFIGPATH@/covariance_arb_summary/
 if [ "${STATISTIC^^}" == "XIPM" ]
 then
+  oc_name=rcf
   est_shear=xi_pm
   n_arb=@BV:NXIPM@
   arb_fourier_filter_mmE_file_@BV:STATISTIC@="fourier_weight_realspace_cf_mm_p_@BV:THETAMINXI@-@BV:THETAMAXXI@_?.table"
@@ -41,6 +43,7 @@ then
   arb_real_filter_mm_m_file_@BV:STATISTIC@="real_weight_realspace_cf_mm_m_@BV:THETAMINXI@-@BV:THETAMAXXI@_?.table"
 elif [ "${STATISTIC^^}" == "COSEBIS" ]
 then
+  oc_name=cosebis
   est_shear=cosebi
   n_arb=@BV:NMAXCOSEBIS@
   arb_fourier_filter_mmE_file_@BV:STATISTIC@="WnLog_@BV:THETAMINXI@-@BV:THETAMAXXI@_?.table"
@@ -49,6 +52,7 @@ then
   arb_real_filter_mm_m_file_@BV:STATISTIC@="Tminus_@BV:THETAMINXI@-@BV:THETAMAXXI@_?.table"
 elif [ "${STATISTIC^^}" == "COSEBIS_DIMLESS" ]
 then
+  oc_name=dimless_cosebis
   est_shear=cosebi
   n_arb=@BV:NMAXCOSEBIS@
   arb_fourier_filter_mmE_file_@BV:STATISTIC@="dimensionless_Wn_@BV:THETAMINXI@_to_@BV:THETAMAXXI@_?.table"
@@ -57,6 +61,7 @@ then
   arb_real_filter_mm_m_file_@BV:STATISTIC@="dimensionless_Tm_@BV:THETAMINXI@_to_@BV:THETAMAXXI@_?.table"
 elif [ "${STATISTIC^^}" == "BANDPOWERS" ]
 then
+  oc_name=bandpowers
   est_shear=bandpowers
   n_arb=@BV:NBANDPOWERS@
   theta_lo=`echo 'e(l(@BV:THETAMINXI@)+@BV:APODISATIONWIDTH@/2)' | bc -l | awk '{printf "%.9f", $0}'`
@@ -74,6 +79,7 @@ else
   #}}}
 fi
 # Check if the arbitrary input files exist and copy to input directory
+oc_base=@RUNROOT@/INSTALL/OneCovariance/input/arbitrary_summary/${oc_name}/
 use_arbitrary=True
 for i in $(seq -f "%02g" 1 $n_arb)
 do
@@ -81,13 +87,56 @@ do
   file2=`echo ${arb_fourier_filter_mmB_file_@BV:STATISTIC@} | sed "s/?/${i}/g"`
   file3=`echo ${arb_real_filter_mm_p_file_@BV:STATISTIC@} | sed "s/?/${i}/g"`
   file4=`echo ${arb_real_filter_mm_m_file_@BV:STATISTIC@} | sed "s/?/${i}/g"`
-  arb_base=@RUNROOT@/@CONFIGPATH@/covariance_arb_summary/
+  if [ ! -f $arb_base${file} ] || [ ! -f $arb_base${file2} ] || [ ! -f $arb_base${file3} ] || [ ! -f $arb_base${file4} ]
+  then
+    if [ -f $oc_base${file} ] && [ ! -f ${arb_base}${file} ]
+    then 
+      _message "\n- Found $file"
+      cp ${oc_base}${file} ${arb_base} 
+    elif [  ! -f ${arb_base}${file} ]
+    then 
+      _message "\n- NOT found ${oc_base}${file}"
+    fi 
+    if [ -f $oc_base${file2} ] && [ ! -f ${arb_base}${file2} ]
+    then 
+      _message "\n- Found $file2"
+      cp ${oc_base}${file2} ${arb_base}
+    elif [  ! -f ${arb_base}${file2} ]
+    then 
+      _message "\n- NOT found ${oc_base}${file2}"
+    fi 
+    if [ -f $oc_base${file3} ] && [ ! -f ${arb_base}${file3} ]
+    then 
+      _message "\n- Found $file3"
+      cp ${oc_base}${file3} ${arb_base} 
+    elif [  ! -f ${arb_base}${file3} ]
+    then 
+      _message "\n- NOT found ${oc_base}${file3}"
+    fi 
+    if [ -f $oc_base${file4} ] && [ ! -f ${arb_base}${file4} ]
+    then 
+      _message "\n- Found $file4"
+      cp ${oc_base}${file4} ${arb_base}
+    elif [  ! -f ${arb_base}${file4} ]
+    then 
+      _message "\n- NOT found ${oc_base}${file4}"
+    fi 
+  fi 
   if [ ! -f $arb_base${file} ] || [ ! -f $arb_base${file2} ] || [ ! -f $arb_base${file3} ] || [ ! -f $arb_base${file4} ]
   then
     if [ "${STATISTIC^^}" == "COSEBIS_DIMLESS" ]
     then
-      _message "Error: dimensionless COSEBIs require precalculated filter functions!\n"
-      exit 1
+      _message "  Calculating dimensionless COSEBIs filter functions"
+       @PYTHON3BIN@ @RUNROOT@/INSTALL/OneCovariance/input/arbitrary_summary/script_weights/get_weights_cosebis_dimensionless.py \
+        --nthread @BV:NTHREADS@ --nfourier 100000 --ntheta 10000 \
+        --Nmax_mm @BV:NMAXCOSEBIS@ \
+        --tmin_mm @BV:THETAMINXI@ --tmax_mm @BV:THETAMAXXI@ \
+        --outpath @RUNROOT@/INSTALL/OneCovariance/input/arbitrary_summary/dimless_cosebis/
+
+      cp @RUNROOT@/INSTALL/OneCovariance/input/arbitrary_summary/dimless_cosebis/* ${arb_base}/
+      cp @RUNROOT@/INSTALL/OneCovariance/input/arbitrary_summary/dimless_cosebis/* @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_inputs/arb_summary_filters/
+      _message "@RED@ - Done!@DEF@"
+      break
     else
       use_arbitrary=False
       _message "One or more arbitrary input files do not exist. Calculating filters on the fly!\n"

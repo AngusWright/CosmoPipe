@@ -3,7 +3,7 @@
 # File Name : save_and_check_mcmc_inp.sh
 # Created By : awright
 # Creation Date : 01-04-2023
-# Last Modified : Tue 28 Jan 2025 12:32:14 AM CET
+# Last Modified : Fri Dec  5 19:53:40 2025
 #
 #=========================================
 
@@ -66,6 +66,7 @@ then
     filename_extension=${CHAINSUFFIX}_iteration_${ITERATION}
     input_covariance_iterative=@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_xipm/covariance_matrix_${non_linear_model}${filename_extension}.mat
   fi
+  #}}}
 elif [ "${STATISTIC^^}" == "XIEB" ] #{{{
 then 
   input_datavector_E="@DB:xiE_vec@"
@@ -83,6 +84,7 @@ then
     input_covariance_iterative_B=@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_xiB/covariance_matrix_${non_linear_model}${filename_extension}.mat
   fi
 fi
+#}}}
 if [ "${BOLTZMAN^^}" == "COSMOPOWER_HM2020_NOFEEDBACK" ] || [ "${BOLTZMAN^^}" == "CAMB_HM2020_NOFEEDBACK" ]
 then
   non_linear_model=mead2020_feedback
@@ -167,7 +169,7 @@ else
       --nz @DB:nz@ \
       --nmaxcosebis @BV:NMAXCOSEBIS@ \
       --nbandpowers @BV:NBANDPOWERS@ \
-      --nxipm @BV:NXIPM@ \
+      --nxipm @BV:NXIEB@ \
       --ellmin @BV:LMINBANDPOWERS@ \
       --ellmax @BV:LMAXBANDPOWERS@ \
       --thetamin @BV:THETAMINXI@ \
@@ -185,7 +187,7 @@ else
     --nz @DB:nz@ \
     --nmaxcosebis @BV:NMAXCOSEBIS@ \
     --nbandpowers @BV:NBANDPOWERS@ \
-    --nxipm @BV:NXIPM@ \
+    --nxipm @BV:NXIEB@ \
     --ellmin @BV:LMINBANDPOWERS@ \
     --ellmax @BV:LMAXBANDPOWERS@ \
     --thetamin @BV:THETAMINXI@ \

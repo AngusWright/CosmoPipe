@@ -50,7 +50,30 @@ function _inp_var {
 # Input data {{{ 
 function _inp_data { 
   #Data inputs (leave blank if none)
-  echo ALLHEAD
+  #Data outputs (leave blank if none)
+  if [ "@BLINDING@" != "UNBLIND" ] 
+  then 
+    blinding=_@BV:BLIND@
+  else 
+    blinding=
+  fi 
+  inplist='ALLHEAD'
+  #Output is dynamic, depending on the value of BV:COSMOSIS_PATCHLIST
+  patchvar="@BV:COSMOSIS_PATCHLIST@"
+  patchvar=`_parse_blockvars ${patchvar}`
+  #Define the patches to loop over {{{
+  if [ "${patchvar}" == "ALL" ] || [ "${patchvar}" == "@BV:COSMOSIS_PATCHLIST@" ]
+  then 
+    patchlist=`echo @BV:PATCHLIST@ @ALLPATCH@ @ALLPATCH@comb` 
+  else 
+    patchlist="${patchvar}"
+  fi 
+  #}}}
+  for patch in ${patchlist}
+  do 
+    inplist="${inplist} neff_${patch}${blinding} sigmae_${patch}${blinding}"
+  done 
+  echo ${inplist}
 } 
 #}}}
 

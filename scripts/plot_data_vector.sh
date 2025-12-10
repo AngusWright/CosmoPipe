@@ -3,7 +3,7 @@
 # File Name : plot_data_vector.sh
 # Created By : awright
 # Creation Date : 18-11-2023
-# Last Modified : Mon Jul 21 19:48:07 2025
+# Last Modified : Tue Dec  2 23:03:55 2025
 #
 #=========================================
 
@@ -20,6 +20,7 @@ case "@BV:STATISTIC@" in
     xlabel="COSEBIs n" 
     ylabel_upper="E[n]" 
     ylabel_lower="B[n]" 
+    xcoord=NONE
     ndata=@BV:NMAXCOSEBIS@
     datavec="@DB:cosebis_vec@"
     covariance="@DB:covariance_cosebis@"
@@ -28,6 +29,7 @@ case "@BV:STATISTIC@" in
     xlabel="Bandpower n" 
     ylabel_upper="PeeE" 
     ylabel_lower="PeeB" 
+    xcoord="@BV:LMINBANDPOWERS@ @BV:LMAXBANDPOWERS@ @BV:NBANDPOWERS@"
     ndata=@BV:NBANDPOWERS@
     datavec="@DB:bandpower_vec@"
     covariance="@DB:covariance_bandpower@"
@@ -36,18 +38,37 @@ case "@BV:STATISTIC@" in
     xlabel="Radial Bin i" 
     ylabel_upper="Xi[p]" 
     ylabel_lower="Xi[m]" 
+    xcoord=`echo @DB:xipm_binned@ | awk '{print $1}'`
     ndata=@BV:NXIPM@
     datavec="@DB:xipm_vec@"
     covariance="@DB:covariance_xipm@"
+    ;;
+  "xiE") 
+    xlabel="Radial Bin i" 
+    ylabel_upper="xi^E['+']" 
+    ylabel_lower="xi^E['-']" 
+    xcoord=`echo @DB:xipm_binned@ | awk '{print $1}'`
+    ndata=@BV:NXIPM@
+    datavec="@DB:xiE_vec@"
+    covariance="@DB:covariance_xiE@"
+    ;;
+  "xiB") 
+    xlabel="Radial Bin i" 
+    ylabel_upper="xi^B['+']" 
+    ylabel_lower="xi^B['-']" 
+    xcoord=`echo @DB:xipm_binned@ | awk '{print $1}'`
+    ndata=@BV:NXIPM@
+    datavec="@DB:xiB_vec@"
+    covariance="@DB:covariance_xiB@"
     ;;
   *)
     _message "Unknown statistic @BV:STATISTIC@"
 esac
 
 #Create directory if needed
-if [ ! -d @RUNROOT@/@STORAGEPATH@/MCMC/output/@SURVEY@_@BLINDING@/@BV:BOLTZMAN@/@BV:STATISTIC@/plots ]
+if [ ! -d @RUNROOT@/@STORAGEPATH@/MCMC/input/@SURVEY@_@BLINDING@/@BV:BOLTZMAN@/@BV:STATISTIC@/plots ]
 then 
-  mkdir -p @RUNROOT@/@STORAGEPATH@/MCMC/output/@SURVEY@_@BLINDING@/@BV:BOLTZMAN@/@BV:STATISTIC@/plots/
+  mkdir -p @RUNROOT@/@STORAGEPATH@/MCMC/input/@SURVEY@_@BLINDING@/@BV:BOLTZMAN@/@BV:STATISTIC@/plots/
 fi 
 
 datavec=`echo ${datavec} | awk '{print $1}'`
@@ -64,7 +85,8 @@ do
     --covariance ${covariance} \
     --ntomo ${NTOMO} \
     --type ${ptype} \
-    --output @RUNROOT@/@STORAGEPATH@/MCMC/output/@SURVEY@_@BLINDING@/@BV:BOLTZMAN@/@BV:STATISTIC@/plots/DataVec_Upper_@BV:LIST_INPUT_SAMPLER@${blinding}.pdf \
+    --xcoord ${xcoord} \
+    --output @RUNROOT@/@STORAGEPATH@/MCMC/input/@SURVEY@_@BLINDING@/@BV:BOLTZMAN@/@BV:STATISTIC@/plots/DataVec_${ptype}${blinding}.pdf \
     --xlabel "${xlabel}" --ylabel "${!getlab}" 2>&1
 done 
 

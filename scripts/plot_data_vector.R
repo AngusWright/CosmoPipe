@@ -3,7 +3,7 @@
 # File Name : plot_TPD.R
 # Created By : awright
 # Creation Date : 18-04-2023
-# Last Modified : Fri Dec 15 12:18:50 2023
+# Last Modified : Tue Dec  2 23:04:28 2025
 #
 #=========================================
 
@@ -27,6 +27,8 @@ p <- add_argument(p, "--refnmax", help="Number of modes/datapoints",type='intege
 p <- add_argument(p, "--ntomo", help="Number of tomographic bins",type='integer')
 # Add an optional argument
 p <- add_argument(p, "--output", help="output pdf", default="plot_TPD.pdf")
+# Add a positional argument
+p <- add_argument(p, "--xcoord", help="Catalogue with x-coordinates in the first column",nargs="+")
 # Add an optional argument
 p <- add_argument(p, "--xlabel", help="x-axis variable name")
 # Add an optional argument
@@ -71,6 +73,17 @@ if (!is.na(args$nmax)) {
 cov<-data.table::fread(file=args$covariance)
 cov<-as.matrix(cov)
 
+#define the x-coordinates 
+args$xcoord<-helpRfuncs::vecsplit(args$xcoord,by=',')
+if (length(unlist(args$xcoord))>1) { 
+  args$xcoord<-as.numeric(unlist(args$xcoord))
+  xcoord<-10^seq(log10(args$xcoord[1]),log10(args$xcoord[2]),len=args$xcoord[3])
+} else if (length(args$xcoord)==1 & file.exists(args$xcoord)) { 
+  #Read in the x-coordinates 
+  xcoord<-helpRfuncs::read.file(file=args$xcoord)[[1]]
+} else { 
+  xcoord<-seq(ndata)
+}
 if (file.exists(args$refdatavec)) { 
   #Read in the data vector 
   ref<-helpRfuncs::read.file(file=args$refdatavec)
@@ -129,18 +142,18 @@ for (i in 1:args$ntomo) {
   for (j in i:args$ntomo) { 
     ind<-start+1:ndata
     #Plot the data vector 
-    magicaxis::magplot(dat$V1[ind]/10^mfact,xlab='',ylab='',type='n',side=1:4,labels=c(i==j,F,i==1,j==args$ntomo),
+    magicaxis::magplot(xcoord,dat$V1[ind]/10^mfact,xlab='',ylab='',type='n',side=1:4,labels=c(i==j,F,i==1,j==args$ntomo),
                        ylim=ylim,xlim=c(0.5,ndata+0.5),grid=F)
     #Zero line 
     abline(h=0,lwd=2)
     #Data points
-    points(dat$V1[ind]/10^mfact,pch=20,cex=0.8,lwd=2)
-    magicaxis::magerr(x=1:length(ind),dat$V1[ind]/10^mfact,yhi=sqrt(diag(cov)[ind])/10^mfact,ylo=sqrt(diag(cov)[ind])/10^mfact,lwd=2)
+    points(xcoord,dat$V1[ind]/10^mfact,pch=20,cex=0.8,lwd=2)
+    magicaxis::magerr(x=xcoord,dat$V1[ind]/10^mfact,yhi=sqrt(diag(cov)[ind])/10^mfact,ylo=sqrt(diag(cov)[ind])/10^mfact,lwd=2)
 
     if (exists("ref")) { 
       #reference Data points
-      points(x=1:length(ind)+0.25,ref$V1[ind]/10^mfact,pch=20,cex=0.8,lwd=2,col='red3')
-      magicaxis::magerr(x=1:length(ind)+0.25,ref$V1[ind]/10^mfact,yhi=sqrt(diag(refcov)[ind])/10^mfact,ylo=sqrt(diag(refcov)[ind])/10^mfact,lwd=2,col='red3')
+      points(x=xcoord,ref$V1[ind]/10^mfact,pch=20,cex=0.8,lwd=2,col='red3')
+      magicaxis::magerr(x=xcoord,ref$V1[ind]/10^mfact,yhi=sqrt(diag(refcov)[ind])/10^mfact,ylo=sqrt(diag(refcov)[ind])/10^mfact,lwd=2,col='red3')
     }
     start=start+ndata
   }

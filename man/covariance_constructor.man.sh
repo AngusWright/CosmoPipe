@@ -52,9 +52,9 @@ function _inp_data {
   if [ "@BV:MIXTERM@" == "True" ]
   then 
     mixtermbase=`_parse_blockvars @BV:MIXTERM_BASEFILE@`
-    echo cosmosis_msigma cosmosis_neff cosmosis_nz cosmosis_sigmae ${mixtermbase}
-  else
-    echo cosmosis_msigma cosmosis_neff cosmosis_nz cosmosis_sigmae
+    echo cosmosis_xipm cosmosis_msigma cosmosis_neff cosmosis_nz cosmosis_sigmae ${mixtermbase}
+  else 
+    echo cosmosis_xipm cosmosis_msigma cosmosis_neff cosmosis_nz cosmosis_sigmae
   fi
 } 
 #}}}

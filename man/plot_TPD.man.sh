@@ -50,7 +50,7 @@ function _inp_var {
 # Input data {{{ 
 function _inp_data { 
   #Data inputs (leave blank if none)
-  echo bandpowers_vec cosebis_vec covariance_bandpowers covariance_cosebis covariance_xipm xipm_binned xipm_vec
+  echo @BV:STATISTIC@_vec covariance_@BV:STATISTIC@ 
 } 
 #}}}
 

@@ -17,7 +17,7 @@
 PIPELINE=test
 
 #Pipeline that you wish to run
-SURVEY=KiDS_Legacy
+SURVEY=Euclid_TR1
 
 #Root directory for pipeline scripts
 PACKROOT=@PACKROOT@
@@ -46,14 +46,14 @@ DEF='\033[0m'    #Default
 
 #Variables requires at pipeline compilation 
 
-#Designation for "all patches" (Default is KiDS-Legacy)
-ALLPATCH=NS 
+#Designation for "all patches" (Default is Euclid TR1)
+ALLPATCH=LE3
 
-#COSEBIs binning format; 'lin' or 'log' (Default is KiDS-Legacy)
+#COSEBIs binning format; 'lin' or 'log' (Default is Euclid TR1)
 BINNING='log'
 
 #Blind identifier
-BLINDING=blind_@BV:BLIND@
+BLINDING=UNBLIND
 
 #Datablock directory
 DATABLOCK=CosmoPipe_DataBlock

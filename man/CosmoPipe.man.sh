@@ -1054,6 +1054,7 @@ function _incorporate_datablock {
         #Return variable 
         _itemfile="${_file#*=}"
         _itemfile="${_itemfile//&/\\&}"
+        _itemfile="${_itemfile//\%/\'}"
         _itemlist="${_itemlist} ${_itemfile}"
       done 
       #_itemlist=`echo ${_itemlist}`

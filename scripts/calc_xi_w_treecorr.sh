@@ -3,7 +3,7 @@
 # File Name : calc_xi_w_treecorr.sh
 # Created By : awright
 # Creation Date : 27-03-2023
-# Last Modified : Sat Sep  6 04:09:08 2025
+# Last Modified : Mon Feb  2 04:22:35 2026
 #
 #=========================================
 
@@ -15,11 +15,13 @@ do
   _message " > Patch ${patch} {\n"
   #Select the catalogues from DATAHEAD in this patch 
   filelist=''
-  for file in ${headfiles}
+  for inputfile in ${headfiles}
   do 
-    if [[ "$file" =~ .*"_${patch}_".* ]] || [[ "$file" =~ ^"${patch}_".* ]] || [[ "${file}" =~ .*"_${patch,,}_".* ]] || [[ "${file}" =~ .*"_${patch^^}_".* ]]
+    fileroot=${inputfile%/*}
+    filebase=${inputfile##*/}
+    if [[ "${filebase}" =~ .*"_${patch}_".* ]] || [[ "${filebase}" =~ ^"${patch}_".* ]] || [[ "${filebase}" =~ .*"_${patch,,}_".* ]] || [[ "${filebase}" =~ .*"_${patch^^}_".* ]]
     then 
-      filelist="${filelist} ${file}" 
+      filelist="${filelist} ${inputfile}" 
     fi 
   done
 

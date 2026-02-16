@@ -3,7 +3,7 @@
 # File Name : extract_patch.sh
 # Created By : awright
 # Creation Date : 28-03-2023
-# Last Modified : Tue 26 Mar 2024 02:44:52 AM CET
+# Last Modified : Sat Jan 31 10:13:15 2026
 #
 #=========================================
 
@@ -21,7 +21,9 @@ outputlist=''
 for patch in @BV:PATCHLIST@ 
 do
   #Define the output file name {{{
-  outputname=${inputfile//_@ALLPATCH@_/_${patch}_}
+  inputroot=${inputfile%/*}
+  inputbase=${inputfile##*/}
+  outputname=${inputroot}/${inputbase//_@ALLPATCH@_/_${patch}_}
   #}}}
   #Add the output name to the output list {{{ 
   outputlist="${outputlist} ${outputname##*/}"

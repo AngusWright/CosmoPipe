@@ -3,7 +3,7 @@
 # File Name : combine_patch.sh
 # Created By : awright
 # Creation Date : 20-03-2023
-# Last Modified : Sat Feb  8 14:01:56 2025
+# Last Modified : Sat Jan 31 18:30:57 2026
 #
 #=========================================
 
@@ -64,24 +64,27 @@ do
   @RUNROOT@/INSTALL/theli-1.6.1/bin/@MACHINE@/ldactestexist -i ${cata} -t OBJECTS -k PATCH 2>&1 || cleared=0
   _message " @RED@- Done! (`date +'%a %H:%M'`)@DEF@\n"
   #}}}
-  #If exists, delete it {{{
-  if [ "${cleared}" == "1" ] 
+  ##If exists, delete it {{{
+  #if [ "${cleared}" == "1" ] 
+  #then 
+  #  _message "   > @BLU@Removing existing patch ID key from @DEF@${cata##*/}@DEF@ "
+  #  @RUNROOT@/INSTALL/theli-1.6.1/bin/@MACHINE@/ldacdelkey -i ${cata} -o ${cata}_tmp -t OBJECTS -k PATCH 2>&1 
+  #  mv ${cata}_tmp ${cata}
+  #  _message " @RED@- Done! (`date +'%a %H:%M'`)@DEF@\n"
+  #fi 
+  ##}}}
+  #add the patch label column {{{
+  if [ "${cleared}" == "0" ] 
   then 
-    _message "   > @BLU@Removing existing patch ID key from @DEF@${cata##*/}@DEF@ "
-    @RUNROOT@/INSTALL/theli-1.6.1/bin/@MACHINE@/ldacdelkey -i ${cata} -o ${cata}_tmp -t OBJECTS -k PATCH 2>&1 
+    _message "   > @BLU@Adding patch @DEF@${patch}@BLU@ identification key to @DEF@${cata##*/}@DEF@ "
+    @RUNROOT@/INSTALL/theli-1.6.1/bin/@MACHINE@/ldacaddkey -i ${cata} -o ${cata}_tmp -t OBJECTS -k PATCH "${patch}_patch" string "patch identifier" 2>&1
+    #move the new catalogue to the original name 
     mv ${cata}_tmp ${cata}
     _message " @RED@- Done! (`date +'%a %H:%M'`)@DEF@\n"
-  fi 
-  #}}}
-  #add the patch label column {{{
-  _message "   > @BLU@Adding patch @DEF@${patch}@BLU@ identification key to @DEF@${cata##*/}@DEF@ "
-  @RUNROOT@/INSTALL/theli-1.6.1/bin/@MACHINE@/ldacaddkey -i ${cata} -o ${cata}_tmp -t OBJECTS -k PATCH "${patch}_patch" string "patch identifier" 2>&1
-  #move the new catalogue to the original name 
-  mv ${cata}_tmp ${cata}
-  _message " @RED@- Done! (`date +'%a %H:%M'`)@DEF@\n"
-  if [ "${links}" == "TRUE" ] 
-  then 
-    mv ${cata} ${originp}
+    if [ "${links}" == "TRUE" ] 
+    then 
+      mv ${cata} ${originp}
+    fi 
   fi 
   #}}}
 done 

@@ -408,8 +408,14 @@ class LDACTable(object):
                     if numpy.issubdtype(val.dtype, numpy.float64) == True:
                         colformat = "1D"
 
+                    if numpy.issubdtype(val.dtype, numpy.float32) == True:
+                        colformat = "1E"
+
                     if numpy.issubdtype(val.dtype, int) == True:
                         colformat = "1J"
+
+                    if numpy.issubdtype(val.dtype, str) == True:
+                        colformat = str(numpy.max(numpy.char.str_len(val)))+"A"
 
                     # now create the new column and create a 'new' table
                     # with the old plus the new column (I did not find a

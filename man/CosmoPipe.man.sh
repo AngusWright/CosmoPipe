@@ -1095,12 +1095,12 @@ function _incorporate_datablock {
   #fi 
   ##}}}
 
-  #Check if we are stoelzner {{{
-  if [ `whoami` == 'qwright' ] || [ `whoami` == 'stoelzner' ]
+  #Check if we need a refreshment {{{
+  if [ `whoami` == 'awright' ] || [ `whoami` == 'stoelzner' ] || [ `whoami` == 'hendrik' ]
   then 
     if [ "${ext}" != "ini" ] && [ $(( ( RANDOM % 100 )  + 1 )) -gt 99 ] 
     then 
-      echo '# Check if benjamin has had his coffee ----' >> ${1}
+      echo '# Check if the user has had their coffee ----' >> ${1}
       echo '_message "\n\n@RED@~~~~~~~~~~~~~~~~~~~~~~~~~~~@DEF@\n"' >> ${1}
       echo '_message "@RED@~~   @BLU@ HEY! LISTEN!!!! @RED@   ~~\n"' >> ${1}
       echo '_message "@RED@~~~~~~~~~~~~~~~~~~~~~~~~~~~@DEF@\n\n"' >>${1}
@@ -1108,7 +1108,7 @@ function _incorporate_datablock {
       echo '_message "@RED@Have you had your coffee?!!\n\n"' >> ${1}
       echo 'sleep 5' >> ${1}
       echo '_message "@BLU@  If not: @DEF@GO GET IT NOW! \n"' >> ${1}
-      echo 'sleep 30' >> ${1}
+      echo 'sleep 5' >> ${1}
       echo '_message "@BLU@ Good. Now we can continue...\n@DEF@"' >> ${1}
       echo "# ----" >> ${1}
     elif [ "${ext}" != "ini" ] && [ $(( ( RANDOM % 100 )  + 1 )) -gt 99 ] 
@@ -1138,7 +1138,7 @@ function _incorporate_datablock {
       echo "_message \"@RED@##                                 ##@DEF@\n\"" >> ${1}
       echo "_message \"@RED@#####################################@DEF@\n\"" >> ${1}
       echo "_message \"@RED@#####################################@DEF@\n\"" >> ${1}
-      echo 'sleep 30' >> ${1}
+      echo 'sleep 10' >> ${1}
       echo "# ----" >> ${1}
     fi 
   fi 

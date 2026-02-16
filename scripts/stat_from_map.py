@@ -3,12 +3,13 @@
 # File Name : weight_from_map.py
 # Created By : awright
 # Creation Date : 25-10-2023
-# Last Modified : Mon 30 Oct 2023 11:34:49 AM CET
+# Last Modified : Sat Jan 31 08:08:13 2026
 #
 #=========================================
 
 #Load healpy 
 import healpy as hp 
+import numpy as np 
 import astropandas as apd 
 import os
 import argparse
@@ -43,6 +44,9 @@ parser.add_argument(
 ## arg parser
 args = parser.parse_args()
 
+print("arguments")
+print(args)
+
 #load the map 
 print("Reading healpix map")
 hpmap=hp.read_map(args.inmap)
@@ -57,12 +61,21 @@ cat, ldac_cat = mcf.flexible_read(args.incat,as_df=False)
 print("Extracting statistic")
 tmp_stats=hpmap[hp.ang2pix(nside,cat[args.col_RA],cat[args.col_Dec],lonlat=True)]
 
+print(tmp_stats)
+
 #If needed, apply the modifier function 
 if args.function is not None: 
+    print("Applying modifier function")
     func=lambda x: eval(args.function)
-    tmp_stats=func(tmp_stats)
+    tmp_stats=np.array(list(map(func,tmp_stats)))
+    print(tmp_stats)
 
+print("Copying to catalogue")
+print('before:')
+print(cat)
 cat[args.statname]=tmp_stats
+print('after:')
+print(cat)
 #Write out the weight 
 print("Writing inherited statistic")
 #Write the catalogue 

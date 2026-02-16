@@ -1,53 +1,59 @@
 ##
 # 
-# KiDS COSMOLOGY PIPELINE Default Configuration Variables 
+# COSMOLOGY PIPELINE Default Configuration Variables 
 # Written by A.H. Wright (2019-09-30) 
 #
 ##
 
 # Defaults for runtime variables 
 
-#Survey Identifier 
-SURVEY=KiDS
-#Patch identification labels 
-PATCHLIST="N S"
+#Survey Identifier (Default: Euclid TR1)
+SURVEY=Euclid_TR1
+#Patch identification labels (Default: Euclid TR1)
+PATCHLIST="LE3"
 #Folder containing wide-field shear catalogues 
 PATCHPATH=/path/to/patches/           
 
 #Spec-z calibration catalogue 
 SPECZCAT=/path/to/SpeczCalibration.cat
 
-#List of magnitudes for use in Nz calibration (Default is KiDS-Legacy)
+#List of magnitudes for use in Nz calibration (Default is Euclid_TR1)
 MAGLIST="MAG_GAAP_u MAG_GAAP_g MAG_GAAP_r MAG_GAAP_i1 MAG_GAAP_i2 MAG_GAAP_Z MAG_GAAP_Y MAG_GAAP_J MAG_GAAP_H MAG_GAAP_Ks"
 
-#Reference magnitude for use in calibration (Default is KiDS-Legacy)
+#Reference magnitude for use in calibration (Default is Euclid_TR1)
 REFMAGNAME="MAG_AUTO"
 
-#Form of the SOM calibration feature space ({ALLMAG,MAG,ALLCOLOUR,COLOUR})
-FEATURETYPES="ALLCOLOUR+MAG"
+#List of input fluxes for use in Nz calibration (Default is Euclid_TR1)
+FLUXLIST="FLUX_G_EXT_DECAM_@BV:MTYPE@ FLUX_R_EXT_DECAM_@BV:MTYPE@ FLUX_I_EXT_DECAM_@BV:MTYPE@ FLUX_Z_EXT_DECAM_@BV:MTYPE@ FLUX_Y_@BV:MTYPE@ FLUX_J_@BV:MTYPE@ FLUX_H_@BV:MTYPE@"
 
-#Blind Character (Default is KiDS-1000) 
-BLIND=C                 
+#Reference flux for use in calibration (Default is Euclid_TR1)
+REFFLUXNAME="FLUX_VIS_@BV:MTYPE@"
 
-#Shape measurement variables: e1 (Default is KiDS-Legacy)
-E1NAME=autocal_e1_@BV:BLIND@
-#Shape measurement variables: e2 (Default is KiDS-Legacy) 
-E2NAME=autocal_e2_@BV:BLIND@
+#Form of the SOM calibration feature space ({ALLMAG,MAG,ALLCOLOUR,COLOUR,RATIO,REFRATIO}) (Default is Euclid_TR1)
+FEATURETYPES="REFRATIO"
 
-#Uncorrected shape measurement variables: e1 (Default is KiDS-Legacy)
-RAWE1NAME=raw_e1
-#Uncorrected shape measurement variables: e2 (Default is KiDS-Legacy)
-RAWE2NAME=raw_e1
+#Blind Character (Default is Euclid TR1) 
+BLIND=
 
-#PSF Shape measurement variables: e1 (Default is KiDS-Legacy)
-PSFE1NAME=PSF_e1
-#PSF Shape measurement variables: e2 (Default is KiDS-Legacy)
-PSFE2NAME=PSF_e2
+#Shape measurement variables: e1 (Default is Euclid_TR1)
+E1NAME=SHE_@BV:SHAPETYPE@_E1_CORRECTED
+#Shape measurement variables: e2 (Default is Euclid TR1) 
+E2NAME=SHE_@BV:SHAPETYPE@_E2_CORRECTED
 
-#RADec names: RA (Default is KiDS-Legacy)
-RANAME=ALPHA_J2000
-#RADec names: Declination  (Default is KiDS-Legacy)
-DECNAME=DELTA_J2000
+#Uncorrected shape measurement variables: e1 (Default is Euclid TR1)
+RAWE1NAME=SHE_@BV:SHAPETYPE@_E1
+#Uncorrected shape measurement variables: e2 (Default is Euclid TR1)
+RAWE2NAME=SHE_@BV:SHAPETYPE@_E2
+
+#PSF Shape measurement variables: e1 (Default is Euclid TR1)
+PSFE1NAME=SHE_@BV:SHAPETYPE@_PSF_E1
+#PSF Shape measurement variables: e2 (Default is Euclid TR1)
+PSFE2NAME=SHE_@BV:SHAPETYPE@_PSF_E2
+
+#RADec names: RA (Default is Euclid TR1)
+RANAME=SHE_@BV:SHAPETYPE@_RA
+#RADec names: Declination  (Default is Euclid TR1)
+DECNAME=SHE_@BV:SHAPETYPE@_DEC
 
 #Radius for on-sky matching (arcsec)
 RADIUS=1
@@ -55,17 +61,17 @@ RADIUS=1
 #Number of bootstrap realisations when required 
 NBOOT=300
 
-#Specz column name (Default is KiDS-Legacy)
-ZSPECNAME='z_spec'
+#Specz column name (Default is Euclid TR1)
+ZSPECNAME='photoz'
 
-#Photo-z column name (Default is KiDS-Legacy)
-ZPHOTNAME='Z_B'
+#Photo-z column name (Default is Euclid TR1)
+ZPHOTNAME='PHZ_MODE_1'
 
 #Number of threads
 NTHREADS=180
 
-#Nz delta-z stepsize (Default is KiDS-Legacy)
-NZSTEP=0.05
+#Nz delta-z stepsize (Default is Euclid TR1)
+NZSTEP=0.001
 
 #Number of spatial splits  (Default is SKILLS)
 NSPLIT=5
@@ -77,57 +83,57 @@ SAVE_TPDS=False
 #Do we want to split the datavector in any way? 
 SPLITMODE=
 
-#List of m-bias values (Default is KiDS-1000 Asgari+ 2021) 
-MBIASVALUES="-0.009  -0.011  -0.015  +0.002  +0.007"      #KiDS-1000 
-#MBIASVALUES="-0.013 -0.018 -0.008 0.019 0.034"            #SSL K1000  
-#List of m-bias uncertainties (Default is KiDS-1000 Asgari+ 2021)
-MBIASERRORS="0.019 0.020 0.017 0.012 0.010"               #KiDS-1000
-#MBIASERRORS="0.017 0.007 0.007 0.006 0.006"            #SSL K1000  
+#List of m-bias values (Default is Euclid TR1) 
+MBIASVALUES="0.0 0.0 0.0 0.0 0.0"          #Euclid TR1 
+
+#List of m-bias uncertainties (Default is Euclid TR1)
+MBIASERRORS="0.0 0.0 0.0 0.0 0.0"          #Euclid TR1
+
 #Use an Analytic m-bias covariance?
 ANALYTIC_MCOV=TRUE
 #m-bias correlation  
 MBIASCORR=0.99
 
-#List of sigmae values (Default is KiDS-1000 Asgari+ 2021)
-SIGMAELIST="0.270 0.258 0.273 0.254 0.270"                      #KiDS-1000
+#List of sigmae values (Default is Euclid TR1 lensmc)
+SIGMAELIST="0.268 0.267 0.259 0.259 0.255 0.264"          #Euclid TR1
 
-#Limits of the tomographic bins (Default is KiDS-1000)
-TOMOLIMS='0.1 0.3 0.5 0.7 0.9 1.2'                        #KiDS-1000
+#Limits of the tomographic bins (Default is Euclid TR1)
+TOMOLIMS='0.5 1.5 2.5 3.5 4.5 5.5 6.5'                    #Euclid TR1
 
-#Variable used to define tomographic bins (Default is KiDS-Legacy)
-TOMOVAR=Z_B
+#Variable used to define tomographic bins (Default is Euclid TR1 WL)
+TOMOVAR=TOM_BIN_ID
 
-#lower theta limit for xipm (arcmin; Default is KiDS-Legacy)
-THETAMINXI="2.00"
-#upper theta limit for xipm (arcmin; Default is KiDS-Legacy)
+#lower theta limit for xipm (arcmin; Default is Euclid TR1)
+THETAMINXI="0.50"
+#upper theta limit for xipm (arcmin; Default is Euclid TR1)
 THETAMAXXI="300.00"
-#Number of Theta bins for xipm (can be highres for BP/COSEBIs; default is KiDS-Legacy)
+#Number of Theta bins for xipm (can be highres for BP/COSEBIs; default is Euclid TR1)
 NTHETABINXI="1000"
-#Number of Xipm bins used for science (Default is KiDS-Legacy)
+#Number of Xipm bins used for science (Default is Euclid TR1)
 NXIPM=9 
-#Maximum Theta for analysing Xim (arcmin; )
+#Maximum Theta for analysing Xim (arcmin)
 THETAMAXXIM=300
 #Minimum Theta for analysing Xim (arcmin) 
 THETAMINXIM=4
 
-#Minimum Number of modes for COSEBIs (Default is KiDS-Legacy)
+#Minimum Number of modes for COSEBIs (Default is Euclid TR1)
 NMINCOSEBIS=1
-#Maximum Number of modes for COSEBIs (Default is KiDS-Legacy)
+#Maximum Number of modes for COSEBIs (Default is Euclid TR1)
 NMAXCOSEBIS=20
 
-#Name of the lensing weight variable (Default is KiDS-Legacy)
-WEIGHTNAME=AlphaRecalC_weight_@BV:BLIND@
+#Name of the lensing weight variable (Default is Euclid TR1)
+WEIGHTNAME=SHE_@BV:SHAPETYPE@_WEIGHT
 
-#Name of the lensing weight variable (Default is KiDS-Legacy)
+#Name of the lensing weight variable (Default is Euclid TR1)
 CALIBWEIGHTNAME=@BV:WEIGHTNAME@_wPV
 
 #Name to base the Nz labels on 
 NZNAME_BASEBLOCK=som_weight_calib_cats
 
 #Name of the base file for cosmosis/onecov
-NPAIRBASE=XI_@BV:SURVEY@_NScomb        #Use the combined XIpm counts as fiducial
+NPAIRBASE=XI_@BV:SURVEY@_TR1        #Use the combined XIpm counts as fiducial
 
-#Statistic of choice for chain (Default is KiDS-Legacy fiducial)
+#Statistic of choice for chain (Default is Euclid TR1 fiducial)
 STATISTIC=cosebis
 
 #Sampler (Default is KiDS-Legacy fiducial)
@@ -135,17 +141,18 @@ SAMPLER=nautilus
 
 #Nautilus resume 
 NAUTILUS_RESUME=false
+
 #Nautilus number of samples 
 NAUTILUS_NSAMP=10000
 
-#Boltzmann Code (Default is KiDS-Legacy)
+#Boltzmann Code (Default is KiDS-Legacy fiducial)
 BOLTZMAN=COSMOPOWER_HM2020 
 
 #Simulated spectroscopic calibration sample(s)
 SIMSPECZCAT=/path/to/specz/simulations/
 
-#Simulated catalogues with constant shear (Default is KiDS-Legacy)
-SIMMAINCAT=/path/to/KiDSLegacy_data/skills_v07D7ten/                                #KiDS-Legacy
+#Simulated catalogues with constant shear (Default is SKILLS)
+SIMMAINCAT=/path/to/KiDSLegacy_data/skills_v07D7ten/                                #SKILLS
 
 #Simulated catalogues with variable shear 
 SIMVARCAT=/path/to/KiDSLegacy_data/skills_v07D7p1/
@@ -170,9 +177,9 @@ ETYPE='measured'
 
 #Filtering condition 
 FILTERCOND=@BV:FILTERCOND@
+
 #Strings to match to columns when reducing catalogue size  
 KEEPSTRINGS=@BV:KEEPSTRINGS@
-
 
 #Input shear variable names: gamma_1
 G1NAME=@BV:G1NAME@
@@ -185,6 +192,7 @@ GAUSS=True
 NONGAUSS=True
 #Compute the mixterm component of the covariance (True or False) 
 MIXTERM=False
+#Block element name for use in defining the mixterm 
 MIXTERM_BASEFILE=main_all_gold_recal_cc_@BV:BLIND@
 #Split Gaussian contributions in the output file (True or False; True adds considerable runtime (x2+)!) 
 SPLIT_GAUSS=False
@@ -371,28 +379,28 @@ MAGTHRESH="20 25.5"
 MAGLIMIT_FILTER="r"
 
 #Input Values for the Nz bias in each tomographic bin (SHOULD BE dz = EST - TRUTH)
-NZBIAS="0.000 +0.002 +0.013 +0.011 -0.006"               #KiDS-1000 
+NZBIAS="0.000 0.000 0.000 0.000 0.000"               #Euclid TR1 
 
 #Decorrelated Values for the Nz bias in each tomographic bin
 NZBIAS_UNCORR=
 
 #Input Nz covariance matrix 
-NZCOVFILE=/path/to/KiDS1000_data/SOM_cov_multiplied.asc    #KiDS-1000
+NZCOVFILE=/path/to/KiDS1000_data/SOM_cov_multiplied.asc    
 
 #Number of cores to use for Covariance Calculation 
 COVNCORES=@BV:NTHREADS@
 
 
 #Survey Area in arcmin for the combined patches
-SURVEYAREA_NS=3.12120e+06     #KiDS-1000
+SURVEYAREA_NS=1.871e+6        #Euclid TR1
 #Survey Area in arcmin for the combined patches
-SURVEYAREADEG_NS=867.0        #KiDS-1000
+SURVEYAREADEG_NS=519.6        #Euclid TR1
 
 #Survey Mask File 
 SURVEYMASKFILE_NS=
-#Survey Area in arcmin for the combined patches
+#Survey Area in arcmin for the Northern patches
 SURVEYMASKFILE_N=
-#Survey Area in arcmin for the combined patches
+#Survey Area in arcmin for the Southern patches
 SURVEYMASKFILE_S=
 
 #Bin slop 
@@ -421,3 +429,4 @@ REMOVETOMOBIN=
 
 #Statistics to use for summary plot construction (if available) 
 SUMMARY_STATISTICS='cosebis bandpowers xipm'
+

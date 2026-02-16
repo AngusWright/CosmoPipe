@@ -3,7 +3,7 @@
 # File Name : prepare_cosmosis.sh
 # Created By : awright
 # Creation Date : 31-03-2023
-# Last Modified : Sat Sep  6 11:22:55 2025
+# Last Modified : Mon Feb  2 05:29:30 2026
 #
 #=========================================
 
@@ -144,7 +144,19 @@ then
         filestr="${appendstr}${appendstr2}_"
         #}}}
         #Get the file {{{
-        file=`echo ${headfiles} | sed 's/ /\n/g' | grep -i "[\^_]${patch}_" | grep ${filestr} || echo `
+        for file in ${headfiles} 
+        do 
+          inputroot=${file%/*}
+          inputbase=${file##*/}
+          check=`echo ${inputbase} | sed 's/ /\n/g' | grep -i "[\^_]${patch}_" | grep ${filestr} || echo `
+          #Check if the output file exists {{{
+          if [ "${check}" != "" ] 
+          then 
+            break
+          fi 
+          #}}}
+          file=""
+        done 
         #}}}
         #Check if the output file exists {{{
         if [ "${file}" == "" ] 

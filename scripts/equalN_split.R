@@ -3,7 +3,7 @@
 # File Name : spatial_split.R
 # Created By : awright
 # Creation Date : 10-07-2023
-# Last Modified : Tue Feb 17 09:32:00 2026
+# Last Modified : Tue Feb 17 15:27:49 2026
 #
 #=========================================
 
@@ -14,7 +14,7 @@ inputs<-commandArgs(TRUE)
 
 #Interpret the command line options {{{
 badval<- -999
-limits.only<-FALSE
+ID_only<-limits.only<-FALSE
 w.name='none'
 while (length(inputs)!=0) {
   #Check for valid specification {{{
@@ -56,6 +56,11 @@ while (length(inputs)!=0) {
     x.name<-inputs[1]
     inputs<-inputs[-1]
     #/*fold*/}}}
+  } else if (inputs[1]=='--id_only') { 
+    #Read the spatial column names /*fold*/ {{{
+    inputs<-inputs[-1]
+    ID_only<-TRUE
+    #/*fold*/}}}
   } else if (inputs[1]=='-w') { 
     #Read the weight column names /*fold*/ {{{
     inputs<-inputs[-1]
@@ -74,7 +79,7 @@ while (length(inputs)!=0) {
 #}}}
 
 #Check that length of the output files is correct {{{
-if (length(output.cats)!=nsplit & !limits.only) { 
+if (length(output.cats)!=nsplit & !limits.only & !ID_only) { 
   stop("Output file list must be of length nsplit") 
 } 
 #}}}
@@ -95,9 +100,9 @@ if (!w.name %in% cat) {
 
 
 #Read the input catalogue {{{
-if (limits.only & weighted) { 
+if ((ID_only | limits.only) & weighted) { 
   cat<-helpRfuncs::read.file(input.cat,cols=c(x.name,w.name))
-} else if (limits.only) { 
+} else if (ID_only | limits.only) { 
   cat<-helpRfuncs::read.file(input.cat,cols=x.name)
 } else { 
   cat<-helpRfuncs::read.file(input.cat)
@@ -160,7 +165,7 @@ if (limits.only) {
       } else { 
         breaks=quantile(tmp$x[good],probs=seq(0,1,length=nsplit+1))
       } 
-      bins[good]<-with(tmp[good,],tapply(1:length(x),list(x=cut(x, breaks=breaks, include.lowest=T))))
+      bins[good]<-with(tmp[good,],tapply(1:length(which(good)),list(x=cut(x, breaks=breaks, include.lowest=T))))
       bins[!good]<-sample(1:nsplit,size=length(which(!good)),replace=T)
     } else { 
       cat('binning in x\n')
@@ -179,26 +184,33 @@ if (limits.only) {
   print(table(bins))
 
   #For each split, output the catalogue {{{
-  written<-FALSE
-  for (i in seq(1,nsplit)) { 
-    #Select the relevant sources {{{
-    out<-cat[which(bins==i),]
-    out$BIN_ID<-paste0(i,"_patch")
-    #}}}
-    cat(paste('bin',i,x.name,'stats:\n'))
-    print(summary(out[[x.name]]))
-
-    if (nrow(out)==0) { 
-      cat(paste("WARNING: split",i,"contains no sources?!\n"))
-    } else { 
-      #Write the file {{{
-      helpRfuncs::write.file(file=output.cats[i],out)
+  if (ID_only) { 
+    out<-cat
+    out$BIN_ID<-paste0(bins,"_patch")
+    out$BIN_NUM<-bins
+    helpRfuncs::write.file(file=output.cats[1],out)
+  } else { 
+    written<-FALSE
+    for (i in seq(1,nsplit)) { 
+      #Select the relevant sources {{{
+      out<-cat[which(bins==i),]
+      out$BIN_ID<-paste0(i,"_patch")
       #}}}
-      written<-TRUE
+      cat(paste('bin',i,x.name,'stats:\n'))
+      print(summary(out[[x.name]]))
+
+      if (nrow(out)==0) { 
+        cat(paste("WARNING: split",i,"contains no sources?!\n"))
+      } else { 
+        #Write the file {{{
+        helpRfuncs::write.file(file=output.cats[i],out)
+        #}}}
+        written<-TRUE
+      }
+    } 
+    if (!written) { 
+      stop("Nothing was written to disk?!") 
     }
-  } 
-  if (!written) { 
-    stop("Nothing was written to disk?!") 
   }
   #}}}
 }

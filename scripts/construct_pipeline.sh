@@ -325,6 +325,7 @@ do
     if [ "${resume}" == "TRUE" ] && [ "${found_resume}" == "FALSE" ]
     then 
       lastassign=${_target}
+      resume_nstep=0
     fi 
     #}}}
   elif [ "${step:0:1}" == "!" ]
@@ -341,6 +342,7 @@ do
     if [ "${resume}" == "TRUE" ] && [ "${found_resume}" == "FALSE" ]
     then 
       lastassign=${_target}
+      resume_nstep=0
     fi 
     #}}}
   elif [ "${step:0:1}" == "-" ]
@@ -364,6 +366,7 @@ do
     if [ "${lastassign}" == "${oldname}" ] 
     then 
       lastassign=${newname}
+      resume_nstep=0
     fi 
     #Rewrite all instances of oldname(oldname) in the links file to newname(newname)
     cat @RUNROOT@/@PIPELINE@_links.R | sed "s/${oldname}(${oldname})/${newname}(${newname})/g" > @RUNROOT@/@PIPELINE@_links.R.tmp
@@ -402,6 +405,11 @@ do
   else 
     #Check for the manual file  {{{
     echo Script: ${step}
+    #If we havent found the resume, increment the resume step counter
+    if [ "${found_resume}" == "FALSE" ]
+    then 
+      resume_nstep=$((nstep+1))
+    fi 
     if [ ! -f @RUNROOT@/@MANUALPATH@/${step}.man.sh ]
     then 
       #If not found, error 
@@ -735,7 +743,7 @@ EOF
 #}}}
 
 #Check if we are running a 'resume' {{{
-if [ "${resume}" == "TRUE" ] 
+if [ "${resume}" == "TRUE" ] & [ "${resume_nstep}" == 0 ]
 then 
   #Start by performing the last assignment before the resume {{{
   cat >> @RUNROOT@/@PIPELINE@_pipeline.sh <<- EOF 
@@ -748,6 +756,39 @@ then
 	_add_datahead "${lastassign}"
 	#Notify
 	_message "} - @RED@Done!@DEF@\n"
+	#}}}
+
+
+	EOF
+  #}}}
+elif [ "${resume}" == "TRUE" ] 
+then 
+  #Do not re-initialise the DATAHEAD before the resume {{{
+  if [ "${warnings}" == "" ] 
+  then 
+    warnings="${RED}     WARNINGS:${DEF}\n     ${RED}RESUME${BLU} was requested and was found ${RED}${resume_nstep}${BLU} processing-function step(s) from\n"
+    warnings="${warnings}     ${BLU}the last DATAHEAD assignment (${RED}${lastassign}${BLU})${DEF}\n"
+    warnings="${warnings}     ${BLU}This can result in ${RED}pathologically bad behaviour${BLU} if the pipeline crash\n"
+    warnings="${warnings}     ${BLU}happened mid-way through the running of the previous processing function${DEF}\n"
+    warnings="${warnings}     ${BLU}This pipeline configuration will continue, but it is ${RED}strongly advised${BLU}\n"
+    warnings="${warnings}     ${BLU}that you monitor the outputs, and consider moving the ${RED}RESUME${BLU} statement\n"
+    warnings="${warnings}     ${BLU}to directly below the previous assignment in the pipeline (i.e. ${DEF}@${lastassign}${BLU}).${DEF}\n"
+  else 
+    warnings="${warnings}     ${RED}RESUME${BLU} was requested and was found ${resume_nstep} processing-function steps from\n"
+    warnings="${warnings}     ${BLU}the last DATAHEAD assignment (${RED}${lastassign}${BLU})${DEF}\n"
+    warnings="${warnings}     ${BLU}This can result in ${RED}pathologically bad behaviour${BLU} if the pipeline crash\n"
+    warnings="${warnings}     ${BLU}happened mid-way through the running of the previous processing function${DEF}\n"
+    warnings="${warnings}     ${BLU}This pipeline configuration will continue, but it is ${RED}strongly advised${BLU}\n"
+    warnings="${warnings}     ${BLU}that you monitor the outputs, and consider moving the ${RED}RESUME${BLU} statement\n"
+    warnings="${warnings}     ${BLU}to directly below the previous assignment in the pipeline (i.e. ${DEF}@${lastassign}${BLU}).${DEF}\n"
+  fi 
+  cat >> @RUNROOT@/@PIPELINE@_pipeline.sh <<- EOF 
+	
+	#Modify the HEAD to the request value
+	#Skip the head update {{{
+	#Notify
+	_message "@RED@SKIPPING@BLU@ the assignment of @DEF@${lastassign}@BLU@ to the DATAHEAD:\n"
+	_message "     -> @RED@RESUME@BLU@ was requested in the middle of a chained-sequence of processing functions@DEF@.\n"
 	#}}}
 
 

@@ -3,7 +3,7 @@
 # File Name : extract_patch.sh
 # Created By : awright
 # Creation Date : 28-03-2023
-# Last Modified : Tue Feb 17 15:08:45 2026
+# Last Modified : Tue Feb 17 19:40:28 2026
 #
 #=========================================
 
@@ -30,7 +30,7 @@ do
   then 
     tmp_ext=${inputbase##*.}
     tmp_base=${inputbase%.*}
-    outputname=${inputroot}/${tmp_base}_${patch}_pws.${ext}
+    outputname=${inputroot}/${tmp_base}_${patch}_pws.${tmp_ext}
   fi 
   #}}}
   #Add the output name to the output list {{{ 

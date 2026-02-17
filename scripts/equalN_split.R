@@ -3,7 +3,7 @@
 # File Name : spatial_split.R
 # Created By : awright
 # Creation Date : 10-07-2023
-# Last Modified : Tue Feb 17 09:25:55 2026
+# Last Modified : Tue Feb 17 09:32:00 2026
 #
 #=========================================
 
@@ -183,7 +183,7 @@ if (limits.only) {
   for (i in seq(1,nsplit)) { 
     #Select the relevant sources {{{
     out<-cat[which(bins==i),]
-    out$BIN_ID<-i
+    out$BIN_ID<-paste0(i,"_patch")
     #}}}
     cat(paste('bin',i,x.name,'stats:\n'))
     print(summary(out[[x.name]]))

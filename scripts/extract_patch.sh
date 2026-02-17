@@ -3,7 +3,7 @@
 # File Name : extract_patch.sh
 # Created By : awright
 # Creation Date : 28-03-2023
-# Last Modified : Sat Jan 31 10:13:15 2026
+# Last Modified : Tue Feb 17 15:08:45 2026
 #
 #=========================================
 
@@ -24,6 +24,14 @@ do
   inputroot=${inputfile%/*}
   inputbase=${inputfile##*/}
   outputname=${inputroot}/${inputbase//_@ALLPATCH@_/_${patch}_}
+  #}}}
+  #Check for rename errors {{{
+  if [ "${outputname}" == "${inputfile}" ]
+  then 
+    tmp_ext=${inputbase##*.}
+    tmp_base=${inputbase%.*}
+    outputname=${inputroot}/${tmp_base}_${patch}_pws.${ext}
+  fi 
   #}}}
   #Add the output name to the output list {{{ 
   outputlist="${outputlist} ${outputname##*/}"

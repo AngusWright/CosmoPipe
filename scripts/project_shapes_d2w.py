@@ -3,7 +3,7 @@
 # File Name : project_shapes.py
 # Created By : awright
 # Creation Date : 02-02-2026
-# Last Modified : Fri Feb  6 15:04:41 2026
+# Last Modified : Wed Feb 18 09:51:22 2026
 #
 #=========================================
 
@@ -183,20 +183,16 @@ else:
     jacobian_matrices = np.array([np.reshape(j, (2, 2)) for j in jacobians])
     print(jacobian_matrices.shape)
     print(len(data_shapes))
-    g1_det, g2_det = e_to_g(data_shapes[args.e1name_det],data_shapes[args.e2name_det])
-    g1_ord, g2_ord = det_to_world(g1_det[ind2], g2_det[ind2], jacobian_matrices[ind1])
-    g1=np.zeros(len(g1_ord))
-    g1[ind2]=g1_ord
-    g2=np.zeros(len(g2_ord))
-    g2[ind2]=g2_ord
-    e1, e2 = g_to_e(g1,g2)
+    e1_det = data_shapes[args.e1name_det]
+    e2_det = data_shapes[args.e2name_det]
+    e1_ord, e2_ord = det_to_world(e1_det[ind2], e2_det[ind2], jacobian_matrices[ind1])
+    e1=np.zeros(len(e1_ord))
+    e1[ind2]=e1_ord
+    e2=np.zeros(len(e2_ord))
+    e2[ind2]=e2_ord
     
     print(data_shapes[args.e1name_det])
     print(data_shapes[args.e2name_det])
-    print(g1_det)
-    print(g2_det)
-    print(g1)
-    print(g2)
     print(e1)
     print(e2)
     
@@ -205,14 +201,6 @@ else:
 
     df_out[args.e1name]=e1
     df_out[args.e2name]=e2
-    g1name=args.e1name.replace("E1","G1")
-    g2name=args.e2name.replace("E2","G2")
-    if args.e1name==g1name: 
-        g1name=args.e1name.replace("e1","g1")
-        g2name=args.e2name.replace("e2","g2")
-    if args.e1name!=g1name: 
-        df_out[g1name]=g1_det
-        df_out[g2name]=g2_det
     
     #data_shapes.write(datafile_shapes_out)
     #mcf.flexible_write(data_shapes,datafile_shapes_out,ldac_cat)

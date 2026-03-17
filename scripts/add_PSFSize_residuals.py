@@ -10,7 +10,7 @@ import argparse
 import numpy as np
 import astropy.io.fits as fits
 import ldac
-from scipy.interpolate import LinearNDInterpolator
+from scipy.interpolate import LinearNDInterpolator, NearestNDInterpolator
 
 # +++++++++++++++++++++++++++++ parser for command-line interfaces
 parser = argparse.ArgumentParser(
@@ -34,13 +34,14 @@ x = PSF[1].data['x']
 y = PSF[1].data['y']
 PSFSizeRes_grid = PSF[1].data['PSF_R2_ERR'] / PSF[1].data['PSF_R2']
 
-interp = LinearNDInterpolator((x, y), data)
+#interp = LinearNDInterpolator((x, y), PSFSizeRes_grid)
+interp = NearestNDInterpolator((x, y), PSFSizeRes_grid)
 
 #TR1 = fits.open(args.inpath)
 TR1 = ldac.LDACCat(args.inpath)
 
-X = TR1['OBJECTS'].data['SHE_PSF_FOV_X']
-Y = TR1['OBJECTS'].data['SHE_PSF_FOV_Y']
+X = TR1['OBJECTS']['SHE_PSF_FOV_X']
+Y = TR1['OBJECTS']['SHE_PSF_FOV_Y']
 
 PSFSizeRes = interp(X,Y)
 

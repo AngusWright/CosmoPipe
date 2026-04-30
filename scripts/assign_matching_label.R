@@ -81,7 +81,7 @@ train_white=kohonen::kohwhiten(train_data,train.expr=args$features,data.missing=
                                whiten.param=test_white$whiten.param)
 
 idx = RANN::nn2(query=test_white$data.white, 
-                data=train_white$data.white, k=ifelse(args$duplicates,args$nodup_nmatch,1))
+                data=train_white$data.white, k=ifelse(!args$duplicates,args$nodup_nmatch,1))
 
 cat(paste0("There are ",length(which(idx$nn.idx[,1]!=0))," matches (out of ",nrow(test_data),")"))
 if (!args$duplicates) { 

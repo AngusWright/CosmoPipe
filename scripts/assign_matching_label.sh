@@ -3,7 +3,7 @@
 # File Name : match_to_sims.sh
 # Created By : awright
 # Creation Date : 15-06-2023
-# Last Modified : Wed 22 Nov 2023 03:11:36 PM CET
+# Last Modified : Mon Apr 27 20:55:36 2026
 #
 #=========================================
 
@@ -74,6 +74,7 @@ do
      -i ${current_target} \
      -o ${output_file} \
      -l @BV:LABELNAME@ \
+     @BV:MATCHDUPLICATES@ \
      -f ${target_features} 2>&1
   #Notify 
   _message " -@RED@ Done! (`date +'%a %H:%M'`)@DEF@\n"

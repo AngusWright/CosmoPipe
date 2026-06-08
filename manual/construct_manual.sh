@@ -3,18 +3,31 @@
 # File Name : construct_manual.sh
 # Created By : awright
 # Creation Date : 01-10-2024
-# Last Modified : Wed 26 Feb 2025 09:05:26 PM CET
+# Last Modified : Mon Feb 16 12:34:56 2026
 #
 #=========================================
 
 
 source ../man/CosmoPipe.man.sh 
 
+if [ ! -d ../tex ]
+then 
+  mkdir ../tex 
+fi 
+
+if [ ! -d ../history ]
+then 
+  mkdir ../history
+fi 
+
+
+
 cat CosmoPipe_frontmatter.tex | sed "s/@DATE@/`date`/" > ../tex/CosmoPipe_manual.tex 
 echo > ../tex/sections.tex 
 
-for file in `ls *.sh` 
+for file in `ls ../scripts/*.sh` 
 do 
+  file=${file##*/}
   #if [ -f ../tex/${file//.sh/.tex} ] 
   #then 
   #  continue
@@ -27,14 +40,14 @@ do
     continue
   fi 
   #Check if this file is tracked 
-  git ls-files --error-unmatch ${file} >/dev/null 2>&1 || tracked=FALSE && tracked=TRUE 
+  git ls-files --error-unmatch ../scripts/${file} >/dev/null 2>&1 || tracked=FALSE && tracked=TRUE 
   if [ "${tracked}" == "FALSE" ] 
   then 
     echo "File ${file} isn't tracked by git: skipping"
     continue 
   fi 
   #Check if the script contains uncommited changes 
-  git diff --exit-code ${file}  >/dev/null 2>&1|| modified=TRUE && modified=FALSE
+  git diff --exit-code ../scripts/${file}  >/dev/null 2>&1|| modified=TRUE && modified=FALSE
   if [ "${modified}" == "TRUE" ] 
   then 
     echo "Warning: File ${file} contains uncommitted changes!"
@@ -56,7 +69,7 @@ do
   fi 
   echo ${file}
   #Extract the git commit history for this script 
-  git log --follow -- ${file} 2>/dev/null > ../history/${file//.sh/.txt} 
+  git log --follow -- ../scripts/${file} 2>/dev/null > ../history/${file//.sh/.txt} 
   #Extract the git commit history for the documentation for this script 
   git log --follow -- ${man_file} 2>/dev/null > ../history/${file//.sh/.man.txt} 
   #Load the documentation for this script 

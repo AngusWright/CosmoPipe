@@ -3,14 +3,14 @@
 # File Name : ldackeepcols.sh
 # Created By : awright
 # Creation Date : 12-06-2023
-# Last Modified : Wed Sep 10 08:38:07 2025
+# Last Modified : Mon Apr 20 21:37:03 2026
 #
 #=========================================
 
 #Input catalogue
 input=@DB:DATAHEAD@
 
-#Define the output catalogue name 
+#Define the output catalogue name {{{
 ext=${input##*.}
 pattern="_calc[[:digit:]]{0,}.${ext}"
 if [[ ${input} =~ ${pattern} ]]
@@ -27,9 +27,11 @@ then
 else 
   output=${input//.${ext}/_calc.${ext}}
 fi 
+#}}}
 
-#Notify 
+#Notify {{{
 _message "@DEF@ > @BLU@Adding @BV:CALCCOLNAME@ using condition @BV:CALCCOND@ to catalogue ${input##*/}@DEF@"
+#}}}
 
 #Check if input file lengths are ok {{{
 links="FALSE"
@@ -64,14 +66,16 @@ then
 fi 
 #}}}
 
-#Column strings to match to: 
+#Column strings to match to: {{{
 calccond="@BV:CALCCOND@;"
 #Column name to add: 
 calccol="@BV:CALCCOLNAME@"
 calccom="@BV:CALCCOMM@"
 calctype="@BV:KEYTYPE@" 
+#}}}
 
-#Get the list of all columns 
+#Check if column already exists {{{
+#Get the list of all columns {{{
 cols=`@RUNROOT@/INSTALL/theli-1.6.1/bin/@MACHINE@/ldacdesc -i ${input} -t OBJECTS 2>&1 | grep "Key name" | sed 's@Key name:\(\.\)\{1,\}@@' || echo `
 
 if [ "${cols}" == "" ] 
@@ -80,10 +84,13 @@ then
   _message "${input}\n"
   exit 1 
 fi 
+#}}}
 
-#Check if @BV:CALCCOLNAME@ is one of the columns 
-colcheck=`echo ${cols} | sed 's/ /\n/g' | grep -ci "${calccol}" || echo `
+#Check if @BV:CALCCOLNAME@ is one of the columns {{{
+colcheck=`echo ${cols} | grep -ci "\b${calccol}\b" || echo `
+#}}}
 
+#Remove if already present {{{
 if [ ${colcheck} -ne 0 ]
 then 
   #_message "@BLU@ - @RED@Done! (`date +'%a %H:%M'`)@DEF@\n"
@@ -101,34 +108,62 @@ then
   _message "@BLU@ Resuming@DEF@"
 
 fi 
+#}}}
+#}}}
 
-  #_message "@BLU@ - @RED@Done! (`date +'%a %H:%M'`)@DEF@\n"
-  #_message "@RED@ - ERROR! Column name to add already exists!@DEF@\n"
-  #_message "@BLU@columns:@DEF@\n"
-  #_message "${cols}\n"
-  #_message "@BLU@ldaccalc colname:@DEF@"
-  #_message "${calccol}\n"
-  #exit 1
-#else 
-  #Calculate the new column 
-  @RUNROOT@/INSTALL/theli-1.6.1/bin/@MACHINE@/ldaccalc \
+#Calculate the new column {{{
+ldacpass=TRUE
+#Construct new column 
+{ 
+@RUNROOT@/INSTALL/theli-1.6.1/bin/@MACHINE@/ldaccalc \
+  -i ${input} \
+  -o ${output} \
+  -t OBJECTS \
+  -c "${calccond}" \
+  -n "${calccol}" "${calccom}" \
+  -k ${calctype} 2>&1 || ldacpass='FALSE'
+} >&1
+
+if [ "$ldacpass" == "FALSE" ] 
+then 
+  _message "@RED@ - Retry@DEF@;@BLU@ Rerunning with R & LDAC@DEF@\n"
+  #Calculate the new column {{{
+  _message "  > @BLU@Computing @DEF@${calccol}@BLU@ column with R expression:@DEF@${calccond}"
+  @P_RSCRIPT@ @RUNROOT@/@SCRIPTPATH@/ldaccalc.R \
+    --input ${input} \
+    --output ${output} \
+    --cond "${calccond}" \
+    --name "${calccol}" \
+    2>&1
+  _message "@RED@ - Done@DEF@\n"
+  #}}}
+
+  #Merge new column {{{
+  _message "  > @BLU@Merging ${calccol} column@DEF@"
+  #Merge new column 
+  @RUNROOT@/INSTALL/theli-1.6.1/bin/@MACHINE@/ldacjoinkey \
     -i ${input} \
-    -o ${output} \
-    -t OBJECTS \
-    -c "${calccond}" \
-    -n "${calccol}" "${calccom}" \
-    -k ${calctype} 2>&1
+    -p ${output} \
+    -o ${output}_tmp \
+    -k "${calccol}" -t OBJECTS 2>&1
+  mv ${output}_tmp ${output}
+  _message "@RED@ - Done\n"
+  #}}}
+fi 
+#}}}
 
-  _message "@BLU@ - @RED@Done! (`date +'%a %H:%M'`)@DEF@\n"
-  
-  if [ "${links}" == "TRUE" ] 
-  then 
-    rm ${input} ${output}
-    input=${originp}
-    output=${origout}
-  fi 
-  
-  #Update the datahead
-  _replace_datahead "${input}" "${output}"
-#fi 
+_message "@BLU@ - @RED@Done! (`date +'%a %H:%M'`)@DEF@\n"
+
+#Replace links if needed {{{ 
+if [ "${links}" == "TRUE" ] 
+then 
+  rm ${input} ${output}
+  input=${originp}
+  output=${origout}
+fi 
+#}}}
+
+#Update the datahead {{{
+_replace_datahead "${input}" "${output}"
+#}}}
 

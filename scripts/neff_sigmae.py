@@ -20,7 +20,9 @@ parser.add_argument('--mbias', dest="mbias",type=float,default=0.0,
 
 args = parser.parse_args()
 try:
-  catalogue=pyfits.open(args.input)[1].data
+  fopen=pyfits.open(args.input)
+  fopen=fopen.verify('fix')
+  catalogue=fopen[1].data
   e1=catalogue.field(args.e1name)
   e2=catalogue.field(args.e2name)
   weight=catalogue.field(args.wname)

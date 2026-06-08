@@ -3,7 +3,7 @@
 # File Name : combine_cats.sh
 # Created By : awright
 # Creation Date : 20-03-2023
-# Last Modified : Thu May 23 20:15:33 2024
+# Last Modified : Wed Apr  1 21:41:29 2026
 #
 #=========================================
 
@@ -88,13 +88,55 @@ then
     outname=outfile_$$.lnk
   fi 
   #}}}
+
+  count=0
+  @RUNROOT@/INSTALL/theli-1.6.1/bin/@MACHINE@/ldacdesc -i `echo ${input} | awk '{print $1}'` -t OBJECTS > tmp 2> /dev/null 
+  for file in ${input} 
+  do 
+    ((count+=1))
+    _message "\r   > @BLU@Checking files have common format: @RED@$((count))@BLU@ of @RED@$nfile@DEF@ "
+    @RUNROOT@/INSTALL/theli-1.6.1/bin/@MACHINE@/ldacdesc -i `echo ${input} | awk -v n=$count '{print $n}'` -t OBJECTS > tmp2 2> /dev/null 
+    ndiff=`diff tmp tmp2 | wc -l`
+    if [ ${ndiff} -gt 0 ] 
+    then 
+       _message " @RED@- ERROR: formats differ!\n@DEF@ `echo ${input} | awk -v n=$count '{print $n}'`\n"
+       exit 1 
+    fi 
+  done 
+  _message " @RED@- Done@DEF@\n" 
   
-  #Combine the DATAHEAD catalogues into one 
-  _message "   > @BLU@Constructing combined catalogue @DEF@${outname}@DEF@ "
-  @RUNROOT@/INSTALL/theli-1.6.1/bin/@MACHINE@/ldacpaste \
-    -i ${input} \
-    -o ${outname} 2>&1 
-  _message " @RED@- Done! (`date +'%a %H:%M'`)@DEF@\n"
+  if [ ${nfile} -gt 1020 ] 
+  then 
+    count=0
+    endlist=""
+    while [ $count -lt $nfile ]
+    do 
+      tmpind=`seq -s ' ' $((count+1)) $((count+1000))`
+      tmplist=`echo $input | cut -d ' ' -f "$tmpind"`
+      echo ${tmplist} | awk '{print NF}' 
+      outtmp=${outname}_${count}_tmp
+      endlist="${endlist} ${outname}_${count}_tmp"
+      _message "   > @BLU@Constructing intermediate combined catalogue with files @RED@$((count+1))@BLU@-@RED@$((count+1000))@BLU@ of @RED@$nfile@DEF@ "
+      @RUNROOT@/INSTALL/theli-1.6.1/bin/@MACHINE@/ldacpaste \
+        -i ${tmplist} \
+        -o ${outtmp} 2>&1 
+      _message " @RED@- Done! (`date +'%a %H:%M'`)@DEF@\n"
+      ((count+=1000))
+    done 
+    #Combine the DATAHEAD catalogues into one 
+    _message "   > @BLU@Constructing final combined catalogue @DEF@${outname}@DEF@ "
+    @RUNROOT@/INSTALL/theli-1.6.1/bin/@MACHINE@/ldacpaste \
+      -i ${endlist} \
+      -o ${outname} 2>&1 
+    _message " @RED@- Done! (`date +'%a %H:%M'`)@DEF@\n"
+  else 
+    #Combine the DATAHEAD catalogues into one 
+    _message "   > @BLU@Constructing combined catalogue @DEF@${outname}@DEF@ "
+    @RUNROOT@/INSTALL/theli-1.6.1/bin/@MACHINE@/ldacpaste \
+      -i ${input} \
+      -o ${outname} 2>&1 
+    _message " @RED@- Done! (`date +'%a %H:%M'`)@DEF@\n"
+  fi
 
   #If using links, replace them {{{
   if [ "${links}" == "TRUE" ] 
@@ -105,13 +147,13 @@ then
   fi 
   #}}}
   
-  
+
   #Update datahead 
+  _writelist_datahead "${outname##*/}" 
   for _file in ${input}
   do 
-    #Replace the first file with the output name, then clear the rest
-    _replace_datahead ${_file} "${outname}"
-    outname=""
+    #Remove the input files 
+    rm -f ${_file}
   done 
 else 
   _message "   > @BLU@There is only @RED@1 file@BLU@ in the DATAHEAD: @DEF@nothing to do!\n@DEF@"

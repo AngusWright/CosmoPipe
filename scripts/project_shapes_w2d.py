@@ -3,7 +3,7 @@
 # File Name : project_shapes.py
 # Created By : awright
 # Creation Date : 02-02-2026
-# Last Modified : Wed Feb 18 09:52:34 2026
+# Last Modified : Sun Apr 19 19:57:26 2026
 #
 #=========================================
 
@@ -14,6 +14,7 @@ import astropy.io.fits as aif
 from astropy.table import Table
 import mcal_functions as mcf 
 import argparse
+import os 
 
 def e_to_g(e1, e2):
     """
@@ -168,46 +169,53 @@ datafile_shapes_out=args.o #"../TR1_v1.1/intermediate_cats/euclid_tr1_abd_v1.1_2
 #Read catalogue (keeping as LDAC)
 data_shapes, ldac_cat = mcf.flexible_read(datafile_shapes,as_df=False)
 
-data_Jacobian=Table.read(datafile_jacobian)
-#data_shapes=Table.read(datafile_shapes)
-data_Jacobian=data_Jacobian[np.isin(data_Jacobian[args.id],data_shapes[args.id])]
-ind1=np.argsort(data_Jacobian[args.id])
-ind2=np.argsort(data_shapes[args.id])
+if os.path.exists(datafile_jacobian): 
+    data_Jacobian=Table.read(datafile_jacobian)
+    #data_shapes=Table.read(datafile_shapes)
+    data_Jacobian=data_Jacobian[np.isin(data_Jacobian[args.id],data_shapes[args.id])]
+    ind1=np.argsort(data_Jacobian[args.id])
+    ind2=np.argsort(data_shapes[args.id])
 
-stat=np.any(data_Jacobian[args.id][ind1]!=data_shapes[args.id][ind2]) 
+    stat=np.any(data_Jacobian[args.id][ind1]!=data_shapes[args.id][ind2]) 
 
-if stat == True : 
-    raise ValueError("ERROR: object id sort did not work")
+    if stat == True : 
+        raise ValueError("ERROR: object id sort did not work")
+    else: 
+        jacobians = data_Jacobian['jacobian']
+        jacobian_matrices = np.array([np.reshape(j, (2, 2)) for j in jacobians])
 else: 
-    jacobians = data_Jacobian['jacobian']
-    jacobian_matrices = np.array([np.reshape(j, (2, 2)) for j in jacobians])
-    print(jacobian_matrices.shape)
-    print(len(data_shapes))
-    e1 = data_shapes[args.e1name]
-    e2 = data_shapes[args.e2name]
-    e1_det_ord, e2_det_ord = world_to_det(e1[ind2], e2[ind2], jacobian_matrices[ind1])
-    e1_det=np.zeros(len(e1_det_ord))
-    e1_det[ind2]=e1_det_ord
-    e2_det=np.zeros(len(e2_det_ord))
-    e2_det[ind2]=e2_det_ord
-    
-    print(data_shapes[args.e1name])
-    print(data_shapes[args.e2name])
-    print(e1_det)
-    print(e2_det)
-    
-    df_out = pd.DataFrame(index=range(len(data_shapes['SeqNr'])))
-    df_out['SeqNr']=data_shapes['SeqNr']
+    jacobians = np.array([data_shapes['JACOBIAN_1'],data_shapes['JACOBIAN_2'],data_shapes['JACOBIAN_3'],data_shapes['JACOBIAN_4']]).T
+    jacobian_matrices = np.array([row.reshape(2, 2) for row in jacobians])
+    ind1 = np.arange(len(data_shapes))
+    ind2 = np.arange(len(data_shapes))
 
-    df_out[args.e1name_det]=e1_det
-    df_out[args.e2name_det]=e2_det
-    
-    #data_shapes.write(datafile_shapes_out)
-    #Write the catalogue 
-    #mcf.flexible_write(data_shapes,datafile_shapes_out,ldac_cat)
-    table = Table.from_pandas(df_out)
-    hdu=aif.BinTableHDU(data=table, name='OBJECTS')
-    hdu.writeto(datafile_shapes_out, overwrite=True)
+print(jacobian_matrices.shape)
+print(len(data_shapes))
+e1 = data_shapes[args.e1name]
+e2 = data_shapes[args.e2name]
+e1_det_ord, e2_det_ord = world_to_det(e1[ind2], e2[ind2], jacobian_matrices[ind1])
+e1_det=np.zeros(len(e1_det_ord))
+e1_det[ind2]=e1_det_ord
+e2_det=np.zeros(len(e2_det_ord))
+e2_det[ind2]=e2_det_ord
+
+print(data_shapes[args.e1name])
+print(data_shapes[args.e2name])
+print(e1_det)
+print(e2_det)
+
+df_out = pd.DataFrame(index=range(len(data_shapes['SeqNr'])))
+df_out['SeqNr']=data_shapes['SeqNr']
+
+df_out[args.e1name_det]=e1_det
+df_out[args.e2name_det]=e2_det
+
+#data_shapes.write(datafile_shapes_out)
+#Write the catalogue 
+#mcf.flexible_write(data_shapes,datafile_shapes_out,ldac_cat)
+table = Table.from_pandas(df_out)
+hdu=aif.BinTableHDU(data=table, name='OBJECTS')
+hdu.writeto(datafile_shapes_out, overwrite=True)
 
 
 

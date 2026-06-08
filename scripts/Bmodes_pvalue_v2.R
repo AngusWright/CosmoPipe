@@ -33,7 +33,7 @@ pvalue<-function(data, cov, mask=FALSE, mult=1.0) {
     mask = rep(TRUE,n_data)
   }
   if (any(dim(cov)!=length(mask))) stop(paste("mask/cov mismatch:",paste(collapse=' ',dim(cov)),length(mask)))
-  chi2 = mult*`%*%`(data[mask],`%*%`(solve(cov[mask,mask]),data[mask]))
+  chi2 = `%*%`(data[mask],`%*%`(solve(mult^2*cov[mask,mask]),data[mask]))
   p = 1-pchisq(chi2, n_data)
   return(p)
 }
@@ -68,7 +68,7 @@ plot_bmodes<-function(x_data, y_data, y_data_plot, y_error, cov, bin1_data, bin2
                          xlab='',ylab='',majorn=3,cex.axis=1.5,
                          labels=c(ntomo==1 | bincount>n_combinations*2/3,bincount%in%(n_combinations*c(0,1,2)/3+1),F,F),
                          grid=F,family='serif')
-      magicaxis::magerr( x_data[idx], y_data_plot[idx], ylo=y_error[idx],lwd=2)
+      magicaxis::magerr( x_data[idx], y_data_plot[idx], ylo=factor*y_error[idx],lwd=2)
       loc=helpRfuncs::text.coord('topleft',inset=0.1)
       text(loc[1],loc[2], sprintf('zbin %d-%d',bin1,bin2),pos=4)
       abline(h=0, col='black', lty=2)
@@ -246,9 +246,11 @@ if (statistic == 'xiEB') {
     } else {
       outfile_combined = paste0(output_dir,sprintf('/bmodes_xiEB_plus_%.2f-%.2f_onetomo',thetamin,thetamax))
     }
-  
     plot_bmodes(x_data=B_data[['ANG']][1:n_data_per_bin], y_data=B_combined, y_data_plot=B_combined*B_data[['ANG']][1:n_data_per_bin]*1e4, y_error=sqrt(diag(B_cov_combined))*B_data[['ANG']][1:n_data_per_bin]*1e4, cov=B_cov_combined, bin1_data=B_data[['BIN1']][1:n_data_per_bin], bin2_data=B_data[['BIN2']][1:n_data_per_bin], angbin=B_data[['ANGBIN']][1:n_data_per_bin], outfile=outfile_combined, ylabel=ylabel, ntomo = 1)
 
+    if (!is.na(mult)) { 
+      plot_bmodes(x_data=B_data[['ANG']][1:n_data_per_bin], y_data=B_combined, y_data_plot=B_combined*B_data[['ANG']][1:n_data_per_bin]*1e4, y_error=sqrt(diag(B_cov_combined))*B_data[['ANG']][1:n_data_per_bin]*1e4, cov=B_cov_combined, bin1_data=B_data[['BIN1']][1:n_data_per_bin], bin2_data=B_data[['BIN2']][1:n_data_per_bin], angbin=B_data[['ANGBIN']][1:n_data_per_bin], outfile=outfile_combined, ylabel=ylabel, ntomo = 1,mult=mult)
+    }
 
     B_cov<-B_cov_minus
     B_data<-B_data_minus
@@ -273,7 +275,13 @@ if (statistic == 'xiEB') {
       outfile_combined = paste0(output_dir,sprintf('/bmodes_xiEB_minus_%.2f-%.2f_onetomo',thetamin,thetamax))
     }
   
-    plot_bmodes(x_data=B_data[['ANG']][1:n_data_per_bin], y_data=B_combined, y_data_plot=B_combined*B_data[['ANG']][1:n_data_per_bin]*1e4, y_error=sqrt(diag(B_cov_combined))*B_data[['ANG']][1:n_data_per_bin]*1e4, cov=B_cov_combined, bin1_data=B_data[['BIN1']][1:n_data_per_bin], bin2_data=B_data[['BIN2']][1:n_data_per_bin], angbin=B_data[['ANGBIN']][1:n_data_per_bin], outfile=outfile_combined, ylabel=ylabel, ntomo = 1)
+    plot_bmodes(x_data=B_data[['ANG']][1:n_data_per_bin], y_data=B_combined, y_data_plot=B_combined*B_data[['ANG']][1:n_data_per_bin]*1e4, y_error=sqrt(diag(B_cov_combined))*B_data[['ANG']][1:n_data_per_bin]*1e4, cov=B_cov_combined, bin1_data=B_data[['BIN1']][1:n_data_per_bin], bin2_data=B_data[['BIN2']][1:n_data_per_bin], angbin=B_data[['ANGBIN']][1:n_data_per_bin], outfile=outfile_combined, ylabel=ylabel, ntomo = 1, mult=mult)
+
+    if (!is.na(mult)) { 
+      plot_bmodes(x_data=B_data[['ANG']][1:n_data_per_bin], y_data=B_combined, y_data_plot=B_combined*B_data[['ANG']][1:n_data_per_bin]*1e4, y_error=sqrt(diag(B_cov_combined))*B_data[['ANG']][1:n_data_per_bin]*1e4, cov=B_cov_combined, bin1_data=B_data[['BIN1']][1:n_data_per_bin], bin2_data=B_data[['BIN2']][1:n_data_per_bin], angbin=B_data[['ANGBIN']][1:n_data_per_bin], outfile=outfile_combined, ylabel=ylabel, ntomo = 1,mult=mult)
+    }
+
+
   }
 } else { 
   # Combine tomographic bins into a single bin and calculate pvalue
@@ -297,12 +305,11 @@ if (statistic == 'xiEB') {
     } else {
       outfile_combined = paste0(output_dir,sprintf('/bmodes_%.2f-%.2f_onetomo',thetamin,thetamax))
     }
-  
     if (statistic == 'cosebis') {
-      plot_bmodes(x_data=B_data[['ANG']][1:n_data_per_bin], y_data=B_combined, y_data_plot=B_combined*1e10, y_error=sqrt(diag(B_cov_combined))*1e10, cov=B_cov_combined, bin1_data=B_data[['BIN1']][1:n_data_per_bin], bin2_data=B_data[['BIN2']][1:n_data_per_bin], angbin=B_data[['ANGBIN']][1:n_data_per_bin], outfile=outfile_combined, ylabel=ylabel, ntomo = 1)
+      plot_bmodes(x_data=B_data[['ANG']][1:n_data_per_bin], y_data=B_combined, y_data_plot=B_combined*1e10, y_error=sqrt(diag(B_cov_combined))*1e10, cov=B_cov_combined, bin1_data=B_data[['BIN1']][1:n_data_per_bin], bin2_data=B_data[['BIN2']][1:n_data_per_bin], angbin=B_data[['ANGBIN']][1:n_data_per_bin], outfile=outfile_combined, ylabel=ylabel, ntomo = 1, mult=mult)
     }
     if (statistic == 'bandpowers'){
-      plot_bmodes(x_data=B_data[['ANG']][1:n_data_per_bin], y_data=B_combined, y_data_plot=B_combined/B_data[['ANG']][1:n_data_per_bin]*1e7, y_error=sqrt(diag(B_cov_combined))/B_data[['ANG']][1:n_data_per_bin]*1e7, cov=B_cov_combined, bin1_data=B_data[['BIN1']][1:n_data_per_bin], bin2_data=B_data[['BIN2']][1:n_data_per_bin], angbin=B_data[['ANGBIN']][1:n_data_per_bin], outfile=outfile_combined, ylabel=ylabel, ntomo = 1)
+      plot_bmodes(x_data=B_data[['ANG']][1:n_data_per_bin], y_data=B_combined, y_data_plot=B_combined/B_data[['ANG']][1:n_data_per_bin]*1e7, y_error=sqrt(diag(B_cov_combined))/B_data[['ANG']][1:n_data_per_bin]*1e7, cov=B_cov_combined, bin1_data=B_data[['BIN1']][1:n_data_per_bin], bin2_data=B_data[['BIN2']][1:n_data_per_bin], angbin=B_data[['ANGBIN']][1:n_data_per_bin], outfile=outfile_combined, ylabel=ylabel, ntomo = 1, mult=mult)
     }
   }
 }

@@ -770,7 +770,7 @@ function _parse_blockvars {
       string=`echo ${outstring//\"/}`
       string=`echo ${string//\'/}`
       count=$((count+1))
-      if [ ${count} -gt 10 ]
+      if [ ${count} -gt 100 ]
       then 
          _message "@RED@ERROR: VARIABLE PARSE IS RECURSIVE:@BLU@${string} @DEF@"
         #exit 1 
@@ -829,6 +829,7 @@ function _write_blockvars {
     fi 
   else  
     #Add what we want to write
+    #_filelist="${inp//,/!+!}"
     _filelist="${inp// /,}"
     _filelist="{${_filelist/^,/}}"
   fi 
@@ -1055,6 +1056,7 @@ function _incorporate_datablock {
         _itemfile="${_file#*=}"
         _itemfile="${_itemfile//&/\\&}"
         _itemfile="${_itemfile//\%/\'}"
+        _itemfile="${_itemfile//!+!/,}"
         _itemlist="${_itemlist} ${_itemfile}"
       done 
       #_itemlist=`echo ${_itemlist}`

@@ -3,7 +3,7 @@
 # File Name : equalN_split.sh
 # Created By : awright
 # Creation Date : 04-07-2023
-# Last Modified : Tue Feb 17 15:28:08 2026
+# Last Modified : Mon Mar 30 05:08:28 2026
 #
 #=========================================
 
@@ -31,6 +31,37 @@ splitfile=${output//.${outext}/_splits.${outext}}
   -n @BV:NSPLIT@ \
   -v @BV:SPLITVAR@ \
   --id_only -o ${splitfile} 2>&1 
+
+#Check if the patch label exists {{{
+cleared=1
+_message "   > @BLU@Testing existence of Bin ID column in @DEF@${cata##*/}@DEF@ "
+@RUNROOT@/INSTALL/theli-1.6.1/bin/@MACHINE@/ldactestexist -i @DB:DATAHEAD@ -t OBJECTS -k BIN_ID 2>&1 || cleared=0
+_message " @RED@- Done! (`date +'%a %H:%M'`)@DEF@\n"
+#}}}
+#If exists, delete it {{{
+if [ "${cleared}" == "1" ] 
+then 
+  _message "   > @BLU@Removing existing Bin ID key from @DEF@${cata##*/}@DEF@ "
+  @RUNROOT@/INSTALL/theli-1.6.1/bin/@MACHINE@/ldacdelkey -i @DB:DATAHEAD@ -o @DB:DATAHEAD@_tmp -t OBJECTS -k BIN_ID 2>&1 
+  mv @DB:DATAHEAD@_tmp @DB:DATAHEAD@
+  _message " @RED@- Done! (`date +'%a %H:%M'`)@DEF@\n"
+fi 
+#}}}
+#Check if the patch label exists {{{
+cleared=1
+_message "   > @BLU@Testing existence of Bin Number column in @DEF@${cata##*/}@DEF@ "
+@RUNROOT@/INSTALL/theli-1.6.1/bin/@MACHINE@/ldactestexist -i @DB:DATAHEAD@ -t OBJECTS -k BIN_NUM 2>&1 || cleared=0
+_message " @RED@- Done! (`date +'%a %H:%M'`)@DEF@\n"
+#}}}
+#If exists, delete it {{{
+if [ "${cleared}" == "1" ] 
+then 
+  _message "   > @BLU@Removing existing Bin Number key from @DEF@${cata##*/}@DEF@ "
+  @RUNROOT@/INSTALL/theli-1.6.1/bin/@MACHINE@/ldacdelkey -i @DB:DATAHEAD@ -o @DB:DATAHEAD@_tmp -t OBJECTS -k BIN_NUM 2>&1 
+  mv @DB:DATAHEAD@_tmp @DB:DATAHEAD@
+  _message " @RED@- Done! (`date +'%a %H:%M'`)@DEF@\n"
+fi 
+#}}}
 
 #Merge the split variable column with ldac 
 @RUNROOT@/INSTALL/theli-1.6.1/bin/@MACHINE@/ldacjoinkey \

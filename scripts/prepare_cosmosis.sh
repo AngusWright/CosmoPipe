@@ -153,84 +153,81 @@ done
 #}}}
 
 #npair {{{
+# move loop over patches outside
+for patch in ${patchlist}
+do
 outall=''
 if [[ .*\ $MODES\ .* =~ " EE " ]] && [ "${headfiles_xi}" != "" ]
 then
   _message "\n"
   _message "Copying xipm catalogues from datahead into cosmosis_npair {\n"
-  #Loop over patches {{{
+  _message " ->@BLU@ Patch @RED@${patch}@DEF@"
   outlist_check=''
-  for patch in ${patchlist}
+  outlist=''
+  #Loop over tomographic bins in this patch {{{
+  for ZBIN1 in `seq ${NTOMO}`
   do
-    outlist=''
-    #Loop over tomographic bins in this patch {{{
-    for ZBIN1 in `seq ${NTOMO}`
+    #Define the Z_B limits from the TOMOLIMS {{{
+    ZB_lo=`echo @BV:TOMOLIMS@ | awk -v n=$ZBIN1 '{print $n}'`
+    ZB_hi=`echo @BV:TOMOLIMS@ | awk -v n=$ZBIN1 '{print $(n+1)}'`
+    #}}}
+    #Define the string to append to the file names {{{
+    ZB_lo_str=`echo $ZB_lo | sed 's/\./p/g'`
+    ZB_hi_str=`echo $ZB_hi | sed 's/\./p/g'`
+    appendstr="_ZB${ZB_lo_str}t${ZB_hi_str}"
+    #}}}
+    #Loop over the second ZB bins {{{
+    for ZBIN2 in `seq $ZBIN1 ${NTOMO}`
     do
       #Define the Z_B limits from the TOMOLIMS {{{
-      ZB_lo=`echo @BV:TOMOLIMS@ | awk -v n=$ZBIN1 '{print $n}'`
-      ZB_hi=`echo @BV:TOMOLIMS@ | awk -v n=$ZBIN1 '{print $(n+1)}'`
+      ZB_lo2=`echo @BV:TOMOLIMS@ | awk -v n=$ZBIN2 '{print $n}'`
+      ZB_hi2=`echo @BV:TOMOLIMS@ | awk -v n=$ZBIN2 '{print $(n+1)}'`
       #}}}
       #Define the string to append to the file names {{{
-      ZB_lo_str=`echo $ZB_lo | sed 's/\./p/g'`
-      ZB_hi_str=`echo $ZB_hi | sed 's/\./p/g'`
-      appendstr="_ZB${ZB_lo_str}t${ZB_hi_str}"
+      ZB_lo_str2=`echo $ZB_lo2 | sed 's/\./p/g'`
+      ZB_hi_str2=`echo $ZB_hi2 | sed 's/\./p/g'`
+      appendstr2="_ZB${ZB_lo_str2}t${ZB_hi_str2}"
       #}}}
-      #Loop over the second ZB bins {{{
-      for ZBIN2 in `seq $ZBIN1 ${NTOMO}`
-      do
-        #Define the Z_B limits from the TOMOLIMS {{{
-        ZB_lo2=`echo @BV:TOMOLIMS@ | awk -v n=$ZBIN2 '{print $n}'`
-        ZB_hi2=`echo @BV:TOMOLIMS@ | awk -v n=$ZBIN2 '{print $(n+1)}'`
-        #}}}
-        #Define the string to append to the file names {{{
-        ZB_lo_str2=`echo $ZB_lo2 | sed 's/\./p/g'`
-        ZB_hi_str2=`echo $ZB_hi2 | sed 's/\./p/g'`
-        appendstr2="_ZB${ZB_lo_str2}t${ZB_hi_str2}"
-        #}}}
-        #Define the input file id {{{
-        filestr="${appendstr}${appendstr2}_ggcorr.txt"
-        #}}}
-        #Get the file {{{
-        file=`echo ${headfiles_xi} | sed 's/ /\n/g' | grep "_${patch}_" | grep ${filestr} || echo `
-        #}}}
-        #Check if the output file exists {{{
-        if [ "${file}" == "" ]
-        then
-          continue
-        fi
-        #}}}
-        #Create the xipm directory {{{
-        if [ ! -d @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_npair_${patch}_@BV:BLIND@ ]
-        then
-          mkdir @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_npair_${patch}_@BV:BLIND@/
-        fi
-        #}}}
-        #Copy the file {{{
-        _message " > @BLU@ Patch @DEF@${patch}@BLU@ ZBIN @DEF@${ZBIN1}@BLU@x@DEF@${ZBIN2}"
-        cp ${file} \
-          @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_npair_${patch}_@BV:BLIND@/XI_@SURVEY@_${patch}_nBins_${NTOMO}_Bin${ZBIN1}_Bin${ZBIN2}.ascii
-        gawk -i inplace '{print $1, $2, $3, $NF}' @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_npair_${patch}_@BV:BLIND@/XI_@SURVEY@_${patch}_nBins_${NTOMO}_Bin${ZBIN1}_Bin${ZBIN2}.ascii
-        _message " - @RED@ Done! (`date +'%a %H:%M'`)@DEF@\n"
-        #}}}
-        #Save the file to the output list {{{
-        outlist="${outlist} XI_@SURVEY@_${patch}_nBins_${NTOMO}_Bin${ZBIN1}_Bin${ZBIN2}.ascii"
-        #}}}
-      done
+      #Define the input file id {{{
+      filestr="${appendstr}${appendstr2}_ggcorr.txt"
+      #}}}
+      #Get the file {{{
+      file=`echo ${headfiles_xi} | sed 's/ /\n/g' | grep "_${patch}_" | grep ${filestr} || echo `
+      #}}}
+      #Check if the output file exists {{{
+      if [ "${file}" == "" ]
+      then
+        continue
+      fi
+      #}}}
+      #Create the xipm directory {{{
+      if [ ! -d @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_npair_${patch}_@BV:BLIND@ ]
+      then
+        mkdir @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_npair_${patch}_@BV:BLIND@/
+      fi
+      #}}}
+      #Copy the file {{{
+      _message " > @BLU@ Patch @DEF@${patch}@BLU@ ZBIN @DEF@${ZBIN1}@BLU@x@DEF@${ZBIN2}"
+      cp ${file} \
+        @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_npair_${patch}_@BV:BLIND@/XI_@SURVEY@_${patch}_nBins_${NTOMO}_Bin${ZBIN1}_Bin${ZBIN2}.ascii
+      gawk -i inplace '{print $1, $2, $3, $NF}' @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_npair_${patch}_@BV:BLIND@/XI_@SURVEY@_${patch}_nBins_${NTOMO}_Bin${ZBIN1}_Bin${ZBIN2}.ascii
+      _message " - @RED@ Done! (`date +'%a %H:%M'`)@DEF@\n"
+      #}}}
+      #Save the file to the output list {{{
+      outlist="${outlist} XI_@SURVEY@_${patch}_nBins_${NTOMO}_Bin${ZBIN1}_Bin${ZBIN2}.ascii"
       #}}}
     done
-    #Update the datablock {{{
-    #_write_datablock "cosmosis_npair_${patch}_@BV:BLIND@" "${outlist}"
-    outall="${outall} ${outlist}"
-    outlist_check="${outlist_check} ${outlist}"
     #}}}
   done
-  if [ "${outlist_check}" == "" ]
-    then
-    #If not, error
-    _message " - @RED@ERROR!@DEF@\n"
-    _message "@RED@There were no catalogues added to the cosmosis npair folder?!@DEF@"
-    _message "@BLU@You probably didn't load the all correlation function files into the datahead?!@DEF@"
-    exit 1
+  #Update the datablock {{{
+  #_write_datablock "cosmosis_npair_${patch}_@BV:BLIND@" "${outlist}"
+  outall="${outall} ${outlist}"
+  outlist_check="${outlist_check} ${outlist}"
+  #}}}
+  if [ "${outlist}" == "" ]
+  then
+    _message "@RED@ - skipping! (No matching EE files)@DEF@\n"
+    continue
   fi
 fi  
   
@@ -238,73 +235,67 @@ if [[ .*\ $MODES\ .* =~ " NE " ]] && [ "${headfiles_gt}" != "" ]
 then
   _message "\n"
   _message "Copying gamma_t catalogues from datahead into cosmosis_npair {\n"
-  #Loop over patches {{{
+  _message " ->@BLU@ Patch @RED@${patch}@DEF@"
   outlist_check=''
-  for patch in ${patchlist}
+  outlist_gt=''
+  #Loop over tomographic bins in this patch {{{
+  for LBIN1 in `seq ${NLENS}`
   do
-    outlist_gt=''
-    #Loop over tomographic bins in this patch {{{
-    for LBIN1 in `seq ${NLENS}`
+    #Define the Z_B limits from the TOMOLIMS {{{
+    appendstr="_LB${LBIN1}"
+    #}}}
+    #Loop over the second ZB bins {{{
+    for ZBIN2 in `seq ${NTOMO}`
     do
       #Define the Z_B limits from the TOMOLIMS {{{
-      appendstr="_LB${LBIN1}"
+      ZB_lo2=`echo @BV:TOMOLIMS@ | awk -v n=$ZBIN2 '{print $n}'`
+      ZB_hi2=`echo @BV:TOMOLIMS@ | awk -v n=$ZBIN2 '{print $(n+1)}'`
       #}}}
-      #Loop over the second ZB bins {{{
-      for ZBIN2 in `seq ${NTOMO}`
-      do
-        #Define the Z_B limits from the TOMOLIMS {{{
-        ZB_lo2=`echo @BV:TOMOLIMS@ | awk -v n=$ZBIN2 '{print $n}'`
-        ZB_hi2=`echo @BV:TOMOLIMS@ | awk -v n=$ZBIN2 '{print $(n+1)}'`
-        #}}}
-        #Define the string to append to the file names {{{
-        ZB_lo_str2=`echo $ZB_lo2 | sed 's/\./p/g'`
-        ZB_hi_str2=`echo $ZB_hi2 | sed 's/\./p/g'`
-        appendstr2="_ZB${ZB_lo_str2}t${ZB_hi_str2}"
-        #}}}
-        #Define the input file id {{{
-        filestr="${appendstr}${appendstr2}_gtcorr.txt"
-        #}}}
-        #Get the file {{{
-        file=`echo ${headfiles_gt} | sed 's/ /\n/g' | grep "_${patch}_" | grep ${filestr} || echo `
-        #}}}
-        #Check if the output file exists {{{
-        if [ "${file}" == "" ]
-        then
-          continue
-        fi
-        #}}}
-        #Create the xipm directory {{{
-        if [ ! -d @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_npair_${patch}_@BV:BLIND@ ]
-        then
-          mkdir @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_npair_${patch}_@BV:BLIND@/
-        fi
-        #}}}
-        #Copy the file {{{
-        _message " > @BLU@ Patch @DEF@${patch}@BLU@ BIN @DEF@${LBIN1}@BLU@x@DEF@${ZBIN2}"
-        cp ${file} \
-          @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_npair_${patch}_@BV:BLIND@/GT_@SURVEY@_${patch}_nBins_${NLENS}_Bin${LBIN1}_Bin${ZBIN2}.ascii
-        gawk -i inplace '{print $1, $2, $3, $NF}' @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_npair_${patch}_@BV:BLIND@/GT_@SURVEY@_${patch}_nBins_${NLENS}_Bin${LBIN1}_Bin${ZBIN2}.ascii
-        _message " - @RED@ Done! (`date +'%a %H:%M'`)@DEF@\n"
-        #}}}
-        #Save the file to the output list {{{
-        outlist_gt="${outlist_gt} GT_@SURVEY@_${patch}_nBins_${NLENS}_Bin${LBIN1}_Bin${ZBIN2}.ascii"
-        #}}}
-      done
+      #Define the string to append to the file names {{{
+      ZB_lo_str2=`echo $ZB_lo2 | sed 's/\./p/g'`
+      ZB_hi_str2=`echo $ZB_hi2 | sed 's/\./p/g'`
+      appendstr2="_ZB${ZB_lo_str2}t${ZB_hi_str2}"
+      #}}}
+      #Define the input file id {{{
+      filestr="${appendstr}${appendstr2}_gtcorr.txt"
+      #}}}
+      #Get the file {{{
+      file=`echo ${headfiles_gt} | sed 's/ /\n/g' | grep "_${patch}_" | grep ${filestr} || echo `
+      #}}}
+      #Check if the output file exists {{{
+      if [ "${file}" == "" ]
+      then
+        continue
+      fi
+      #}}}
+      #Create the xipm directory {{{
+      if [ ! -d @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_npair_${patch}_@BV:BLIND@ ]
+      then
+        mkdir @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_npair_${patch}_@BV:BLIND@/
+      fi
+      #}}}
+      #Copy the file {{{
+      _message " > @BLU@ Patch @DEF@${patch}@BLU@ BIN @DEF@${LBIN1}@BLU@x@DEF@${ZBIN2}"
+      cp ${file} \
+        @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_npair_${patch}_@BV:BLIND@/GT_@SURVEY@_${patch}_nBins_${NLENS}_Bin${LBIN1}_Bin${ZBIN2}.ascii
+      gawk -i inplace '{print $1, $2, $3, $NF}' @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_npair_${patch}_@BV:BLIND@/GT_@SURVEY@_${patch}_nBins_${NLENS}_Bin${LBIN1}_Bin${ZBIN2}.ascii
+      _message " - @RED@ Done! (`date +'%a %H:%M'`)@DEF@\n"
+      #}}}
+      #Save the file to the output list {{{
+      outlist_gt="${outlist_gt} GT_@SURVEY@_${patch}_nBins_${NLENS}_Bin${LBIN1}_Bin${ZBIN2}.ascii"
       #}}}
     done
-    #Update the datablock {{{
-    #_write_datablock "cosmosis_npair_${patch}_@BV:BLIND@" "${outlist_gt}"
-    outall="${outall} ${outlist_gt}"
-    outlist_check="${outlist_check} ${outlist_gt}"
     #}}}
   done
-  if [ "${outlist_check}" == "" ]
-    then
-    #If not, error
-    _message " - @RED@ERROR!@DEF@\n"
-    _message "@RED@There were no catalogues added to the cosmosis npair folder?!@DEF@"
-    _message "@BLU@You probably didn't load the all correlation function files into the datahead?!@DEF@"
-    exit 1
+  #Update the datablock {{{
+  #_write_datablock "cosmosis_npair_${patch}_@BV:BLIND@" "${outlist_gt}"
+  outall="${outall} ${outlist_gt}"
+  outlist_check="${outlist_check} ${outlist_gt}"
+  #}}}
+  if [ "${outlist}" == "" ]
+  then
+    _message "@RED@ - skipping! (No matching NE files)@DEF@\n"
+    continue
   fi
 fi
 
@@ -312,75 +303,73 @@ if [[ .*\ $MODES\ .* =~ " NN " ]] && [ "${headfiles_wt}" != "" ]
 then
   _message "\n"
   _message "Copying w(theta) catalogues from datahead into cosmosis_npair {\n"
-  #Loop over patches {{{
+  _message " ->@BLU@ Patch @RED@${patch}@DEF@"
   outlist_check=''
-  for patch in ${patchlist}
+  outlist_wt=''
+  #Loop over tomographic bins in this patch {{{
+  for LBIN1 in `seq ${NLENS}`
   do
-    outlist_wt=''
-    #Loop over tomographic bins in this patch {{{
-    for LBIN1 in `seq ${NLENS}`
-    do
-      #Define the Z_B limits from the TOMOLIMS {{{
-      appendstr="_LB${LBIN1}"
-      #}}}
-      #Loop over the second ZB bins {{{
-      #for LBIN2 in `seq $LBIN1 ${NLENS}`
-      #do
-      #  appendstr2="_LB${LBIN2}"
-        #}}}
-        #Define the input file id {{{
-        #filestr="${appendstr}${appendstr2}_wtcorr.txt"
-        filestr="${appendstr}_wtcorr.txt"
-        #}}}
-        #Get the file {{{
-        file=`echo ${headfiles_wt} | sed 's/ /\n/g' | grep "_${patch}_" | grep ${filestr} || echo `
-        #}}}
-        #Check if the output file exists {{{
-        if [ "${file}" == "" ]
-        then
-          continue
-        fi
-        #}}}
-        #Create the xipm directory {{{
-        if [ ! -d @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_npair_${patch}_@BV:BLIND@ ]
-        then
-          mkdir @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_npair_${patch}_@BV:BLIND@/
-        fi
-        #}}}
-        #Copy the file {{{
-        _message " > @BLU@ Patch @DEF@${patch}@BLU@ BIN @DEF@${LBIN1}@BLU@@DEF@"
-        cp ${file} \
-          @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_npair_${patch}_@BV:BLIND@/WT_@SURVEY@_${patch}_nBins_${NLENS}_Bin${LBIN1}_Bin${LBIN1}.ascii
-        gawk -i inplace '{print $1, $2, $3, $NF}' @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_npair_${patch}_@BV:BLIND@/WT_@SURVEY@_${patch}_nBins_${NLENS}_Bin${LBIN1}_Bin${LBIN1}.ascii
-        _message " - @RED@ Done! (`date +'%a %H:%M'`)@DEF@\n"
-        #}}}
-        #Save the file to the output list {{{
-        outlist_wt="${outlist_wt} WT_@SURVEY@_${patch}_nBins_${NLENS}_Bin${LBIN1}_Bin${LBIN1}.ascii"
-        #}}}
-      #done
-      #}}}
-    done
-    #Update the datablock {{{
-    #_write_datablock "cosmosis_npair_${patch}_@BV:BLIND@" "${outlist_wt}"
-    outall="${outall} ${outlist_wt}"
-    outlist_check="${outlist_check} ${outlist_wt}"
+    #Define the Z_B limits from the TOMOLIMS {{{
+    appendstr="_LB${LBIN1}"
     #}}}
+    #Loop over the second ZB bins {{{
+    #for LBIN2 in `seq $LBIN1 ${NLENS}`
+    #do
+    #  appendstr2="_LB${LBIN2}"
+      #}}}
+      #Define the input file id {{{
+      #filestr="${appendstr}${appendstr2}_wtcorr.txt"
+      filestr="${appendstr}_wtcorr.txt"
+      #}}}
+      #Get the file {{{
+      file=`echo ${headfiles_wt} | sed 's/ /\n/g' | grep "_${patch}_" | grep ${filestr} || echo `
+      #}}}
+      #Check if the output file exists {{{
+      if [ "${file}" == "" ]
+      then
+        continue
+      fi
+      #}}}
+      #Create the xipm directory {{{
+      if [ ! -d @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_npair_${patch}_@BV:BLIND@ ]
+      then
+        mkdir @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_npair_${patch}_@BV:BLIND@/
+      fi
+      #}}}
+      #Copy the file {{{
+      _message " > @BLU@ Patch @DEF@${patch}@BLU@ BIN @DEF@${LBIN1}@BLU@@DEF@"
+      cp ${file} \
+        @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_npair_${patch}_@BV:BLIND@/WT_@SURVEY@_${patch}_nBins_${NLENS}_Bin${LBIN1}_Bin${LBIN1}.ascii
+      gawk -i inplace '{print $1, $2, $3, $NF}' @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_npair_${patch}_@BV:BLIND@/WT_@SURVEY@_${patch}_nBins_${NLENS}_Bin${LBIN1}_Bin${LBIN1}.ascii
+      _message " - @RED@ Done! (`date +'%a %H:%M'`)@DEF@\n"
+      #}}}
+      #Save the file to the output list {{{
+      outlist_wt="${outlist_wt} WT_@SURVEY@_${patch}_nBins_${NLENS}_Bin${LBIN1}_Bin${LBIN1}.ascii"
+      #}}}
+    #done
     #}}}
-    
   done
+  #Update the datablock {{{
+  #_write_datablock "cosmosis_npair_${patch}_@BV:BLIND@" "${outlist_wt}"
+  outall="${outall} ${outlist_wt}"
+  outlist_check="${outlist_check} ${outlist_wt}"
+  #}}}
+  #}}}
+    
+
   #Were there any files in any of the patches? {{{
-  if [ "${outlist_check}" == "" ]
-    then
-    #If not, error
-    _message " - @RED@ERROR!@DEF@\n"
-    _message "@RED@There were no catalogues added to the cosmosis npair folder?!@DEF@"
-    _message "@BLU@You probably didn't load the all correlation function files into the datahead?!@DEF@"
-    exit 1
+  if [ "${outlist}" == "" ]
+  then
+    _message "@RED@ - skipping! (No matching NN files)@DEF@\n"
+    continue
   fi
 fi
+
 #}}}
 #Update the datablock {{{
 _write_datablock "cosmosis_npair_${patch}_@BV:BLIND@" "${outall}"
 #}}}
 _message "}\n"
 
+#end patch loop here
+done

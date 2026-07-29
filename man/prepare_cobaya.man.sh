@@ -1,5 +1,5 @@
 #
-# prepare_cosmosis.sh Documentation & Housekeeping functions
+# prepare_cobaya.sh Documentation & Housekeeping functions
 #
 
 #Starting Prompt {{{

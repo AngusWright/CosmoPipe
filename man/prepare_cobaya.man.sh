@@ -45,12 +45,10 @@ function _inp_var {
 }
 #}}}
 
-# Input data {{{ 
 function _inp_data { 
   #Data inputs (leave blank if none)
-  echo ALLHEAD cosmosis_inputs
-} 
-#}}}
+  echo ALLHEAD cosmosis_inputs nzbias_uncorr
+}
 
 # Output data {{{ 
 function _outputs { 

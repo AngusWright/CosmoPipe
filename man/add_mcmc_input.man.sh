@@ -56,7 +56,8 @@ function _inp_data {
 # Output data {{{ 
 function _outputs { 
   #Data outputs (leave blank if none)
-  echo 
+  stat=`_parse_blockvars "@BV:STATISTIC@"`
+  echo mcmc_inp_$stat nzcov
 } 
 #}}}
 

@@ -10,6 +10,7 @@
 import numpy as np
 import scipy.interpolate as itp
 import astropy.io.fits as fits
+import sys
 sys.path.append("@RUNROOT@/INSTALL/kcap/modules/scale_cuts_new/")
 import twopoint
 import wrapper_twopoint as wtp
@@ -1034,7 +1035,7 @@ def saveFitsTwoPoint(
         N_theta_ee=N_theta_ee,
         theta_min_ee=theta_min_ee,
         theta_max_ee=theta_max_ee,
-        N_ell_Ee=N_ell_ee,
+        N_ell_ee=N_ell_ee,
         ell_min_ee=ell_min_ee,
         ell_max_ee=ell_max_ee,
         nbModes_ee=nbModes_ee,

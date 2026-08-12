@@ -140,6 +140,10 @@ if __name__ == '__main__':
     stellar_mass_in = data[stellar_mass_column]
     z_in = data[z_column]
     
+    # Check that data covers min_z, max_z
+    if not np.any((z_in >= min_z) & (z_in <= max_z)):
+        raise ValueError(f"No data in redshift range {min_z} < z < {max_z}")
+
     # We set the possible minimum z to 0.001
     z_min = np.maximum(0.001, min_z)
     # max_z is given as an input, this is the maximum redshift in the stellar mass-redshift bin.
@@ -150,7 +154,6 @@ if __name__ == '__main__':
     # the maximum redshift where it can be visible given the flux limit, 
     # or maximum redshift of the stellar mass-redshift bin
     z_max_i = np.minimum(z_max_bin, z_max)
-
 
     if estimator == 'simple':
         # Comoving distance at z_min and z_max_i in units of Mpc h

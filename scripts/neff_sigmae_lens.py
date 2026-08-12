@@ -18,14 +18,14 @@ wname = args.wname
 try:
     catalogue=pyfits.open(args.input)[1].data
     if wname in ["None","none",""]:
-        weight=1.0*catalogue.shape[0]
+        weight=np.ones(catalogue.shape[0])
     else:
         weight=catalogue.field(args.wname)
 except Exception:
     ldac_cat = ldac.LDACCat(args.input)
     catalogue = ldac_cat['OBJECTS']
     if wname in ["None","none",""]:
-        weight=1.0*catalogue.shape[0]
+        weight=np.ones(catalogue.shape[0])
     else:
         weight=catalogue[args.wname]
 

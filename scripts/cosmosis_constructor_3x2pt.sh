@@ -43,8 +43,8 @@ zmax_def = 1.2
 nmass_def = 100 ; 200
 logmassmin_def = 9.0
 logmassmax_def = 18.0
-beta_nl = True
-mead2020_corrections = fit_feedback
+nonlinear_mode_ = bnl
+hmcode_ingredients_ = fit
 
 SAMPLER_NAME = @BV:SAMPLER@
 RUN_NAME = %(SAMPLER_NAME)s_%(blind)s${CHAINSUFFIX}
@@ -591,7 +591,7 @@ input_section_name = shear_cl
 output_section_name = shear_xi
 
 [xip_conv]
-file = %(CSL_PATH)s/utility/convert_theta/convert_theta.py
+file = %(HMPATH)s/cosmosis_modules/convert_theta/convert_theta.py
 output_units = arcmin
 section_name = shear_xi_plus
 
@@ -704,7 +704,7 @@ cat > @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_con
 [multinest]
 max_iterations=100000
 multinest_outfile_root= %(OUTPUT_FOLDER)s/%(RUN_NAME)s_
-resume=T
+resume=F
 tolerance = 0.01
 constant_efficiency = F
 live_points = 1000
@@ -738,13 +738,13 @@ fast_slow="F"
 n_batch=`echo "@BV:NTHREADS@" | awk '{printf "%d", 4*$1}'`
 cat > @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_sampler.ini <<- EOF
 [nautilus]
-live_points = 4000
+n_live = 4000
 enlarge_per_dim = 1.1
 split_threshold = 100
 n_networks = 8
 n_batch = $n_batch
 filepath = %(OUTPUT_FOLDER)s/run_nautilus.hdf5
-resume = False ; True
+resume =  False ; True
 f_live = 0.01
 discard_exploration = True
 verbose = True
@@ -875,21 +875,55 @@ fi
 #Prepare the pipeline section {{{ 
 extraparams="cosmological_parameters/S_8 cosmological_parameters/sigma_8 cosmological_parameters/A_s cosmological_parameters/omega_m cosmological_parameters/omega_nu cosmological_parameters/omega_lambda"
 
-#Add source nz shift values to outputs {{{
 shifts_source=""
-for i in `seq ${NTOMO}`
-do 
-   shifts_source="${shifts_source} nofz_shifts/bias_${i}"
-done
-#}}}
-
-#Add lens nz shift values to outputs {{{
 shifts_lens=""
-for i in `seq ${NLENSBINS}`
-do
-   shifts_lens="${shifts_lens} nofz_shifts_lens/bias_${i}"
-done
-#}}}
+shifts_obs=""
+if [[ .*\ $MODES\ .* =~ " EE " ]] || [[ .*\ $MODES\ .* =~ " NE " ]]
+then
+	#Add source nz shift values to outputs {{{
+	for i in `seq ${NTOMO}`
+	do 
+		shifts_source="${shifts_source} nofz_shifts/bias_${i}"
+	done
+	#}}}
+fi
+if [[ .*\ $MODES\ .* =~ " NE " ]] || [[ .*\ $MODES\ .* =~ " NN " ]]
+then
+	#Add lens nz shift values to outputs {{{
+	for i in `seq ${NLENSBINS}`
+	do
+		shifts_lens="${shifts_lens} nofz_shifts_lens/bias_${i}"
+	done
+	#}}}
+fi
+if [[ .*\ $MODES\ .* =~ " OBS " ]]
+then
+	#Add obs nz shift values to outputs {{{
+	for i in `seq ${NSMFLENSBINS}`
+	do
+		shifts_obs="${shifts_obs} nofz_shifts_obs/bias_${i}"
+	done
+	#}}}
+fi
+
+
+photo_z_bias=""
+corr_dz_priors=""
+if [[ .*\ $MODES\ .* =~ " EE " ]] || [[ .*\ $MODES\ .* =~ " NE " ]]
+then
+	photo_z_bias="${photo_z_bias} source_photoz_bias"
+	corr_dz_priors="${corr_dz_priors} correlated_dz_priors"
+fi
+if [[ .*\ $MODES\ .* =~ " NE " ]] || [[ .*\ $MODES\ .* =~ " NN " ]]
+then
+	photo_z_bias="${photo_z_bias} lens_photoz_bias"
+	corr_dz_priors="${corr_dz_priors} correlated_dz_priors_lens"
+fi
+if [[ .*\ $MODES\ .* =~ " OBS " ]]
+then
+	photo_z_bias="${photo_z_bias} obs_photoz_bias"
+	corr_dz_priors="${corr_dz_priors} correlated_dz_priors_obs"
+fi
 
 
 #Add the values information #{{{
@@ -928,7 +962,7 @@ then
           exit 1
     fi
 
-    COSMOSIS_PIPELINE="sample_S8 correlated_dz_priors load_nz_sacc consistency ${boltzmann_pipeline} extrapolate onepower ${iamodel_pipeline} source_photoz_bias ${twopt_modules}"
+    COSMOSIS_PIPELINE="sample_S8 ${corr_dz_priors} load_nz_sacc ${photo_z_bias} consistency ${boltzmann_pipeline} onepower ${iamodel_pipeline} ${twopt_modules}"
     
 elif [ "@BV:COSMOSIS_PIPELINE@" == "lin_bias" ]
 then
@@ -961,7 +995,7 @@ then
           exit 1
     fi
     
-    COSMOSIS_PIPELINE="sample_S8 correlated_dz_priors load_nz_sacc ${boltzmann_pipeline} extrapolate_power source_photoz_bias ${iamodel_pipeline} ${twopt_modules}"
+    COSMOSIS_PIPELINE="sample_S8 ${corr_dz_priors} load_nz_sacc ${boltzmann_pipeline} extrapolate_power ${photo_z_bias} ${iamodel_pipeline} ${twopt_modules}"
 else
 	COSMOSIS_PIPELINE="@BV:COSMOSIS_PIPELINE@"
 fi
@@ -1061,8 +1095,7 @@ cat >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_co
 EOF
 fi
 cat >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_pipe.ini <<- EOF
-extra_output = ${extraparams} ${shifts} ${listparam} ${tpdparams}
-quiet = T
+extra_output = ${extraparams} ${shifts_source} ${shifts_lens} ${shifts_obs} ${listparam} ${tpdparams}
 timing = F ; T
 debug = F
 fast_slow = ${fast_slow}
@@ -1070,7 +1103,7 @@ first_fast_module = hod ; halo_model_ingredients_halomod
 
 [runtime]
 sampler = %(SAMPLER_NAME)s
-verbosity = quiet
+verbosity = quiet ; normal ; quiet
 pool_stdout = F ; T
 
 [output]
@@ -1202,6 +1235,40 @@ do
 			
 			EOF
 			;; #}}}
+	"correlated_dz_priors_lens") #{{{
+			shifts_lens=""
+			unc_shifts=""
+			for i in `seq ${NLENSBINS}`
+			do
+				shifts_lens="${shifts_lens} nofz_shifts_lens/bias_${i}"
+				unc_shifts="${unc_shifts} nofz_shifts_lens/uncorr_bias_${i}"
+			done
+			cat >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_other.ini <<- EOF
+			[$module]
+			file = %(KCAP_PATH)s/utils/correlated_priors.py
+			uncorrelated_parameters = ${unc_shifts}
+			output_parameters = ${shifts_lens}
+			covariance = @DB:nzcov_lens@
+		
+			EOF
+			;; #}}}
+	"correlated_dz_priors_obs") #{{{
+			shifts_obs=""
+			unc_shifts=""
+			for i in `seq ${NSMFLENSBINS}`
+			do
+				shifts_obs="${shifts_obs} nofz_shifts_obs/bias_${i}"
+				unc_shifts="${unc_shifts} nofz_shifts_obs/uncorr_bias_${i}"
+			done
+			cat >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_other.ini <<- EOF
+			[$module]
+			file = %(KCAP_PATH)s/utils/correlated_priors.py
+			uncorrelated_parameters = ${unc_shifts}
+			output_parameters = ${shifts_obs}
+			covariance = @DB:nzcov_obs@
+		
+			EOF
+			;; #}}}
 	"extrapolate") #{{{
 			cat >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_other.ini <<- EOF
 			[$module]
@@ -1215,15 +1282,15 @@ do
 			sets=""
 			if [[ .*\ $MODES\ .* =~ " EE " ]] || [[ .*\ $MODES\ .* =~ " NE " ]]
 			then
-			    sets="${sets} %(redshift_name)s"
+				sets="${sets} %(redshift_name)s"
 			fi
 			if [[ .*\ $MODES\ .* =~ " NE " ]] || [[ .*\ $MODES\ .* =~ " NN " ]]
 			then
-			    sets="${sets} %(redshift_name_lens)s"
+				sets="${sets} %(redshift_name_lens)s"
 			fi
 			if [[ .*\ $MODES\ .* =~ " OBS " ]]
 			then
-			    sets="${sets} %(redshift_name_obs)s"
+				sets="${sets} %(redshift_name_obs)s"
 			fi
 			cat >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_other.ini <<- EOF
 			[$module]
@@ -1246,7 +1313,32 @@ do
 			
 			EOF
 			;; #}}}
+	"lens_photoz_bias") #{{{
+			cat >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_other.ini <<- EOF
+			[$module]
+			file = %(CSL_PATH)s/number_density/photoz_bias/photoz_bias.py
+			mode = additive
+			sample = nz_%(redshift_name_lens)s
+			bias_section  = nofz_shifts_lens
+			interpolation = cubic
+			output_deltaz = T
+			output_section_name = delta_z_out_lens
+			
+			EOF
+			;; #}}}
+	"obs_photoz_bias") #{{{
+			cat >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_other.ini <<- EOF
+			[$module]
+			file = %(CSL_PATH)s/number_density/photoz_bias/photoz_bias.py
+			mode = additive
+			sample = nz_%(redshift_name_obs)s
+			bias_section  = nofz_shifts_obs
+			interpolation = cubic
+			output_deltaz = T
+			output_section_name = delta_z_out_obs
 
+			EOF
+			;; #}}}
 	"add_intrinsic") #{{{
 			if [[ .*\ $MODES\ .* =~ " EE " ]]
 			then
@@ -1276,32 +1368,45 @@ do
 			z_maxs=""
 			suffix=`seq -s ' ' ${NSMFLENSBINS}`
 			file1="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/smf_lens_cats_metadata/stats_LB1.txt"
-			slice=`grep '^slice_in' ${file1} | awk '{printf $2}'`
-			if [ "${slice}" == "obs" ]
+			if [ -f ${file1} ]
 			then
-				for i in `seq ${NSMFLENSBINS}`
-				do
-					file="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/smf_lens_cats_metadata/stats_LB${i}.txt"
-					y_lo=`grep '^y_lims_lo' ${file} | awk '{printf $2}'`
-					y_hi=`grep '^y_lims_hi' ${file} | awk '{printf $2}'`
-					#z_mins="${z_mins} ${y_lo}"
-					z_mins="${z_mins} 0.0"
-					z_maxs="${z_maxs} ${y_hi}"
-				done
-			elif [ "${slice}" == "z" ]
-			then
-				for i in `seq ${NSMFLENSBINS}`
-				do
-					file="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/smf_lens_cats_metadata/stats_LB${i}.txt"
-					x_lo=`grep '^x_lims_lo' ${file} | awk '{printf $2}'`
-					x_hi=`grep '^x_lims_hi' ${file} | awk '{printf $2}'`
-					#z_mins="${z_mins} ${x_lo}"
-					z_mins="${z_mins} 0.0"
-					z_maxs="${z_maxs} ${x_hi}"
-				done
+				slice=`grep '^slice_in' ${file1} | awk '{printf $2}'`
+				if [ "${slice}" == "obs" ]
+				then
+					for i in `seq ${NSMFLENSBINS}`
+					do
+						file="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/smf_lens_cats_metadata/stats_LB${i}.txt"
+						y_lo=`grep '^y_lims_lo' ${file} | awk '{printf $2}'`
+						y_hi=`grep '^y_lims_hi' ${file} | awk '{printf $2}'`
+						#z_mins="${z_mins} ${y_lo}"
+						z_mins="${z_mins} 0.0"
+						z_maxs="${z_maxs} ${y_hi}"
+					done
+				elif [ "${slice}" == "z" ]
+				then
+					for i in `seq ${NSMFLENSBINS}`
+					do
+						file="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/smf_lens_cats_metadata/stats_LB${i}.txt"
+						x_lo=`grep '^x_lims_lo' ${file} | awk '{printf $2}'`
+						x_hi=`grep '^x_lims_hi' ${file} | awk '{printf $2}'`
+						#z_mins="${z_mins} ${x_lo}"
+						z_mins="${z_mins} 0.0"
+						z_maxs="${z_maxs} ${x_hi}"
+					done
+				else
+					_message "Got wrong or no information about slicing of the lens sample.\n"
+					#exit 1
+				fi
 			else
-				_message "Got wrong or no information about slicing of the lens sample.\n"
-				#exit 1
+				_message "No SMF lens catalog metadata found, setting default CSMF parameters from saved variables.\n"
+    			if [ "${NSMFLENSBINS}" = "1" ]
+    			then
+					z_mins=$(echo @BV:SMFLENSLIMSY@ | awk '{print $1}')
+					z_maxs=$(echo @BV:SMFLENSLIMSY@ | awk '{print $2}')
+				else
+					z_mins=$(echo @BV:SMFLENSLIMSY@ | awk '{for(i=1; i<NF; i++) printf "%s ", $i; print ""}' | sed 's/,$//')
+					z_maxs=$(echo @BV:SMFLENSLIMSY@ | awk '{for(i=2; i<=NF; i++) printf "%s ", $i; print ""}' | sed 's/,$//')
+    			fi
 			fi
 			h0_in=`echo "@BV:H0_IN@" | awk '{printf "%d", 100*$1}'`
 			omega_m="@BV:OMEGAM_IN@"
@@ -1346,85 +1451,124 @@ do
 			hod_z_mins=""
 			hod_z_maxs=""
 			hod_file1="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/lens_cats_metadata/stats_LB1.txt"
-			hod_slice=`grep '^slice_in' ${hod_file1} | awk '{printf $2}'`
-			if [ "${hod_slice}" == "obs" ]
+			if [ -f ${hod_file1} ]
 			then
-				for i in `seq ${NLENSBINS}`
-				do
-					file="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/lens_cats_metadata/stats_LB${i}.txt"
-					x_lo=`grep '^x_lims_lo' ${file} | awk '{printf $2}'`
-					x_hi=`grep '^x_lims_hi' ${file} | awk '{printf $2}'`
-					y_lo=`grep '^y_lims_lo' ${file} | awk '{printf $2}'`
-					y_hi=`grep '^y_lims_hi' ${file} | awk '{printf $2}'`
-					hod_obs_mins="${hod_obs_mins} ${x_lo}"
-					hod_obs_maxs="${hod_obs_maxs} ${x_hi}"
-					#hod_z_mins="${hod_z_mins} ${y_lo}"
-					#hod_z_maxs="${hod_z_maxs} ${y_hi}"
-					hod_z_mins="${hod_z_mins} 0.0"
-					hod_z_maxs="${hod_z_maxs} 3.0"
-				done
-			elif [ "${hod_slice}" == "z" ]
-			then
-				for i in `seq ${NLENSBINS}`
-				do
-					file="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/lens_cats_metadata/stats_LB${i}.txt"
-					x_lo=`grep '^x_lims_lo' ${file} | awk '{printf $2}'`
-					x_hi=`grep '^x_lims_hi' ${file} | awk '{printf $2}'`
-					y_lo=`grep '^y_lims_lo' ${file} | awk '{printf $2}'`
-					y_hi=`grep '^y_lims_hi' ${file} | awk '{printf $2}'`
-					hod_obs_mins="${hod_obs_mins} ${y_lo}"
-					hod_obs_maxs="${hod_obs_maxs} ${y_hi}"
-					#hod_z_mins="${hod_z_mins} ${x_lo}"
-					#hod_z_maxs="${hod_z_maxs} ${x_hi}"
-					hod_z_mins="${hod_z_mins} 0.0"
-					hod_z_maxs="${hod_z_maxs} 3.0"
-				done
+				hod_slice=`grep '^slice_in' ${hod_file1} | awk '{printf $2}'`
+				if [ "${hod_slice}" == "obs" ]
+				then
+					for i in `seq ${NLENSBINS}`
+					do
+						file="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/lens_cats_metadata/stats_LB${i}.txt"
+						x_lo=`grep '^x_lims_lo' ${file} | awk '{printf $2}'`
+						x_hi=`grep '^x_lims_hi' ${file} | awk '{printf $2}'`
+						y_lo=`grep '^y_lims_lo' ${file} | awk '{printf $2}'`
+						y_hi=`grep '^y_lims_hi' ${file} | awk '{printf $2}'`
+						hod_obs_mins="${hod_obs_mins} ${x_lo}"
+						hod_obs_maxs="${hod_obs_maxs} ${x_hi}"
+						#hod_z_mins="${hod_z_mins} ${y_lo}"
+						#hod_z_maxs="${hod_z_maxs} ${y_hi}"
+						hod_z_mins="${hod_z_mins} 0.0"
+						hod_z_maxs="${hod_z_maxs} 3.0"
+					done
+				elif [ "${hod_slice}" == "z" ]
+				then
+					for i in `seq ${NLENSBINS}`
+					do
+						file="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/lens_cats_metadata/stats_LB${i}.txt"
+						x_lo=`grep '^x_lims_lo' ${file} | awk '{printf $2}'`
+						x_hi=`grep '^x_lims_hi' ${file} | awk '{printf $2}'`
+						y_lo=`grep '^y_lims_lo' ${file} | awk '{printf $2}'`
+						y_hi=`grep '^y_lims_hi' ${file} | awk '{printf $2}'`
+						hod_obs_mins="${hod_obs_mins} ${y_lo}"
+						hod_obs_maxs="${hod_obs_maxs} ${y_hi}"
+						#hod_z_mins="${hod_z_mins} ${x_lo}"
+						#hod_z_maxs="${hod_z_maxs} ${x_hi}"
+						hod_z_mins="${hod_z_mins} 0.0"
+						hod_z_maxs="${hod_z_maxs} 3.0"
+					done
+				else
+					_message "Got wrong or no information about slicing of the lens sample.\n"
+					#exit 1
+				fi
 			else
-				_message "Got wrong or no information about slicing of the lens sample.\n"
-				#exit 1
+				_message "No lens catalog metadata found, setting default CSMF parameters from saved variables.\n"
+    			if [ "${NLENSBINS}" = "1" ]
+    			then
+					hod_obs_mins=$(echo @BV:LENSLIMSX@ | awk '{print $1}')
+					hod_obs_maxs=$(echo @BV:LENSLIMSX@ | awk '{print $2}')
+					hod_z_mins="${hod_z_mins} 0.0"
+					hod_z_maxs="${hod_z_maxs} 3.0"
+				else
+					hod_obs_mins=$(echo @BV:LENSLIMSX@ | awk '{for(i=1; i<NF; i++) printf "%s ", $i; print ""}' | sed 's/,$//')
+					hod_obs_maxs=$(echo @BV:LENSLIMSX@ | awk '{for(i=2; i<=NF; i++) printf "%s ", $i; print ""}' | sed 's/,$//')
+					for i in `seq ${NLENSBINS}`
+					do
+						hod_z_mins="${hod_z_mins} 0.0"
+						hod_z_maxs="${hod_z_maxs} 3.0"
+					done
+    			fi
 			fi
-			
 			smf_obs_mins=""
 			smf_obs_maxs=""
 			smf_z_mins=""
 			smf_z_maxs=""
 			smf_file1="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/smf_lens_cats_metadata/stats_LB1.txt"
-			smf_slice=`grep '^slice_in' ${smf_file1} | awk '{printf $2}'`
-			if [ "${smf_slice}" == "obs" ]
+			if [ -f ${hod_file1} ]
 			then
-				for i in `seq ${NSMFLENSBINS}`
-				do
-					file="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/smf_lens_cats_metadata/stats_LB${i}.txt"
-					x_lo=`grep '^x_lims_lo' ${file} | awk '{printf $2}'`
-					x_hi=`grep '^x_lims_hi' ${file} | awk '{printf $2}'`
-					y_lo=`grep '^y_lims_lo' ${file} | awk '{printf $2}'`
-					y_hi=`grep '^y_lims_hi' ${file} | awk '{printf $2}'`
-					smf_obs_mins="${smf_obs_mins} ${x_lo}"
-					smf_obs_maxs="${smf_obs_maxs} ${x_hi}"
-					#smf_z_mins="${smf_z_mins} ${y_lo}"
-					#smf_z_maxs="${smf_z_maxs} ${y_hi}"
-					smf_z_mins="${smf_z_mins} 0.0"
-					smf_z_maxs="${smf_z_maxs} 3.0"
-				done
-			elif [ "${smf_slice}" == "z" ]
-			then
-				for i in `seq ${NSMFLENSBINS}`
-				do
-					file="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/smf_lens_cats_metadata/stats_LB${i}.txt"
-					x_lo=`grep '^x_lims_lo' ${file} | awk '{printf $2}'`
-					x_hi=`grep '^x_lims_hi' ${file} | awk '{printf $2}'`
-					y_lo=`grep '^y_lims_lo' ${file} | awk '{printf $2}'`
-					y_hi=`grep '^y_lims_hi' ${file} | awk '{printf $2}'`
-					smf_obs_mins="${smf_obs_mins} ${y_lo}"
-					smf_obs_maxs="${smf_obs_maxs} ${y_hi}"
-					#smf_z_mins="${smf_z_mins} ${x_lo}"
-					#smf_z_maxs="${smf_z_maxs} ${x_hi}"
-					smf_z_mins="${smf_z_mins} 0.0"
-					smf_z_maxs="${smf_z_maxs} 3.0"
-				done
+				smf_slice=`grep '^slice_in' ${smf_file1} | awk '{printf $2}'`
+				if [ "${smf_slice}" == "obs" ]
+				then
+					for i in `seq ${NSMFLENSBINS}`
+					do
+						file="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/smf_lens_cats_metadata/stats_LB${i}.txt"
+						x_lo=`grep '^x_lims_lo' ${file} | awk '{printf $2}'`
+						x_hi=`grep '^x_lims_hi' ${file} | awk '{printf $2}'`
+						y_lo=`grep '^y_lims_lo' ${file} | awk '{printf $2}'`
+						y_hi=`grep '^y_lims_hi' ${file} | awk '{printf $2}'`
+						smf_obs_mins="${smf_obs_mins} ${x_lo}"
+						smf_obs_maxs="${smf_obs_maxs} ${x_hi}"
+						#smf_z_mins="${smf_z_mins} ${y_lo}"
+						#smf_z_maxs="${smf_z_maxs} ${y_hi}"
+						smf_z_mins="${smf_z_mins} 0.0"
+						smf_z_maxs="${smf_z_maxs} 3.0"
+					done
+				elif [ "${smf_slice}" == "z" ]
+				then
+					for i in `seq ${NSMFLENSBINS}`
+					do
+						file="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/smf_lens_cats_metadata/stats_LB${i}.txt"
+						x_lo=`grep '^x_lims_lo' ${file} | awk '{printf $2}'`
+						x_hi=`grep '^x_lims_hi' ${file} | awk '{printf $2}'`
+						y_lo=`grep '^y_lims_lo' ${file} | awk '{printf $2}'`
+						y_hi=`grep '^y_lims_hi' ${file} | awk '{printf $2}'`
+						smf_obs_mins="${smf_obs_mins} ${y_lo}"
+						smf_obs_maxs="${smf_obs_maxs} ${y_hi}"
+						#smf_z_mins="${smf_z_mins} ${x_lo}"
+						#smf_z_maxs="${smf_z_maxs} ${x_hi}"
+						smf_z_mins="${smf_z_mins} 0.0"
+						smf_z_maxs="${smf_z_maxs} 3.0"
+					done
+				else
+					_message "Got wrong or no information about slicing of the lens sample.\n"
+					#exit 1
+				fi
 			else
-				_message "Got wrong or no information about slicing of the lens sample.\n"
-				#exit 1
+				_message "No lens catalog metadata found, setting default CSMF parameters from saved variables.\n"
+    			if [ "${NSMFLENSBINS}" = "1" ]
+    			then
+					smf_obs_mins=$(echo @BV:SMFLENSLIMSX@ | awk '{print $1}')
+					smf_obs_maxs=$(echo @BV:SMFLENSLIMSX@ | awk '{print $2}')
+					smf_z_mins="${hod_z_mins} 0.0"
+					smf_z_maxs="${hod_z_maxs} 3.0"
+				else
+					smf_obs_mins=$(echo @BV:SMFLENSLIMSX@ | awk '{for(i=1; i<NF; i++) printf "%s ", $i; print ""}' | sed 's/,$//')
+					smf_obs_maxs=$(echo @BV:SMFLENSLIMSX@ | awk '{for(i=2; i<=NF; i++) printf "%s ", $i; print ""}' | sed 's/,$//')
+					for i in `seq ${NSMFLENSBINS}`
+					do
+						smf_z_mins="${hod_z_mins} 0.0"
+						smf_z_maxs="${hod_z_maxs} 3.0"
+					done
+    			fi
 			fi
 			
 			red_obs_file="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/IA_hm_data/red_cen_obs_pdf.txt"
@@ -1432,8 +1576,8 @@ do
 			
 			if [ "$add_intrinsic" == "True" ]
 			then
-			cat >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_other.ini <<- EOF
-			[$module]
+				cat >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_other.ini <<- EOF
+				[$module]
 				file= %(HMPATH)s/cosmosis_modules/onepower_interface.py
 				p_mm = ${ee}
 				p_gg = ${nn}
@@ -1445,29 +1589,29 @@ do
 				
 				EOF
 			else
-			cat >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_other.ini <<- EOF
-			[$module]
+				cat >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_other.ini <<- EOF
+				[$module]
 				file= %(HMPATH)s/cosmosis_modules/onepower_interface.py
-			p_mm = ${ee}
-			p_gg = ${nn}
-			p_gm = ${ne}
-			p_gI = False
-			p_mI = False
-			p_II = False
+				p_mm = ${ee}
+				p_gg = ${nn}
+				p_gm = ${ne}
+				p_gI = False
+				p_mI = False
+				p_II = False
 				split_ia = True
 				
 				EOF
 			fi
 
 			cat >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_other.ini <<- EOF
-			bnl =  %(beta_nl)s
+			nonlinear_mode =  %(nonlinear_mode_)s
 			update_bnl = 10
 			poisson_type = constant
 			point_mass = True
 			dewiggle = True
 			response = False
 			output_suffix = onepower
-			use_mead2020_corrections = %(mead2020_corrections)s
+			hmcode_ingredients = %(hmcode_ingredients_)s
 			
 			log_mass_min = %(logmassmin_def)s
 			log_mass_max = %(logmassmax_def)s
@@ -1507,21 +1651,20 @@ do
 			zmax_smf = ${smf_z_maxs}
 			nz_smf = 50 ; %(nz_def)s
 			nobs_smf = 200
+
+			central_IA_depends_on = halo_mass
+			satellite_IA_depends_on = halo_mass
 			
 			hod_section_name_ia_1 = hod_ia_red
 			observables_file_ia_1 = ${red_obs_file}
 			nobs_ia_1 = 200
 			nz_ia_1 = 50 ; %(nz_def)s
-			central_IA_depends_on = halo_mass
-			satellite_IA_depends_on = halo_mass
 			output_suffix_ia_1 = ia_red
 			
 			hod_section_name_ia_2 = hod_ia_blue
 			observables_file_ia_2 = ${blue_obs_file}
 			nobs_ia_2 = 200 
 			nz_ia_2 = 50 ; %(nz_def)s
-			central_IA_depends_on = halo_mass
-			satellite_IA_depends_on = halo_mass
 			output_suffix_ia_2 = ia_blue
 			
 			EOF

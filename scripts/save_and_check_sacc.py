@@ -89,14 +89,31 @@ def plot_1pt(sacc_data, plotdir):
 def plot_nz(sacc_data, plotdir):
     import matplotlib.pyplot as plt
     # Now another plot of the second data set that we saved and loaded
-    for b in sacc_data.get_tracer_combinations('NZ'):
-        ind = sacc_data.indices('NZ', (b,))
-        y = np.array(sacc_data.mean[ind])
-        x = np.array(sacc_data._get_tags_by_index(['z'], ind)[0])
-        plt.plot(x, y, label=b)
+    previous_bin_name = ''
+    for bin in sacc_data.tracers.keys():
+        bin_name ,bin_number = bin.split('_', )
+        tracer = sacc_data.get_tracer(bin)
+        # ind = sacc_data.indices('NZ', (bin,))
+        z = tracer.z
+        nz = tracer.nz
+        # y = np.array(sacc_data.mean[ind])
+        # x = np.array(sacc_data._get_tags_by_index(['z'], ind)[0])
         plt.xscale('linear')
         plt.yscale('linear')
-    plt.savefig(os.path.join(plotdir, 'nz.png'))
+        if bin_name !=  previous_bin_name and previous_bin_name:
+            plt.legend()
+            plt.savefig(plotdir+'/nz_'+previous_bin_name+'.pdf')
+            plt.clf()
+        
+        plt.plot(z, nz, label=bin)
+        plt.xscale('linear')
+        plt.yscale('linear')
+        plt.xlabel('z')
+        plt.ylabel('n(z)')
+        previous_bin_name = bin_name
+
+    plt.legend()
+    plt.savefig(plotdir+'/nz_'+bin_name+'.pdf')
     plt.clf()
     plt.close()
             

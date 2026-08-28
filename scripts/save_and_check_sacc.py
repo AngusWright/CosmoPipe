@@ -227,7 +227,7 @@ if __name__ == "__main__":
     parser.add_argument("--smfdatavector", dest="smfvec",nargs='*',
         help="SMF input file name", metavar="smfvec",required=False, default=None, const=None)
     parser.add_argument("-s", "--statistic", dest="statistic", type=str, required=True, choices = ['cosebis','cosebis_dimless','bandpowers','2pcf','2pcfEB'],
-        help="2pt statistic, must be either cosebis, bandpowers, or xipm")
+        help="2pt statistic, must be either cosebis, cosebis_dimless, bandpowers, or xipm")
     parser.add_argument("--mode", dest="mode",nargs='+',type=str,
         help="list modes to calculate statistis for (EE, NE, NN or OBS)",required=True, default=['EE'])
         

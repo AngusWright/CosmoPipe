@@ -43,16 +43,28 @@ tracer_map = {
 def plot_2pt(sacc_data, statistic, type, plotdir):
     import matplotlib.pyplot as plt
     # Now another plot of the second data set that we saved and loaded
-    instance = sacc_map[statistic][type]
-    if instance not in sacc_data.tracers:
-        print(f"Skipping plot for {instance}, not in data")
+    stats_name = sacc_map[statistic][type]
+    x_name = 'theta' if statistic == '2pcf' else 'ell' if statistic == 'bandpowers' else 'n'
+    if stats_name not in sacc_data.get_data_types():
+        print(f"Skipping plot for {stats_name}, not in data")
     else:
-        for b1, b2 in sacc_data.get_tracer_combinations(instance):
-            x, y, covmat = sacc_data._get_2pt(instance, b1, b2, return_cov=True, angle_name='theta' if statistic == '2pcf' else 'ell' if statistic == 'bandpowers' else 'n')
+        for b1, b2 in sacc_data.get_tracer_combinations(stats_name):
+            x, y, covmat = sacc_data._get_2pt(stats_name, b1, b2, return_cov=True, angle_name=x_name)
             plt.errorbar(x, y, yerr=covmat.diagonal()**0.5, fmt='.', label=f'{b1}-{b2}')
             #plt.plot(x, y, label=f'{b1}-{b2}')
-            plt.xscale('log')
-            plt.yscale('log')
+            if statistic == '2pcf':
+                plt.xscale('log')
+                plt.yscale('log')
+            elif statistic == 'bandpowers':
+                plt.xscale('log')
+                plt.yscale('log')
+            elif statistic == 'cosebis':
+                plt.xscale('linear')
+                plt.yscale('linear')
+    
+            plt.legend()
+            plt.xlabel(x_name)
+            plt.ylabel(stats_name)
             
         plt.savefig(os.path.join(plotdir, f'{statistic}_{type}.png'))
         plt.clf()

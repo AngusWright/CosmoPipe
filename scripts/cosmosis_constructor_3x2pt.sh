@@ -135,7 +135,7 @@ then
   stats="${stats} galaxy_density_cosebi"
   twopt_modules="${twopt_modules} psi_gg"
   lo_ee=`echo @BV:NMINCOSEBIS@ | awk '{print $1-0.5}'`
-  hi_ee=`echo @BV:NMAXCOSEBIS@ | awk '{print $1+0.5}'`
+  hi_ee=`echo @BV:NMAXCOSEBISCHAIN@ | awk '{print $1+0.5}'`
 fi
 if [[ .*\ $MODES\ .* =~ " NE " ]]
 then
@@ -143,14 +143,14 @@ then
   flip="${flip} galaxy_shearDensity_cosebi_e"
   twopt_modules="${twopt_modules} psi_gm"
   lo_ne=`echo @BV:NMINCOSEBISNE@ | awk '{print $1-0.5}'`
-  hi_ne=`echo @BV:NMAXCOSEBISNE@ | awk '{print $1+0.5}'`
+  hi_ne=`echo @BV:NMAXCOSEBISCHAIN@ | awk '{print $1+0.5}'`
 fi
 if [[ .*\ $MODES\ .* =~ " EE " ]]
 then
   stats="${stats} galaxy_shear_cosebi_ee"
   twopt_modules="${twopt_modules} cosebis"
   lo_nn=`echo @BV:NMINCOSEBISNN@ | awk '{print $1-0.5}'`
-  hi_nn=`echo @BV:NMAXCOSEBISNN@ | awk '{print $1+0.5}'`
+  hi_nn=`echo @BV:NMAXCOSEBISCHAIN@ | awk '{print $1+0.5}'`
 fi
 if [[ .*\ $MODES\ .* =~ " OBS " ]]
 then
@@ -922,7 +922,9 @@ fi
 if [[ .*\ $MODES\ .* =~ " OBS " ]]
 then
 	photo_z_bias="${photo_z_bias} obs_photoz_bias"
-	corr_dz_priors="${corr_dz_priors} correlated_dz_priors_obs"
+	if [ "${NSMFLENSBINS}" -gt 1 ]; then
+	  corr_dz_priors="${corr_dz_priors} correlated_dz_priors_obs"
+	fi
 fi
 
 
@@ -1253,6 +1255,7 @@ do
 			EOF
 			;; #}}}
 	"correlated_dz_priors_obs") #{{{
+	  if [ "${NSMFLENSBINS}" -gt 1 ]; then
 			shifts_obs=""
 			unc_shifts=""
 			for i in `seq ${NSMFLENSBINS}`
@@ -1268,6 +1271,7 @@ do
 			covariance = @DB:nzcov_obs@
 		
 			EOF
+		fi
 			;; #}}}
 	"extrapolate") #{{{
 			cat >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_other.ini <<- EOF

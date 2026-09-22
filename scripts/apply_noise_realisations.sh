@@ -3,7 +3,7 @@
 # File Name : apply_noise_realisations.sh
 # Created By : awright
 # Creation Date : 04-07-2023
-# Last Modified : Thu Jul 17 20:06:31 2025
+# Last Modified : Thu Jul 16 10:26:19 2026
 #
 #=========================================
 
@@ -19,6 +19,7 @@ outlist_trunc=''
 @P_RSCRIPT@ @RUNROOT@/@SCRIPTPATH@/apply_noise_realisations.R \
   -i @DB:DATAHEAD@ \
   --infilt @BV:REALISATION_FILT@ \
+  --sys_stdev @BV:SYSTEMATIC_STDEV@ \
   --stdev @BV:REALISATION_STDEV@ \
   --outfilt @BV:WIDEFILT@ \
   --nrealisation @BV:NREALISATION@ \

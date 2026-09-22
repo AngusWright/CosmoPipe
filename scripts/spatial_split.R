@@ -3,7 +3,7 @@
 # File Name : spatial_split.R
 # Created By : awright
 # Creation Date : 10-07-2023
-# Last Modified : Thu Feb  8 16:41:32 2024
+# Last Modified : Wed Jul  8 13:21:21 2026
 #
 #=========================================
 
@@ -12,8 +12,8 @@
 
 #Read input parameters 
 inputs<-commandArgs(TRUE) 
-
-#Interpret the command line options {{{
+ #Interpret the command line options {{{
+bins_only<-FALSE
 sphere<-FALSE
 badval<- -999
 while (length(inputs)!=0) {
@@ -80,6 +80,11 @@ while (length(inputs)!=0) {
     y.name<-inputs[2]
     inputs<-inputs[-2:-1]
     #/*fold*/}}}
+  } else if (inputs[1]=='--binsonly') { 
+    #output bin index rather than catalogues /*fold*/ {{{
+    inputs<-inputs[-1]
+    bins_only<-TRUE
+    #/*fold*/}}}
   } else if (inputs[1]=='--sphere') { 
     #Read the spatial column names /*fold*/ {{{
     inputs<-inputs[-1]
@@ -96,13 +101,15 @@ if (!exists("nsplitkeep")) {
 }
 
 #Check that length of the output files is correct {{{
-if (length(output.cats)!=nsplitkeep) { 
-  stop("Output file list must be of length nsplitkeep") 
-} 
+if (!bins_only) { 
+  if (length(output.cats)!=nsplitkeep) { 
+    stop("Output file list must be of length nsplitkeep") 
+  } 
+}
 #}}}
 
 #Read the input catalogue {{{
-cat<-helpRfuncs::read.file(input.cat)
+cat<-helpRfuncs::read.file(input.cat,nrow=100)
 #}}}
 
 #Check that the x.name and y.name varaibles are in the catalogue 
@@ -113,6 +120,10 @@ if ((!x.name %in% colnames(cat)) & (!y.name %in% colnames(cat))) {
 } else if (!y.name %in% colnames(cat)) {  
   stop(paste(y.name,"variable is not in provided catalogue!")) 
 }
+
+#Read the input catalogue {{{
+cat<-helpRfuncs::read.file(input.cat,cols=c(x.name,y.name))
+#}}}
 
 #Set up the cut object (for faster splitting) {{{
 tmp<-data.frame(x=cat[[x.name]],y=cat[[y.name]])
@@ -244,25 +255,48 @@ cat(paste0("asp=",nsplit.y/nsplit.x/data_asp," n=",nsplit.y*nsplit.x,'\n'))
 
 
 #For each split, output the catalogue {{{
-nwritten<-0
-for (i in sample(seq(1,nsplit.x*nsplit.y))) { #Sample randomises the order 
-  #Select the relevant sources {{{
-  out<-cat[which(bins==i),]
-  #}}}
-  if (nrow(out)==0) { 
-    cat(paste("WARNING: split",i,"contains no sources?!\n"))
-  } else { 
-    nwritten<-nwritten+1
-    #Write the file {{{
-    helpRfuncs::write.file(file=output.cats[nwritten],out)
+if (bins_only) { 
+  if (nsplit!=nsplitkeep) { 
+    bins_shuffle<-rep(0,length(bins)) 
+    nwritten<-0
+    for (i in sample(seq(1,nsplit.x*nsplit.y))) { #Sample randomises the order
+      sel<-which(bins==i)
+      if (length(sel)==0) { 
+        cat(paste("WARNING: split",i,"contains no sources?!\n"))
+      } else { 
+        nwritten<-nwritten+1
+        bins_shuffle[which(bins==i)]<-nwritten
+      }
+      if (nwritten==nsplitkeep) { 
+        break
+      }
+    }
+    bins<-bins_shuffle
+  }
+  cat(paste("Outputting single file with bin ids!\n"))
+  cat$spatial_bins<-bins
+  helpRfuncs::write.file(file=output.cats[1],cat)
+} else { 
+  nwritten<-0
+  for (i in sample(seq(1,nsplit.x*nsplit.y))) { #Sample randomises the order 
+    #Select the relevant sources {{{
+    out<-cat[which(bins==i),]
     #}}}
+    if (nrow(out)==0) { 
+      cat(paste("WARNING: split",i,"contains no sources?!\n"))
+    } else { 
+      nwritten<-nwritten+1
+      #Write the file {{{
+      helpRfuncs::write.file(file=output.cats[nwritten],out)
+      #}}}
+    }
+    if (nwritten==nsplitkeep) { 
+      break
+    }
+  } 
+  if (nwritten==0) { 
+    stop("Nothing was written to disk?!") 
   }
-  if (nwritten==nsplitkeep) { 
-    break
-  }
-} 
-if (nwritten==0) { 
-  stop("Nothing was written to disk?!") 
 }
 #}}}
 

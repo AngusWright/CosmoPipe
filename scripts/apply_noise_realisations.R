@@ -3,7 +3,7 @@
 # File Name : apply_noise_realisations.R
 # Created By : awright
 # Creation Date : 17-07-2025
-# Last Modified : Fri Oct 10 05:47:18 2025
+# Last Modified : Thu Jul 16 10:37:28 2026
 #
 #=========================================
 
@@ -21,6 +21,8 @@ p <- add_argument(p, "--infilt", help="input filter columns",narg="+")
 p <- add_argument(p, "--outfilt", help="output filter columns",narg="+")
 # Add a positional argument
 p <- add_argument(p, "--nrealisation", help="Number of realisations to construct",default=1)
+# Add a positional argument
+p <- add_argument(p, "--sys_stdev", help="systematic standard deviations",narg="+")
 # Add a positional argument
 p <- add_argument(p, "--stdev", help="standard deviations",narg="+")
 # Add a positional argument
@@ -52,6 +54,9 @@ for (col in helpRfuncs::vecsplit(args$infilt,by=',')) {
 outfilt<-helpRfuncs::vecsplit(args$outfilt,by=',')
 
 #define the stdev values 
+sys_stdev<-as.numeric(helpRfuncs::vecsplit(args$sys_stdev,by=','))
+
+#define the stdev values 
 stdev<-as.numeric(helpRfuncs::vecsplit(args$stdev,by=','))
 
 #Read the input catalogue
@@ -70,8 +75,10 @@ for (i in 1:args$nrealisation) {
   for (band in 1:length(infilt)) { 
     timer<-proc.time()
     count<-count+1
+    #draw a systematic noise realisation 
+    sys_realisation<-rnorm(1,mean=1,sd=sys_stdev[band])
     #Gaussian noise to flux 
-    realisations[[outfilt[band]]]<-input[[infilt[band]]]+rnorm(nrow(input),mean=0,sd=stdev[band])
+    realisations[[outfilt[band]]]<-sys_realisation*input[[infilt[band]]]+rnorm(nrow(input),mean=0,sd=stdev[band])
     setTxtProgressBar(pb,count)
     cat(paste0(" (",round(proc.time()[3]-timer[3],digits=2),"sec for loop ",count,"/",nloop,")"))
     print(c(infilt[band],outfilt[band]))

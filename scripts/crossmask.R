@@ -3,7 +3,7 @@
 # File Name : spatial_split.R
 # Created By : awright
 # Creation Date : 10-07-2023
-# Last Modified : Fri Oct 10 03:34:31 2025
+# Last Modified : Tue Jun 30 15:07:37 2026
 #
 #=========================================
 
@@ -91,9 +91,32 @@ keys<-keys[keys!=""]
 fullmask <- mask_and
 #}}}
 
+basename<-function(X) {
+  unlist(lapply(X, function(Y) {
+                  paste(collapse='.',rev(rev(helpRfuncs::vecsplit(helpRfuncs::vecsplit(Y,by='/',n=-1),by='.'))[-1]))
+                }))
+}
+
+#Select the catalogues that match the file name of the base catalogue {{{
+if (any(grepl(basename(base.cat),basename(input.cats)))) {
+  cat("reducing the input file list to only those which match the base file name\n")
+  cat(paste(sep='/',length(which(grepl(basename(base.cat),basename(input.cats)))),length(input.cats)))
+  cat("\n")
+  input.cats<-input.cats[which(grepl(basename(base.cat),basename(input.cats)))]
+}
+#}}}
+
 for (input.cat in input.cats) { 
   cat(paste("on catalogue:",input.cat,'\n'))
-  cat<-helpRfuncs::read.file(input.cat,cols=keys,ldacsafe=FALSE)
+  tmp<-helpRfuncs::read.file(input.cat,cols=keys,ldacsafe=FALSE)
+  if (input.cat == input.cats[1]) { 
+    cat<-tmp
+  } else if (nrow(tmp)==nrow(cat)) { 
+    cat<-tmp
+  } else { 
+    warning(paste("catalogue",which(input.cats==input.cat),"of",length(input.cats),"does not have equal length to the mask vector! Skipping it!"))
+    next
+  }
   cat(paste("length:",nrow(cat),'\n'))
 
   #Evaluate the mask criteria {{{

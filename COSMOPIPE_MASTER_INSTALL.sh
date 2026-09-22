@@ -244,35 +244,42 @@ EOF
   
   #Install THELI LDAC tools {{{
   _message "   >${RED} Installing THELI LDAC tools${DEF}"
-  if [ -f ${RUNROOT}/../theli-1.6.1.tgz ]
-  then 
-    ln -s ${RUNROOT}/../theli-1.6.1.tgz .
-  else 
-    wget https://marvinweb.astro.uni-bonn.de/data_products/theli/theli-1.6.1.tgz > THELI_wget.log 2>&1
-  fi 
   cd ${RUNROOT}/INSTALL
-  tar -xf theli-1.6.1.tgz >> THELI_install.log 2>&1
-  rm -f theli-1.6.1.tgz  >> THELI_install.log 2>&1
-  cd theli-1.6.1/pipesetup
-  #Test if there is an existing pipe_env file, from a previous installation
-  if [ -f pipe_env.bash.${MACHINE} ] 
+  if [ -f ${PACKROOT}/theli-1.6.1.tgz ]
   then 
-    rm -f pipe_env.bash.${MACHINE}
-  fi 
-  #conda run -n ${CONDAPIPENAME} bash install.sh -m ALL >> THELI_install.log 2>&1
-  warn=FALSE
-  echo "set -e" > THELI_install.sh
-  echo "bash install.sh -m ALL || echo " >> THELI_install.sh
-  echo ". pipe_env.bash.${MACHINE}" >> THELI_install.sh
-  echo "make ldactools.make" >> THELI_install.sh
-  conda run -n ${CONDAPIPENAME} bash THELI_install.sh >> THELI_install.log 2>&1 || warn=TRUE 
-  if [ "${warn}" == "TRUE" ] 
-  then 
-    _message "${BLU} - ${RED}WARNING!${BLU} Check if ldac tools installed correctly... ${DEF}\n"
+    ln -s ${PACKROOT}/theli-1.6.1.tgz .
   else 
-    _message "${BLU} - Done! ${DEF}\n"
+    wget -t 1 --connect-timeout 60 https://marvinweb.astro.uni-bonn.de/data_products/theli/theli-1.6.1.tgz > THELI_wget.log 2>&1 || _message "FAILED"
   fi 
-  cd ${RUNROOT}/INSTALL
+  if [ -f theli-1.6.1.tgz ] 
+  then 
+    tar -xf theli-1.6.1.tgz >> THELI_install.log 2>&1
+    rm -f theli-1.6.1.tgz  >> THELI_install.log 2>&1
+    cd theli-1.6.1/pipesetup
+    #Test if there is an existing pipe_env file, from a previous installation
+    if [ -f pipe_env.bash.${MACHINE} ] 
+    then 
+      rm -f pipe_env.bash.${MACHINE}
+    fi 
+    #conda run -n ${CONDAPIPENAME} bash install.sh -m ALL >> THELI_install.log 2>&1
+    warn=FALSE
+    echo "set -e" > THELI_install.sh
+    echo "bash install.sh -m ALL || echo " >> THELI_install.sh
+    echo ". pipe_env.bash.${MACHINE}" >> THELI_install.sh
+    echo "make ldactools.make" >> THELI_install.sh
+    conda run -n ${CONDAPIPENAME} bash THELI_install.sh >> THELI_install.log 2>&1 || warn=TRUE 
+    if [ "${warn}" == "TRUE" ] 
+    then 
+      _message "${BLU} - ${RED}WARNING!${BLU} Check if ldac tools installed correctly... ${DEF}\n"
+    else 
+      _message "${BLU} - Done! ${DEF}\n"
+    fi 
+    cd ${RUNROOT}/INSTALL
+  else 
+      _message "${BLU} - ${RED}FAILED!${BLU} The theli-1.6.1.tgz tarball was not accessible, and was not in the PACKROOT directory.\n${DEF}\n"
+      _message "${BLU}   CosmoPipe requires LDAC tools to run, so you will need to rerun the installation once the tarball is placed in the PACKROOT directory:\n${DEF}${PACKROOT}\n"
+      exit 1 
+  fi 
   #}}}
 
   #Copy IA model to the INSTALL directory {{{

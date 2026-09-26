@@ -10,7 +10,8 @@
 #Number of tomographic bins 
 NTOMO=`echo @BV:TOMOLIMS@ | awk '{print NF-1}'`
 NLENS=`echo @BV:NLENSBINS@`
-
+NOBS=`echo @BV:NSMFLENSBINS@`
+MODES="@BV:MODES@"
 
 
 
@@ -38,28 +39,83 @@ cp @BV:VALUESINI@ @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_v
 cp @BV:PRIORSINI@ @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_priors.ini
 
 
-#Update the values with the uncorrelated Dz priors {{{
-echo "[nofz_shifts]" >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_values.ini 
-#Add the uncorrelated tomographic bin shifts 
-#Note: we multiply the bin shift by -1 because cosmosis defines the shifts with a relative minus sign!
-tomoval_all=`cat @DB:nzbias_uncorr@`
-for tomo in `seq ${NTOMO}`
-do 
-  tomoval=`echo ${tomoval_all} | awk -v n=${tomo} '{print -1*$n}'`
-  tomolo=`echo $tomoval | awk '{print $1-5.00}'`
-  tomohi=`echo $tomoval | awk '{print $1+5.00}'`
-  echo "uncorr_bias_${tomo} = ${tomolo} ${tomoval} ${tomohi} " >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_values.ini
-done
-#}}}
-#Update the priors with the uncorrelated Dz priors {{{
-echo "[nofz_shifts]" >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_priors.ini 
-#Add the uncorrelated tomographic bin shifts 
-for tomo in `seq ${NTOMO}`
-do 
-  tomoval=`echo ${tomoval_all} | awk -v n=${tomo} '{print -1*$n}'`
-  echo "uncorr_bias_${tomo} = gaussian ${tomoval} 1.0 " >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_priors.ini
-done
-#}}}
+if [[ .*\ $MODES\ .* =~ " EE " ]] || [[ .*\ $MODES\ .* =~ " NE " ]]
+then
+  #Update the values with the uncorrelated Dz priors {{{
+  echo "[nofz_shifts]" >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_values.ini 
+  #Add the uncorrelated tomographic bin shifts 
+  #Note: we multiply the bin shift by -1 because cosmosis defines the shifts with a relative minus sign!
+  tomoval_all=`cat @DB:nzbias_uncorr@`
+  for tomo in `seq ${NTOMO}`
+  do 
+    tomoval=`echo ${tomoval_all} | awk -v n=${tomo} '{print -1*$n}'`
+    tomolo=`echo $tomoval | awk '{print $1-5.00}'`
+    tomohi=`echo $tomoval | awk '{print $1+5.00}'`
+    echo "uncorr_bias_${tomo} = ${tomolo} ${tomoval} ${tomohi} " >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_values.ini
+  done
+  #}}}
+  #Update the priors with the uncorrelated Dz priors {{{
+  echo "[nofz_shifts]" >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_priors.ini 
+  #Add the uncorrelated tomographic bin shifts 
+  for tomo in `seq ${NTOMO}`
+  do 
+    tomoval=`echo ${tomoval_all} | awk -v n=${tomo} '{print -1*$n}'`
+    echo "uncorr_bias_${tomo} = gaussian ${tomoval} 1.0 " >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_priors.ini
+  done
+  #}}}
+fi
+
+if [[ .*\ $MODES\ .* =~ " NE " ]] || [[ .*\ $MODES\ .* =~ " NN " ]]
+then
+  #Update the values with the uncorrelated Dz priors {{{
+  echo "[nofz_shifts_lens]" >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_values.ini 
+  #Add the uncorrelated tomographic bin shifts 
+  #Note: we multiply the bin shift by -1 because cosmosis defines the shifts with a relative minus sign!
+  tomoval_all=`cat @DB:nzbias_uncorr_lens@`
+  for tomo in `seq ${NLENS}`
+  do 
+    tomoval=`echo ${tomoval_all} | awk -v n=${tomo} '{print -1*$n}'`
+    tomolo=`echo $tomoval | awk '{print $1-5.00}'`
+    tomohi=`echo $tomoval | awk '{print $1+5.00}'`
+    echo "uncorr_bias_${tomo} = ${tomolo} ${tomoval} ${tomohi} " >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_values.ini
+  done
+  #}}}
+  #Update the priors with the uncorrelated Dz priors {{{
+  echo "[nofz_shifts_lens]" >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_priors.ini 
+  #Add the uncorrelated tomographic bin shifts 
+  for tomo in `seq ${NLENS}`
+  do 
+    tomoval=`echo ${tomoval_all} | awk -v n=${tomo} '{print -1*$n}'`
+    echo "uncorr_bias_${tomo} = gaussian ${tomoval} 1.0 " >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_priors.ini
+  done
+  #}}}
+fi
+
+if [[ .*\ $MODES\ .* =~ " OBS " ]]
+then
+  #Update the values with the uncorrelated Dz priors {{{
+  echo "[nofz_shifts_obs]" >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_values.ini 
+  #Add the uncorrelated tomographic bin shifts 
+  #Note: we multiply the bin shift by -1 because cosmosis defines the shifts with a relative minus sign!
+  tomoval_all=`cat @DB:nzbias_uncorr_obs@`
+  for tomo in `seq ${NOBS}`
+  do 
+    tomoval=`echo ${tomoval_all} | awk -v n=${tomo} '{print -1*$n}'`
+    tomolo=`echo $tomoval | awk '{print $1-5.00}'`
+    tomohi=`echo $tomoval | awk '{print $1+5.00}'`
+    echo "uncorr_bias_${tomo} = ${tomolo} ${tomoval} ${tomohi} " >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_values.ini
+  done
+  #}}}
+  #Update the priors with the uncorrelated Dz priors {{{
+  echo "[nofz_shifts_obs]" >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_priors.ini 
+  #Add the uncorrelated tomographic bin shifts 
+  for tomo in `seq ${NOBS}`
+  do 
+    tomoval=`echo ${tomoval_all} | awk -v n=${tomo} '{print -1*$n}'`
+    echo "uncorr_bias_${tomo} = gaussian ${tomoval} 1.0 " >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_priors.ini
+  done
+  #}}}
+fi
 
 _write_datablock "cosmosis_inputs" "@SURVEY@_values.ini @SURVEY@_priors.ini"
 #}}}

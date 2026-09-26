@@ -25,7 +25,7 @@ then
   outlist=${file}
 elif [ -d @BV:TREECORRXIPM@ ]
 then 
-  filelist=`ls @BV:TREECORRXIPM@/*.asc*`
+  filelist=`ls @BV:TREECORRXIPM@/*.txt*`
   for file in ${filelist} 
   do 
     cp ${file} @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/xipm/${file##*/}

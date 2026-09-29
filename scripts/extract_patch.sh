@@ -37,7 +37,7 @@ do
   #}}}
   #Check if input file lengths are ok {{{
   links="FALSE"
-  for file in ${inputfile} ${outname}
+  for file in ${inputfile} ${outputname}
   do 
     if [ ${#file} -gt 255 ] 
     then 

@@ -326,8 +326,6 @@ EOF
   _message "${BLU} - Done! ${DEF}\n"
   #}}}
 
-fi 
-  
   #Install OneCovariance {{{
   _message "   >${RED} Installing OneCovariance ${DEF}"
   cd ${RUNROOT}/INSTALL/OneCovariance/
@@ -349,6 +347,8 @@ EOF
   cd ${RUNROOT}/INSTALL/
   _message "${BLU} - Done! ${DEF}\n"
   #}}}
+
+fi
 
 cd ${RUNROOT}
 

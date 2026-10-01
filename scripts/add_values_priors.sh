@@ -103,7 +103,13 @@ then
     tomoval=`echo ${tomoval_all} | awk -v n=${tomo} '{print -1*$n}'`
     tomolo=`echo $tomoval | awk '{print $1-5.00}'`
     tomohi=`echo $tomoval | awk '{print $1+5.00}'`
-    echo "uncorr_bias_${tomo} = ${tomolo} ${tomoval} ${tomohi} " >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_values.ini
+    if [ "${NOBS}" -eq 1 ]; then
+      echo "bias_1 = ${tomolo} ${tomoval} ${tomohi}" \
+            >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_values.ini
+    else
+        echo "uncorr_bias_${tomo} = ${tomolo} ${tomoval} ${tomohi}" \
+            >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_values.ini
+    fi
   done
   #}}}
   #Update the priors with the uncorrelated Dz priors {{{
@@ -112,7 +118,11 @@ then
   for tomo in `seq ${NOBS}`
   do 
     tomoval=`echo ${tomoval_all} | awk -v n=${tomo} '{print -1*$n}'`
-    echo "uncorr_bias_${tomo} = gaussian ${tomoval} 1.0 " >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_priors.ini
+    if [ "${NOBS}" -eq 1 ]; then
+      echo "bias_1 = gaussian ${tomoval} 1.0 " >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_priors.ini
+    else
+      echo "uncorr_bias_${tomo} = gaussian ${tomoval} 1.0 " >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_priors.ini
+    fi
   done
   #}}}
 fi

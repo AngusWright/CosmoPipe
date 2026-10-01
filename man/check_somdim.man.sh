@@ -1,5 +1,5 @@
 #
-# add_mcmc_input.sh Documentation & Housekeeping functions
+# check_somdim.sh Documentation & Housekeeping functions
 #
 
 #Starting Prompt {{{
@@ -7,9 +7,9 @@ function _prompt {
   #Check if we do want verbose output
   if [ "$1" != "0" ] 
   then
-    _message "@BLU@======================================@DEF@\n"
-    _message "@BLU@== @RED@ Running add_mcmc_input.sh Mode @BLU@ ==@DEF@\n"
-    _message "@BLU@======================================@DEF@\n"
+    _message "@BLU@====================================@DEF@\n"
+    _message "@BLU@== @RED@ Running check_somdim.sh Mode @BLU@ ==@DEF@\n"
+    _message "@BLU@====================================@DEF@\n"
   fi 
 }
 #}}}
@@ -17,7 +17,8 @@ function _prompt {
 #Mode description {{{
 function _description { 
   echo "#"
-  echo '# does important stuff'
+  echo '# Check that the SOM dimension is appropriate for '
+  echo '# the training files in the DATAHEAD'
   echo "#"
   echo "# Function takes input data:"
   echo "# `_inp_data`"
@@ -42,29 +43,28 @@ set -e
 # Input variables {{{ 
 function _inp_var { 
   #Variable inputs (leave blank if none)
-  echo BV:BOLTZMAN BV:MCMCINPUTFILE BV:NZCOVFILE BV:STATISTIC DATABLOCK RUNROOT STORAGEPATH
+  echo BLU BV:SOMDIM DEF P_RSCRIPT RED RUNROOT SCRIPTPATH
 } 
 #}}}
 
 # Input data {{{ 
 function _inp_data { 
   #Data inputs (leave blank if none)
-  echo 
+  echo ALLHEAD 
 } 
 #}}}
 
 # Output data {{{ 
 function _outputs { 
   #Data outputs (leave blank if none)
-  stat=`_parse_blockvars "@BV:STATISTIC@"`
-  echo mcmc_inp_$stat nzcov
+  echo BV:SOMDIM
 } 
 #}}}
 
 # Execution command {{{ 
 function _runcommand { 
   #Command for running the script 
-  echo bash @RUNROOT@/@SCRIPTPATH@/add_mcmc_input.sh
+  echo bash @RUNROOT@/@SCRIPTPATH@/check_somdim.sh
 } 
 #}}}
 

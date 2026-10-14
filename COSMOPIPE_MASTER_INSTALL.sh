@@ -161,10 +161,7 @@ then
   then 
     rm -fr cosmosis-standard-library
   fi
-  git clone --single-branch -b two-point-one-point https://github.com/andrejdvornik/cosmosis-standard-library.git >> gitclone_output.log 2>&1
-  # The two-point-one-point branch has one-point function enabled and some further non-PR fixes to CAMB
-  # We will try to merge that with the oficial CSL, until then the rest of CSL is in sync!
-  #git clone https://github.com/joezuntz/cosmosis-standard-library.git >> gitclone_output.log 2>&1
+  git clone https://github.com/cosmosis-developers/cosmosis-standard-library.git >> gitclone_output.log 2>&1
   _message "${BLU} - Done! ${DEF}\n"
   _message "   >${RED} Installing cosmosis-standard-library ${DEF}"
   #Replace the cpdef instances with cdef in classy.pyx
@@ -231,6 +228,17 @@ EOF
     rm -fr 2pt_stats
   fi
   git clone https://github.com/maricool/2pt_stats.git >> gitclone_output.log 2>&1
+  _message "${BLU} - Done! ${DEF}\n"
+  #}}}
+
+  #Clone the OnePower repository {{{
+  _message "   >${RED} Cloning the OnePower Git repository${DEF}"
+  #Clone the repository
+  if [ -d ${RUNROOT}/INSTALL/OnePower ] 
+  then 
+    rm -fr OnePower
+  fi
+  git clone https://github.com/KiDS-WL/onepower.git >> gitclone_output.log 2>&1
   _message "${BLU} - Done! ${DEF}\n"
   #}}}
 

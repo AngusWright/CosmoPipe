@@ -41,9 +41,19 @@ _message " >@RED@ Done! (`date +'%a %H:%M'`)@DEF@\n"
 
 if [ "${SECONDSTATISTIC^^}" == "XIPM" ] || [ "${SECONDSTATISTIC^^}" == "2PCF" ] || [ "${SECONDSTATISTIC^^}" == "COSEBIS" ] || [ "${SECONDSTATISTIC^^}" == "BANDPOWERS" ]
 then
-  _write_datablock "covariance_@BV:STATISTIC@_@BV:SECONDSTATISTIC@" "covariance_matrix_${non_linear_model}.mat"
+  if [ -f @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_@BV:STATISTIC@_@BV:SECONDSTATISTIC@/covariance_matrix_${non_linear_model}_reduced.mat ]
+  then
+    _write_datablock "covariance_@BV:STATISTIC@_@BV:SECONDSTATISTIC@" "covariance_matrix_${non_linear_model}_reduced.mat"
+  else
+    _write_datablock "covariance_@BV:STATISTIC@_@BV:SECONDSTATISTIC@" "covariance_matrix_${non_linear_model}.mat"
+  fi
 else
-  _write_datablock "covariance_@BV:STATISTIC@" "covariance_matrix_${non_linear_model}.mat"
+  if [ -f @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_@BV:STATISTIC@/covariance_matrix_${non_linear_model}_reduced.mat ]
+  then
+    _write_datablock "covariance_@BV:STATISTIC@" "covariance_matrix_${non_linear_model}_reduced.mat"
+  else
+    _write_datablock "covariance_@BV:STATISTIC@" "covariance_matrix_${non_linear_model}.mat"
+  fi
 fi
 
 #Clean up the temporary input folder

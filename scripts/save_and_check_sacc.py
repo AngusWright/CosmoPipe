@@ -146,16 +146,54 @@ def add_2pt_points(sacc_data, statistic, type, auto, n1, n2, min_val, max_val, n
                 
                 
 def add_1pt_points(sacc_data, files):
-    for i, file in enumerate(files):
-        # Load SMF
-        mass, value, extra = np.loadtxt(file).T
-        mass_min = mass - 0.5 * (mass[1] - mass[0])
-        mass_max = mass + 0.5 * (mass[1] - mass[0])
+    dt = "galaxy_stellarmassfunction"
+    grid_resolution = 10000  # Number of points in mass grid for window functions
 
-        for m, mmin, mmax, v in zip(mass, mass_min, mass_max, value):
-            tracer_name = f"lens_{i}"
-            dt = "galaxy_stellarmassfunction"
-            sacc_data.add_data_point(dt, (tracer_name,), v, mass=m, mass_min=mmin, mass_max=mmax)
+    for i, file in enumerate(files):
+
+        tracer_name = f"lens_{i}"
+
+        mass, value, extra = np.loadtxt(file).T
+
+        # Bin edges
+        log_mass = np.log10(mass)
+
+        # Compute log bin edges
+        dlog = log_mass[1] - log_mass[0]
+        log_mass_min = log_mass - 0.5 * dlog
+        log_mass_max = log_mass + 0.5 * dlog
+
+        # Mass grid for window functions
+        log_grid = np.linspace(log_mass_min.min(), log_mass_max.max(), grid_resolution)
+
+        mass_grid = 10**log_grid 
+
+        # Window array
+        w = np.zeros((len(mass), grid_resolution))
+
+        # Build windows
+        for j in range(len(mass)):
+            in_bin = np.where(
+                (log_grid >= log_mass_min[j]) &
+                (log_grid <  log_mass_max[j])
+            )[0]
+            w[j, in_bin] = 1.0
+        w /= w.sum(axis=1)[:, None]  # Normalize
+        window = sacc.Window(values=mass_grid, weight=w.T)
+
+        # Add data points
+        for j, (lm, lmmin, lmmax, v) in enumerate(
+            zip(log_mass, log_mass_min, log_mass_max, value)
+        ):
+            sacc_data.add_data_point(
+                dt, (tracer_name,), v,
+                mass=10**lm,
+                mass_min=10**lmmin,
+                mass_max=10**lmmax,
+                window=window,
+                window_ind=j
+            )
+
 
 
 def process_2pt_data(mode, nangle, min_val, max_val, n1, n2, datavec_files, statistic, sacc_data, sacc_data_no_mbias, auto=None):

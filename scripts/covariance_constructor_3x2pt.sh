@@ -36,6 +36,40 @@ NTOMO=`echo @BV:TOMOLIMS@ | awk '{print NF-1}'`
 NLENS="@BV:NLENSBINS@"
 NOBS="@BV:NSMFLENSBINS@"
 
+use_arbitrary=True
+arb_base=@RUNROOT@/@CONFIGPATH@/covariance_arb_summary/
+outfold=@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_inputs/arb_summary_filters/
+
+# Function to check and copy files
+check_and_copy_files() {
+    local n=$1
+    shift
+    local files=("$@")
+
+    for i in $(seq -f "%02g" 1 "$n"); do
+        missing=False
+        expanded_files=()
+        for f in "${files[@]}"; do
+            file="${f//\?/$i}"
+            expanded_files+=("$file")
+            if [ ! -f "$arb_base$file" ]; then
+                missing=True
+            fi
+        done
+
+        if [ "$missing" == "True" ]; then
+            run_arbitrary=True
+            _message "One or more arbitrary input files do not exist. Please run the run_cov_weights.sh script before!\n"
+            break
+        else
+            for f in "${expanded_files[@]}"; do
+                cp "$arb_base$f" "$outfold"
+            done
+        fi
+    done
+}
+
+
 
 if [ "${STATISTIC^^}" == "2PCF" ]
 then
@@ -44,10 +78,10 @@ then
     est_shear=xi_pm
     cosmic_shear=True
     n_arb_ee=@BV:NXIPM@
-    arb_fourier_filter_mmE_file_@BV:STATISTIC@="fourier_weight_realspace_cf_mm_p_?.table"
-    arb_fourier_filter_mmB_file_@BV:STATISTIC@="fourier_weight_realspace_cf_mm_m_?.table"
-    arb_real_filter_mm_p_file_@BV:STATISTIC@="real_weight_realspace_cf_mm_p_?.table"
-    arb_real_filter_mm_m_file_@BV:STATISTIC@="real_weight_realspace_cf_mm_m_?.table"
+    arb_fourier_filter_mmE_file="fourier_weight_realspace_cf_mm_p_?.table"
+    arb_fourier_filter_mmB_file="fourier_weight_realspace_cf_mm_m_?.table"
+    arb_real_filter_mm_p_file="real_weight_realspace_cf_mm_p_?.table"
+    arb_real_filter_mm_m_file="real_weight_realspace_cf_mm_m_?.table"
   else
     est_shear=xi_pm
     cosmic_shear=False
@@ -57,8 +91,8 @@ then
     est_ggl=gamma_t
     ggl=True
     n_arb_ne=@BV:NGT@
-    arb_fourier_filter_gm_file_@BV:STATISTIC@="fourier_weight_realspace_cf_gm_?.table"
-    arb_real_filter_gm_file_@BV:STATISTIC@="real_weight_realspace_cf_gm_?.table"
+    arb_fourier_filter_gm_file="fourier_weight_realspace_cf_gm_?.table"
+    arb_real_filter_gm_file="real_weight_realspace_cf_gm_?.table"
   else
     est_ggl=gamma_t
     ggl=False
@@ -68,8 +102,8 @@ then
     est_clust=w
     clustering=True
     n_arb_nn=@BV:NWT@
-    arb_fourier_filter_gg_file_@BV:STATISTIC@="fourier_weight_realspace_cf_gg_?.table"
-    arb_real_filter_gg_file_@BV:STATISTIC@="real_weight_realspace_cf_gg_?.table"
+    arb_fourier_filter_gg_file="fourier_weight_realspace_cf_gg_?.table"
+    arb_real_filter_gg_file="real_weight_realspace_cf_gg_?.table"
   else
     est_clust=w
     clustering=False
@@ -81,10 +115,10 @@ then
     est_shear=cosebi
     cosmic_shear=True
     n_arb_ee=@BV:NMAXCOSEBIS@
-    arb_fourier_filter_mmE_file_@BV:STATISTIC@="Wn_@BV:THETAMINXI@_to_@BV:THETAMAXXI@_?.table"
-    arb_fourier_filter_mmB_file_@BV:STATISTIC@="Wn_@BV:THETAMINXI@_to_@BV:THETAMAXXI@_?.table"
-    arb_real_filter_mm_p_file_@BV:STATISTIC@="Tp_@BV:THETAMINXI@_to_@BV:THETAMAXXI@_?.table"
-    arb_real_filter_mm_m_file_@BV:STATISTIC@="Tm_@BV:THETAMINXI@_to_@BV:THETAMAXXI@_?.table"
+    arb_fourier_filter_mmE_file="Wn_@BV:THETAMINXI@_to_@BV:THETAMAXXI@_?.table"
+    arb_fourier_filter_mmB_file="Wn_@BV:THETAMINXI@_to_@BV:THETAMAXXI@_?.table"
+    arb_real_filter_mm_p_file="Tp_@BV:THETAMINXI@_to_@BV:THETAMAXXI@_?.table"
+    arb_real_filter_mm_m_file="Tm_@BV:THETAMINXI@_to_@BV:THETAMAXXI@_?.table"
   else
     est_shear=cosebi
     cosmic_shear=False
@@ -94,8 +128,8 @@ then
     est_ggl=cosebi
     ggl=True
     n_arb_ne=@BV:NMAXCOSEBISNE@
-    arb_fourier_filter_gm_file_@BV:STATISTIC@="Qgm_@BV:THETAMINGT@_to_@BV:THETAMAXGT@_?.table"
-    arb_real_filter_gm_file_@BV:STATISTIC@="Wn_psigm_@BV:THETAMINGT@_to_@BV:THETAMAXGT@_?.table"
+    arb_fourier_filter_gm_file="Qgm_@BV:THETAMINGT@_to_@BV:THETAMAXGT@_?.table"
+    arb_real_filter_gm_file="Wn_psigm_@BV:THETAMINGT@_to_@BV:THETAMAXGT@_?.table"
   else
     est_ggl=cosebi
     ggl=False
@@ -105,8 +139,8 @@ then
     est_clust=cosebi
     clustering=True
     n_arb_nn=@BV:NMAXCOSEBISNN@
-    arb_fourier_filter_gg_file_@BV:STATISTIC@="Ugg_@BV:THETAMINWT@_to_@BV:THETAMAXWT@_?.table"
-    arb_real_filter_gg_file_@BV:STATISTIC@="Wn_psigg_@BV:THETAMINWT@_to_@BV:THETAMAXWT@_?.table"
+    arb_fourier_filter_gg_file="Ugg_@BV:THETAMINWT@_to_@BV:THETAMAXWT@_?.table"
+    arb_real_filter_gg_file="Wn_psigg_@BV:THETAMINWT@_to_@BV:THETAMAXWT@_?.table"
   else
     est_clust=cosebi
     clustering=False
@@ -122,10 +156,10 @@ then
     theta_up=`echo 'e(l(@BV:THETAMAXXI@)-@BV:APODISATIONWIDTH@/2)' | bc -l | awk '{printf "%.9f", $0}'`
     t_lo=`printf "%.2f" $theta_lo`
     t_up=`printf "%.2f" $theta_up`
-    arb_fourier_filter_mmE_file_@BV:STATISTIC@="fourier_weight_bandpowers_mmE_?.table"
-    arb_fourier_filter_mmB_file_@BV:STATISTIC@="fourier_weight_bandpowers_mmB_?.table"
-    arb_real_filter_mm_p_file_@BV:STATISTIC@="real_weight_bandpowers_mmE_?.table"
-    arb_real_filter_mm_m_file_@BV:STATISTIC@="real_weight_bandpowers_mmB_?.table"
+    arb_fourier_filter_mmE_file="fourier_weight_bandpowers_mmE_?.table"
+    arb_fourier_filter_mmB_file="fourier_weight_bandpowers_mmB_?.table"
+    arb_real_filter_mm_p_file="real_weight_bandpowers_mmE_?.table"
+    arb_real_filter_mm_m_file="real_weight_bandpowers_mmB_?.table"
   else
     est_shear=bandpowers
     cosmic_shear=False
@@ -139,8 +173,8 @@ then
     theta_up_lensing=`echo 'e(l(@BV:THETAMAXGT@)-@BV:APODISATIONWIDTH@/2)' | bc -l | awk '{printf "%.9f", $0}'`
     t_lo=`printf "%.2f" $theta_lo_lensing`
     t_up=`printf "%.2f" $theta_up_lensing`
-    arb_fourier_filter_gm_file_@BV:STATISTIC@="fourier_weight_bandpowers_gm_?.table"
-    arb_real_filter_gm_file_@BV:STATISTIC@="real_weight_bandpowers_gm_?.table"
+    arb_fourier_filter_gm_file="fourier_weight_bandpowers_gm_?.table"
+    arb_real_filter_gm_file="real_weight_bandpowers_gm_?.table"
   else
     est_ggl=bandpowers
     ggl=False
@@ -154,8 +188,8 @@ then
     theta_up_clustering=`echo 'e(l(@BV:THETAMAXWT@)-@BV:APODISATIONWIDTH@/2)' | bc -l | awk '{printf "%.9f", $0}'`
     t_lo=`printf "%.2f" $theta_lo_clustering`
     t_up=`printf "%.2f" $theta_up_clustering`
-    arb_fourier_filter_gg_file_@BV:STATISTIC@="fourier_weight_bandpowers_gg_?.table"
-    arb_real_filter_gg_file_@BV:STATISTIC@="real_weight_bandpowers_gg_?.table"
+    arb_fourier_filter_gg_file="fourier_weight_bandpowers_gg_?.table"
+    arb_real_filter_gg_file="real_weight_bandpowers_gg_?.table"
   else
     est_clust=bandpowers
     clustering=False
@@ -174,46 +208,64 @@ then
   z_mins=""
   z_maxs=""
   file1="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/smf_lens_cats_metadata/stats_LB1.txt"
-  slice=`grep '^slice_in' ${file1} | awk '{printf $2}'`
-  if [ "${slice}" == "obs" ]
+  if [ -f ${file1} ]
   then
-    for i in `seq ${NOBS}`
-    do
-      file="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/smf_lens_cats_metadata/stats_LB${i}.txt"
-      x_lo=`grep '^x_lims_lo' ${file} | awk '{printf $2}'`
-      x_hi=`grep '^x_lims_hi' ${file} | awk '{printf $2}'`
-      y_lo=`grep '^y_lims_lo' ${file} | awk '{printf $2}'`
-      y_hi=`grep '^y_lims_hi' ${file} | awk '{printf $2}'`
-      obs_mins="${obs_mins} $(echo "$x_lo + l(@BV:H0_IN@)/l(10)" | bc -l)"
-      obs_maxs="${obs_maxs} $(echo "$x_hi + l(@BV:H0_IN@)/l(10)" | bc -l)"
-      z_mins="${z_mins} ${y_lo}"
-      z_maxs="${z_maxs} ${y_hi}"
-    done
-  elif [ "${slice}" == "z" ]
-  then
-    for i in `seq ${NOBS}`
-    do
-      file="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/smf_lens_cats_metadata/stats_LB${i}.txt"
-      x_lo=`grep '^x_lims_lo' ${file} | awk '{printf $2}'`
-      x_hi=`grep '^x_lims_hi' ${file} | awk '{printf $2}'`
-      y_lo=`grep '^y_lims_lo' ${file} | awk '{printf $2}'`
-      y_hi=`grep '^y_lims_hi' ${file} | awk '{printf $2}'`
-      obs_mins="${obs_mins} $(echo "$y_lo + l(@BV:H0_IN@)/l(10)" | bc -l)"
-      obs_maxs="${obs_maxs} $(echo "$y_hi + l(@BV:H0_IN@)/l(10)" | bc -l)"
-      z_mins="${z_mins} ${x_lo}"
-      z_maxs="${z_maxs} ${x_hi}"
-    done
+    slice=`grep '^slice_in' ${file1} | awk '{printf $2}'`
+    if [ "${slice}" == "obs" ]
+    then
+      for i in `seq ${NOBS}`
+      do
+        file="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/smf_lens_cats_metadata/stats_LB${i}.txt"
+        x_lo=`grep '^x_lims_lo' ${file} | awk '{printf $2}'`
+        x_hi=`grep '^x_lims_hi' ${file} | awk '{printf $2}'`
+        y_lo=`grep '^y_lims_lo' ${file} | awk '{printf $2}'`
+        y_hi=`grep '^y_lims_hi' ${file} | awk '{printf $2}'`
+        obs_mins="${obs_mins} $(echo "$x_lo + l(@BV:H0_IN@)/l(10)" | bc -l)"
+        obs_maxs="${obs_maxs} $(echo "$x_hi + l(@BV:H0_IN@)/l(10)" | bc -l)"
+        z_mins="${z_mins} ${y_lo}"
+        z_maxs="${z_maxs} ${y_hi}"
+      done
+    elif [ "${slice}" == "z" ]
+    then
+      for i in `seq ${NOBS}`
+      do
+        file="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/smf_lens_cats_metadata/stats_LB${i}.txt"
+        x_lo=`grep '^x_lims_lo' ${file} | awk '{printf $2}'`
+        x_hi=`grep '^x_lims_hi' ${file} | awk '{printf $2}'`
+        y_lo=`grep '^y_lims_lo' ${file} | awk '{printf $2}'`
+        y_hi=`grep '^y_lims_hi' ${file} | awk '{printf $2}'`
+        obs_mins="${obs_mins} $(echo "$y_lo + l(@BV:H0_IN@)/l(10)" | bc -l)"
+        obs_maxs="${obs_maxs} $(echo "$y_hi + l(@BV:H0_IN@)/l(10)" | bc -l)"
+        z_mins="${z_mins} ${x_lo}"
+        z_maxs="${z_maxs} ${x_hi}"
+      done
+    else
+      _message "Got wrong or no information about slicing of the lens sample.\n"
+      #exit 1
+    fi
+    cstellar_mf=True
+    csmf_Mmin=`echo ${obs_mins} | sed 's/ /,/g'`
+    csmf_Mmax=`echo ${obs_maxs} | sed 's/ /,/g'`
+    csmf_N_log10M_bin=@BV:NSMFBINS@
+    csmf_directory="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/smf/"
+    V_max_file="@DB:vmax@" # This assumes one file, currently we have NSMFLENSBINS
+    f_tomo_file="@DB:f_tomo@" # This assumes one file, currently we have NSMFLENSBINS
   else
-    _message "Got wrong or no information about slicing of the lens sample.\n"
-    #exit 1
+    _message "No SMF lens catalog metadata found, setting default CSMF parameters from saved variables.\n"
+    if [ "${NOBS}" = "1" ]
+    then
+      csmf_Mmin=$(echo @BV:SMFLENSLIMSX@ | awk '{print $1}')
+      csmf_Mmax=$(echo @BV:SMFLENSLIMSX@ | awk '{print $2}')
+    else
+      csmf_Mmin=$(echo @BV:SMFLENSLIMSX@ | awk '{for(i=1; i<NF; i++) printf "%s,", $i; print ""}' | sed 's/,$//')
+      csmf_Mmax=$(echo @BV:SMFLENSLIMSX@ | awk '{for(i=2; i<=NF; i++) printf "%s,", $i; print ""}' | sed 's/,$//')
+    fi
+    cstellar_mf=True
+    csmf_N_log10M_bin=@BV:NSMFBINS@
+    csmf_directory="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/smf/"
+    V_max_file="@DB:vmax@" # This assumes one file, currently we have NSMFLENSBINS
+    f_tomo_file="@DB:f_tomo@" # This assumes one file, currently we have NSMFLENSBINS
   fi
-  cstellar_mf=True
-  csmf_Mmin=`echo ${obs_mins} | sed 's/ /,/g'`
-  csmf_Mmax=`echo ${obs_maxs} | sed 's/ /,/g'`
-  csmf_N_log10M_bin=@BV:NSMFBINS@
-  csmf_directory="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/smf/"
-  V_max_file="@DB:vmax@" # This assumes one file, currently we have NSMFLENSBINS
-  f_tomo_file="@DB:f_tomo@" # This assumes one file, currently we have NSMFLENSBINS
 else
   cstellar_mf=False
   csmf_Mmin=9.1
@@ -230,45 +282,58 @@ then
   obs_mins=""
   obs_maxs=""
   z_mins=""
-  z_maxs=""
+  z_maxs="" 
   file1="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/lens_cats_metadata/stats_LB1.txt"
-  slice=`grep '^slice_in' ${file1} | awk '{printf $2}'`
-  if [ "${slice}" == "obs" ]
+  if [ -f ${file1} ]
   then
-    for i in `seq ${NLENS}`
-    do
-      file="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/lens_cats_metadata/stats_LB${i}.txt"
-      x_lo=`grep '^x_lims_lo' ${file} | awk '{printf $2}'`
-      x_hi=`grep '^x_lims_hi' ${file} | awk '{printf $2}'`
-      y_lo=`grep '^y_lims_lo' ${file} | awk '{printf $2}'`
-      y_hi=`grep '^y_lims_hi' ${file} | awk '{printf $2}'`
-      obs_mins="${obs_mins} $(echo "$x_lo + l(@BV:H0_IN@)/l(10)" | bc -l)"
-      obs_maxs="${obs_maxs} $(echo "$x_hi + l(@BV:H0_IN@)/l(10)" | bc -l)"
-      z_mins="${z_mins} ${y_lo}"
-      z_maxs="${z_maxs} ${y_hi}"
-    done
-  elif [ "${slice}" == "z" ]
-  then
-    for i in `seq ${NLENS}`
-    do
-      file="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/lens_cats_metadata/stats_LB${i}.txt"
-      x_lo=`grep '^x_lims_lo' ${file} | awk '{printf $2}'`
-      x_hi=`grep '^x_lims_hi' ${file} | awk '{printf $2}'`
-      y_lo=`grep '^y_lims_lo' ${file} | awk '{printf $2}'`
-      y_hi=`grep '^y_lims_hi' ${file} | awk '{printf $2}'`
-      obs_mins="${obs_mins} $(echo "$y_lo + l(@BV:H0_IN@)/l(10)" | bc -l)"
-      obs_maxs="${obs_maxs} $(echo "$y_hi + l(@BV:H0_IN@)/l(10)" | bc -l)"
-      z_mins="${z_mins} ${x_lo}"
-      z_maxs="${z_maxs} ${x_hi}"
-    done
-  else
-    _message "Got wrong or no information about slicing of the lens sample.\n"
-    #exit 1
+    slice=`grep '^slice_in' ${file1} | awk '{printf $2}'`
+    if [ "${slice}" == "obs" ]
+    then
+      for i in `seq ${NLENS}`
+      do
+        file="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/lens_cats_metadata/stats_LB${i}.txt"
+        x_lo=`grep '^x_lims_lo' ${file} | awk '{printf $2}'`
+        x_hi=`grep '^x_lims_hi' ${file} | awk '{printf $2}'`
+        y_lo=`grep '^y_lims_lo' ${file} | awk '{printf $2}'`
+        y_hi=`grep '^y_lims_hi' ${file} | awk '{printf $2}'`
+        obs_mins="${obs_mins} $(echo "$x_lo + l(@BV:H0_IN@)/l(10)" | bc -l)"
+        obs_maxs="${obs_maxs} $(echo "$x_hi + l(@BV:H0_IN@)/l(10)" | bc -l)"
+        z_mins="${z_mins} ${y_lo}"
+        z_maxs="${z_maxs} ${y_hi}"
+      done
+    elif [ "${slice}" == "z" ]
+    then
+      for i in `seq ${NLENS}`
+      do
+        file="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/lens_cats_metadata/stats_LB${i}.txt"
+        x_lo=`grep '^x_lims_lo' ${file} | awk '{printf $2}'`
+        x_hi=`grep '^x_lims_hi' ${file} | awk '{printf $2}'`
+        y_lo=`grep '^y_lims_lo' ${file} | awk '{printf $2}'`
+        y_hi=`grep '^y_lims_hi' ${file} | awk '{printf $2}'`
+        obs_mins="${obs_mins} $(echo "$y_lo + l(@BV:H0_IN@)/l(10)" | bc -l)"
+        obs_maxs="${obs_maxs} $(echo "$y_hi + l(@BV:H0_IN@)/l(10)" | bc -l)"
+        z_mins="${z_mins} ${x_lo}"
+        z_maxs="${z_maxs} ${x_hi}"
+      done
+    else
+      _message "Got wrong or no information about slicing of the lens sample.\n"
+      #exit 1
+    fi
+    bias_Mmin=`echo ${obs_mins} | sed 's/ /,/g'`
+    bias_Mmax=`echo ${obs_maxs} | sed 's/ /,/g'`
+    # Merge, split into lines, sort uniquely, and turn back into comma-separated
+    #bias_mass=$(echo "$obs_mins $obs_maxs" | tr ' ' '\n' | sort -n | uniq | tr '\n' ',' | sed 's/,$//')
+  else  
+    _message "No lens catalog metadata found, setting default bias mass parameters from saved variables.\n"
+    if [ "${NLENS}" = "1" ]
+    then
+      bias_Mmin=$(echo @BV:LENSLIMSX@ | awk '{print $1}')
+      bias_Mmax=$(echo @BV:LENSLIMSX@ | awk '{print $2}')
+    else
+      bias_Mmin=$(echo @BV:LENSLIMSX@ | awk '{for(i=1; i<NF; i++) printf "%s,", $i; print ""}' | sed 's/,$//')
+      bias_Mmax=$(echo @BV:LENSLIMSX@ | awk '{for(i=2; i<=NF; i++) printf "%s,", $i; print ""}' | sed 's/,$//')
+    fi
   fi
-  bias_Mmin=`echo ${obs_mins} | sed 's/ /,/g'`
-  bias_Mmax=`echo ${obs_maxs} | sed 's/ /,/g'`
-  # Merge, split into lines, sort uniquely, and turn back into comma-separated
-  #bias_mass=$(echo "$obs_mins $obs_maxs" | tr ' ' '\n' | sort -n | uniq | tr '\n' ',' | sed 's/,$//')
 else
   bias_Mmin=9.0
   bias_Mmax=13.0
@@ -276,65 +341,19 @@ else
 fi
 
 # Check if the arbitrary input files exist and copy to input directory
-use_arbitrary=True #False
 if [[ .*\ $MODES\ .* =~ " EE " ]]
 then
-  for i in $(seq -f "%02g" 1 $n_arb_ee)
-  do
-    file=`echo ${arb_fourier_filter_mmE_file_@BV:STATISTIC@} | sed "s/?/${i}/g"`
-    file2=`echo ${arb_fourier_filter_mmB_file_@BV:STATISTIC@} | sed "s/?/${i}/g"`
-    file3=`echo ${arb_real_filter_mm_p_file_@BV:STATISTIC@} | sed "s/?/${i}/g"`
-    file4=`echo ${arb_real_filter_mm_m_file_@BV:STATISTIC@} | sed "s/?/${i}/g"`
-    arb_base=@RUNROOT@/@CONFIGPATH@/covariance_arb_summary/
-    if [ ! -f $arb_base${file} ] || [ ! -f $arb_base${file2} ] || [ ! -f $arb_base${file3} ] || [ ! -f $arb_base${file4} ]
-    then
-      #use_arbitrary=False
-      _message "One or more arbitrary input files do not exist. Calculating filters on the fly!\n"
-      break
-    else
-      cp ${arb_base}/{$file,$file2,$file3,$file4} @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_inputs/arb_summary_filters/
-    fi
-  done
+  check_and_copy_files "$n_arb_ee" "$arb_fourier_filter_mmE_file" "$arb_fourier_filter_mmB_file" "$arb_real_filter_mm_p_file" "$arb_real_filter_mm_m_file"
 fi
 if [[ .*\ $MODES\ .* =~ " NE " ]]
 then
-  for i in $(seq -f "%02g" 1 $n_arb_ne)
-  do
-    file=`echo ${arb_fourier_filter_gm_file_@BV:STATISTIC@} | sed "s/?/${i}/g"`
-    file2=`echo ${arb_real_filter_gm_file_@BV:STATISTIC@}   | sed "s/?/${i}/g"`
-    arb_base=@RUNROOT@/@CONFIGPATH@/covariance_arb_summary/
-    if [ ! -f $arb_base${file} ] || [ ! -f $arb_base${file2} ]
-    then
-      #use_arbitrary=False
-      _message "One or more arbitrary input files do not exist. Calculating filters on the fly!\n"
-      break
-    else
-      cp ${arb_base}/{$file,$file2} @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_inputs/arb_summary_filters/
-    fi
-  done
+  check_and_copy_files "$n_arb_ne" "$arb_fourier_filter_gm_file" "$arb_real_filter_gm_file"
 fi
 if [[ .*\ $MODES\ .* =~ " NN " ]]
 then
-  for i in $(seq -f "%02g" 1 $n_arb_nn)
-  do
-    file=`echo ${arb_fourier_filter_gg_file_@BV:STATISTIC@} | sed "s/?/${i}/g"`
-    file2=`echo ${arb_real_filter_gg_file_@BV:STATISTIC@}   | sed "s/?/${i}/g"`
-    arb_base=@RUNROOT@/@CONFIGPATH@/covariance_arb_summary/
-    if [ ! -f $arb_base${file} ] || [ ! -f $arb_base${file2} ]
-    then
-      #use_arbitrary=False
-      _message "One or more arbitrary input files do not exist. Calculating filters on the fly!\n"
-      break
-    else
-      cp ${arb_base}/{$file,$file2} @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_inputs/arb_summary_filters/
-    fi
-  done
+  check_and_copy_files "$n_arb_nn" "$arb_fourier_filter_gg_file" "$arb_real_filter_gg_file"
 fi
 
-if [ "${use_arbitrary}" == "True" ]
-then
-  _message "Using arbitrary input files!\n"
-fi
 
 mix_term=@BV:MIXTERM@
 if [ "${mix_term^^}" == "TRUE" ]
@@ -591,6 +610,7 @@ est_clust = ${est_clust}
 cstellar_mf = ${cstellar_mf}
 cross_terms = True
 unbiased_clustering = True
+; combinations_clustering = $(seq 0 $((NLENS-1)) | sed 's/.*/&-&/' | paste -sd, -)
 
 [csmf settings]
 csmf_log10Mmin = ${csmf_Mmin}
@@ -663,10 +683,10 @@ theta_type = log
 theta_type_lensing = log
 theta_type_clustering = log
 theta_list = 1, 2, 3
+clustering = ${clustering}
+ggl   = ${ggl}
 xi_pp = ${cosmic_shear}
 xi_mm = ${cosmic_shear}
-ggl   = ${ggl}
-clustering = ${clustering}
 theta_accuracy = 1e-5
 integration_intervals = 50
 
@@ -914,44 +934,44 @@ then
       if [[ .*\ $MODES\ .* =~ " EE " ]]
       then
         n_arb_ee2=@BV:NXIPM@
-        arb_fourier_filter_mmE_file_@BV:STATISTIC@="fourier_weight_realspace_cf_mm_p_?.table"
-        arb_fourier_filter_mmB_file_@BV:STATISTIC@="fourier_weight_realspace_cf_mm_m_?.table"
-        arb_real_filter_mm_p_file_@BV:STATISTIC@="real_weight_realspace_cf_mm_p_?.table"
-        arb_real_filter_mm_m_file_@BV:STATISTIC@="real_weight_realspace_cf_mm_m_?.table"
+        arb_fourier_filter_mmE_file_second_stat="fourier_weight_realspace_cf_mm_p_?.table"
+        arb_fourier_filter_mmB_file_second_stat="fourier_weight_realspace_cf_mm_m_?.table"
+        arb_real_filter_mm_p_file_second_stat="real_weight_realspace_cf_mm_p_?.table"
+        arb_real_filter_mm_m_file_second_stat="real_weight_realspace_cf_mm_m_?.table"
       fi
       if [[ .*\ $MODES\ .* =~ " NE " ]]
       then
         n_arb_ne2=@BV:NGT@
-        arb_fourier_filter_gm_file_@BV:STATISTIC@="fourier_weight_realspace_cf_gm_?.table"
-        arb_real_filter_gm_file_@BV:STATISTIC@="real_weight_realspace_cf_gm_?.table"
+        arb_fourier_filter_gm_file_second_stat="fourier_weight_realspace_cf_gm_?.table"
+        arb_real_filter_gm_file_second_stat="real_weight_realspace_cf_gm_?.table"
       fi
       if [[ .*\ $MODES\ .* =~ " NN " ]]
       then
         n_arb_nn2=@BV:NWT@
-        arb_fourier_filter_gg_file_@BV:STATISTIC@="fourier_weight_realspace_cf_gg_?.table"
-        arb_real_filter_gg_file_@BV:STATISTIC@="real_weight_realspace_cf_gg_?.table"
+        arb_fourier_filter_gg_file_second_stat="fourier_weight_realspace_cf_gg_?.table"
+        arb_real_filter_gg_file_second_stat="real_weight_realspace_cf_gg_?.table"
       fi
     elif [ "${SECONDSTATISTIC^^}" == "COSEBIS" ]
     then
       if [[ .*\ $MODES\ .* =~ " EE " ]]
       then
         n_arb_ee2=@BV:NMAXCOSEBIS@
-        arb_fourier_filter_mmE_file_@BV:STATISTIC@="Wn_@BV:THETAMINXI@_to_@BV:THETAMAXXI@_?.table"
-        arb_fourier_filter_mmB_file_@BV:STATISTIC@="Wn_@BV:THETAMINXI@_to_@BV:THETAMAXXI@_?.table"
-        arb_real_filter_mm_p_file_@BV:STATISTIC@="Tp_@BV:THETAMINXI@_to_@BV:THETAMAXXI@_?.table"
-        arb_real_filter_mm_m_file_@BV:STATISTIC@="Tm_@BV:THETAMINXI@_to_@BV:THETAMAXXI@_?.table"
+        arb_fourier_filter_mmE_file_second_stat="Wn_@BV:THETAMINXI@_to_@BV:THETAMAXXI@_?.table"
+        arb_fourier_filter_mmB_file_second_stat="Wn_@BV:THETAMINXI@_to_@BV:THETAMAXXI@_?.table"
+        arb_real_filter_mm_p_file_second_stat="Tp_@BV:THETAMINXI@_to_@BV:THETAMAXXI@_?.table"
+        arb_real_filter_mm_m_file_second_stat="Tm_@BV:THETAMINXI@_to_@BV:THETAMAXXI@_?.table"
       fi
       if [[ .*\ $MODES\ .* =~ " NE " ]]
       then
         n_arb_ne2=@BV:NMAXCOSEBISNE@
-        arb_fourier_filter_gm_file_@BV:STATISTIC@="Qgm_@BV:THETAMINGT@_to_@BV:THETAMAXGT@_?.table"
-        arb_real_filter_gm_file_@BV:STATISTIC@="Wn_psigm_@BV:THETAMINGT@_to_@BV:THETAMAXGT@_?.table"
+        arb_fourier_filter_gm_file_second_stat="Qgm_@BV:THETAMINGT@_to_@BV:THETAMAXGT@_?.table"
+        arb_real_filter_gm_file_second_stat="Wn_psigm_@BV:THETAMINGT@_to_@BV:THETAMAXGT@_?.table"
       fi
       if [[ .*\ $MODES\ .* =~ " NN " ]]
       then
-        n_arb2_nn=@BV:NMAXCOSEBISNN@
-        arb_fourier_filter_gg_file_@BV:STATISTIC@="Ugg_@BV:THETAMINWT@_to_@BV:THETAMAXWT@_?.table"
-        arb_real_filter_gg_file_@BV:STATISTIC@="Wn_psigg_@BV:THETAMINWT@_to_@BV:THETAMAXWT@_?.table"
+        n_arb_nn2=@BV:NMAXCOSEBISNN@
+        arb_fourier_filter_gg_file_second_stat="Ugg_@BV:THETAMINWT@_to_@BV:THETAMAXWT@_?.table"
+        arb_real_filter_gg_file_second_stat="Wn_psigg_@BV:THETAMINWT@_to_@BV:THETAMAXWT@_?.table"
       fi
     elif [ "${SECONDSTATISTIC^^}" == "BANDPOWERS" ]
     then
@@ -962,10 +982,10 @@ then
         theta_up_lensing=`echo 'e(l(@BV:THETAMAXXI@)-@BV:APODISATIONWIDTH@/2)' | bc -l | awk '{printf "%.9f", $0}'`
         t_lo=`printf "%.2f" $theta_lo`
         t_up=`printf "%.2f" $theta_up`
-        arb_fourier_filter_mmE_file_@BV:STATISTIC@="fourier_weight_bandpowers_mmE_?.table"
-        arb_fourier_filter_mmB_file_@BV:STATISTIC@="fourier_weight_bandpowers_mmB_?.table"
-        arb_real_filter_mm_p_file_@BV:STATISTIC@="real_weight_bandpowers_mmE_?.table"
-        arb_real_filter_mm_m_file_@BV:STATISTIC@="real_weight_bandpowers_mmB_?.table"
+        arb_fourier_filter_mmE_file_second_stat="fourier_weight_bandpowers_mmE_?.table"
+        arb_fourier_filter_mmB_file_second_stat="fourier_weight_bandpowers_mmB_?.table"
+        arb_real_filter_mm_p_file_second_stat="real_weight_bandpowers_mmE_?.table"
+        arb_real_filter_mm_m_file_second_stat="real_weight_bandpowers_mmB_?.table"
       fi
       if [[ .*\ $MODES\ .* =~ " NE " ]]
       then
@@ -974,8 +994,8 @@ then
         theta_up_clustering=`echo 'e(l(@BV:THETAMAXGT@)-@BV:APODISATIONWIDTH@/2)' | bc -l | awk '{printf "%.9f", $0}'`
         t_lo=`printf "%.2f" $theta_lo`
         t_up=`printf "%.2f" $theta_up`
-        arb_fourier_filter_gm_file_@BV:STATISTIC@="fourier_weight_bandpowers_gm_?.table"
-        arb_real_filter_gm_file_@BV:STATISTIC@="real_weight_bandpowers_gm_?.table"
+        arb_fourier_filter_gm_file_second_stat="fourier_weight_bandpowers_gm_?.table"
+        arb_real_filter_gm_file_second_stat="real_weight_bandpowers_gm_?.table"
       fi
       if [[ .*\ $MODES\ .* =~ " NN " ]]
       then
@@ -984,77 +1004,36 @@ then
         theta_up_clustering=`echo 'e(l(@BV:THETAMAXWT@)-@BV:APODISATIONWIDTH@/2)' | bc -l | awk '{printf "%.9f", $0}'`
         t_lo=`printf "%.2f" $theta_lo`
         t_up=`printf "%.2f" $theta_up`
-        arb_fourier_filter_gg_file_@BV:STATISTIC@="fourier_weight_bandpowers_gg_?.table"
-        arb_real_filter_gg_file_@BV:STATISTIC@="real_weight_bandpowers_gg_?.table"
+        arb_fourier_filter_gg_file_second_stat="fourier_weight_bandpowers_gg_?.table"
+        arb_real_filter_gg_file_second_stat="real_weight_bandpowers_gg_?.table"
       fi
     fi
 
     # Check if the arbitrary input files for second statistic exist and copy to input directory
     if [[ .*\ $MODES\ .* =~ " EE " ]]
     then
-      for i in $(seq -f "%02g" 1 $n_arb_ee2)
-      do
-        file=`echo ${arb_fourier_filter_mmE_file_@BV:SECONDSTATISTIC@} | sed "s/?/${i}/g"`
-        file2=`echo ${arb_fourier_filter_mmB_file_@BV:SECONDSTATISTIC@} | sed "s/?/${i}/g"`
-        file3=`echo ${arb_real_filter_mm_p_file_@BV:SECONDSTATISTIC@} | sed "s/?/${i}/g"`
-        file4=`echo ${arb_real_filter_mm_m_file_@BV:SECONDSTATISTIC@} | sed "s/?/${i}/g"`
-        arb_base=@RUNROOT@/@CONFIGPATH@/covariance_arb_summary/
-        if [ ! -f $arb_base${file} ] || [ ! -f $arb_base${file2} ] || [ ! -f $arb_base${file3} ] || [ ! -f $arb_base${file4} ]
-        then
-          #use_arbitrary=False
-          _message "One or more arbitrary input files do not exist. Calculating filters on the fly!\n"
-          break
-        else
-          cp ${arb_base}/{$file,$file2,$file3,$file4} @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_inputs/arb_summary_filters/
-        fi
-      done
+      check_and_copy_files "$n_arb_ee2" "$arb_fourier_filter_mmE_file_second_stat" "$arb_fourier_filter_mmB_file_second_stat" "$arb_real_filter_mm_p_file_second_stat" "$arb_real_filter_mm_m_file_second_stat"
     fi
     if [[ .*\ $MODES\ .* =~ " NE " ]]
     then
-      for i in $(seq -f "%02g" 1 $n_arb_ne2)
-      do
-        file=`echo ${arb_fourier_filter_gm_file_@BV:SECONDSTATISTIC@} | sed "s/?/${i}/g"`
-        file2=`echo ${arb_real_filter_gm_file_@BV:SECONDSTATISTIC@}   | sed "s/?/${i}/g"`
-        arb_base=@RUNROOT@/@CONFIGPATH@/covariance_arb_summary/
-        if [ ! -f $arb_base${file} ] || [ ! -f $arb_base${file2} ]
-        then
-          #use_arbitrary=False
-          _message "One or more arbitrary input files do not exist. Calculating filters on the fly!\n"
-          break
-        else
-          cp ${arb_base}/{$file,$file2} @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_inputs/arb_summary_filters/
-        fi
-      done
+      check_and_copy_files "$n_arb_ne2" "$arb_fourier_filter_gm_file_second_stat" "$arb_real_filter_gm_file_second_stat"
     fi
     if [[ .*\ $MODES\ .* =~ " NN " ]]
     then
-      for i in $(seq -f "%02g" 1 $n_arb_nn2)
-      do
-        file=`echo ${arb_fourier_filter_gg_file_@BV:SECONDSTATISTIC@} | sed "s/?/${i}/g"`
-        file2=`echo ${arb_real_filter_gg_file_@BV:SECONDSTATISTIC@}   | sed "s/?/${i}/g"`
-        arb_base=@RUNROOT@/@CONFIGPATH@/covariance_arb_summary/
-        if [ ! -f $arb_base${file} ] || [ ! -f $arb_base${file2} ]
-        then
-          #use_arbitrary=False
-          _message "One or more arbitrary input files do not exist. Calculating filters on the fly!\n"
-          break
-        else
-          cp ${arb_base}/{$file,$file2} @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_inputs/arb_summary_filters/
-        fi
-      done
+      check_and_copy_files "$n_arb_nn2" "$arb_fourier_filter_gg_file_second_stat" "$arb_real_filter_gg_file_second_stat"
     fi
 
 cat >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_inputs/@SURVEY@_CosmoPipe_constructed_other.ini <<- EOF
 ;arb_summary_directory = @RUNROOT@/@CONFIGPATH@/covariance_arb_summary/
 arb_summary_directory = @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_inputs/arb_summary_filters/
-arb_fourier_filter_mmE_file = ${arb_fourier_filter_mmE_file_@BV:STATISTIC@}, ${arb_fourier_filter_mmE_file_@BV:SECONDSTATISTIC@}
-arb_fourier_filter_mmB_file = ${arb_fourier_filter_mmB_file_@BV:STATISTIC@}, ${arb_fourier_filter_mmB_file_@BV:SECONDSTATISTIC@}
-arb_real_filter_mm_p_file = ${arb_real_filter_mm_p_file_@BV:STATISTIC@}, ${arb_real_filter_mm_p_file_@BV:SECONDSTATISTIC@}
-arb_real_filter_mm_m_file = ${arb_real_filter_mm_m_file_@BV:STATISTIC@}, ${arb_real_filter_mm_m_file_@BV:SECONDSTATISTIC@}
-arb_fourier_filter_gm_file = ${arb_fourier_filter_gm_file_@BV:STATISTIC@}, ${arb_fourier_filter_gm_file_@BV:SECONDSTATISTIC@}
-arb_real_filter_gm_file = ${arb_real_filter_gm_file_@BV:STATISTIC@}, ${arb_real_filter_gm_file_@BV:SECONDSTATISTIC@}
-arb_fourier_filter_gg_file = ${arb_fourier_filter_gg_file_@BV:STATISTIC@}, ${arb_fourier_filter_gg_file_@BV:SECONDSTATISTIC@}
-arb_real_filter_gg_file = ${arb_real_filter_gg_file_@BV:STATISTIC@}, ${arb_real_filter_gg_file_@BV:SECONDSTATISTIC@}
+arb_fourier_filter_mmE_file = ${arb_fourier_filter_mmE_file}, ${arb_fourier_filter_mmE_file_second_stat}
+arb_fourier_filter_mmB_file = ${arb_fourier_filter_mmB_file}, ${arb_fourier_filter_mmB_file_second_stat}
+arb_real_filter_mm_p_file = ${arb_real_filter_mm_p_file}, ${arb_real_filter_mm_p_file_second_stat}
+arb_real_filter_mm_m_file = ${arb_real_filter_mm_m_file}, ${arb_real_filter_mm_m_file_second_stat}
+arb_fourier_filter_gm_file = ${arb_fourier_filter_gm_file}, ${arb_fourier_filter_gm_file_second_stat}
+arb_real_filter_gm_file = ${arb_real_filter_gm_file}, ${arb_real_filter_gm_file_second_stat}
+arb_fourier_filter_gg_file = ${arb_fourier_filter_gg_file}, ${arb_fourier_filter_gg_file_second_stat}
+arb_real_filter_gg_file = ${arb_real_filter_gg_file}, ${arb_real_filter_gg_file_second_stat}
 
 [arbitrary_summary]
 do_arbitrary_obs = True
@@ -1069,14 +1048,14 @@ then
 cat >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_inputs/@SURVEY@_CosmoPipe_constructed_other.ini <<- EOF
 ;arb_summary_directory = @RUNROOT@/@CONFIGPATH@/covariance_arb_summary/
 arb_summary_directory = @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_inputs/arb_summary_filters/
-arb_fourier_filter_mmE_file = ${arb_fourier_filter_mmE_file_@BV:STATISTIC@}
-arb_fourier_filter_mmB_file = ${arb_fourier_filter_mmB_file_@BV:STATISTIC@}
-arb_real_filter_mm_p_file = ${arb_real_filter_mm_p_file_@BV:STATISTIC@}
-arb_real_filter_mm_m_file = ${arb_real_filter_mm_m_file_@BV:STATISTIC@}
-arb_fourier_filter_gm_file = ${arb_fourier_filter_gm_file_@BV:STATISTIC@}
-arb_real_filter_gm_file = ${arb_real_filter_gm_file_@BV:STATISTIC@}
-arb_fourier_filter_gg_file = ${arb_fourier_filter_gg_file_@BV:STATISTIC@}
-arb_real_filter_gg_file = ${arb_real_filter_gg_file_@BV:STATISTIC@}
+arb_fourier_filter_mmE_file = ${arb_fourier_filter_mmE_file}
+arb_fourier_filter_mmB_file = ${arb_fourier_filter_mmB_file}
+arb_real_filter_mm_p_file = ${arb_real_filter_mm_p_file}
+arb_real_filter_mm_m_file = ${arb_real_filter_mm_m_file}
+arb_fourier_filter_gm_file = ${arb_fourier_filter_gm_file}
+arb_real_filter_gm_file = ${arb_real_filter_gm_file}
+arb_fourier_filter_gg_file = ${arb_fourier_filter_gg_file}
+arb_real_filter_gg_file = ${arb_real_filter_gg_file}
 
 [arbitrary_summary]
 do_arbitrary_obs = True

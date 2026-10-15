@@ -72,7 +72,7 @@ if __name__ == '__main__':
     if plots:
         plt.figure()
         hb = plt.hexbin(split, z_arr, gridsize=250, bins='log',
-            mincnt=1, cmap='viridis', rasterized=True)
+            mincnt=1, cmap='viridis')
         plt.axvline(split_value, color='red', linestyle='--')
         plt.xlabel(plot_tag, fontsize=15)
         plt.ylabel(z, fontsize=15)

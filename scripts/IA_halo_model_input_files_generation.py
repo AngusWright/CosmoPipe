@@ -2,6 +2,8 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('Agg')
 from scipy.interpolate import interp1d
 from astropy.io import fits
 import argparse
@@ -49,100 +51,125 @@ if __name__ == '__main__':
     #nzbins = 30
     #catalogue = 'KIDS_cat.fits'
 
-    hdul = fits.open(catalogue, memmap=True)
-    hdul[1].header
-    
-    df = hdul['OBJECTS'].data
-    df_obs = df[observable]
-    
-    # For the moment we use a cut in the u-r absolute color vs redshift
-    if len(split_tag) == 1:
-        df_split = df[split_tag[0]]
-        plot_tag = split_tag[0]
-    if len(split_tag) == 2:
-        df_split = df[split_tag[0]] - df[split_tag[1]]
-        plot_tag = split_tag[0] + '-' + split_tag[1]
-    if len(split_tag) > 2:
-        raise ValueError('Only one or two tags allowed, to either select on one value or colour')
-    
+    with fits.open(catalogue, memmap=True) as hdul:
+        df = hdul["OBJECTS"].data
+
+        # Select only the required columns and rows
+        obs = np.asarray(df[observable])
+        z_arr = np.asarray(df[z])
+
+        # For the moment we use a cut in the u-r absolute color vs redshift
+        if len(split_tag) == 1:
+            split = np.asarray(df[split_tag[0]])
+            plot_tag = split_tag[0]
+        if len(split_tag) == 2:
+            split = np.asarray(df[split_tag[0]] - df[split_tag[1]])
+            plot_tag = split_tag[0] + '-' + split_tag[1]
+        if len(split_tag) > 2:
+            raise ValueError('Only one or two tags allowed, to either select on one value or colour')
+    del (df)
+
     if plots:
-        plt.scatter(df_split, df[z], s=0.000005, rasterized=True)
-        plt.axvline(split_value)
+        plt.figure()
+        hb = plt.hexbin(split, z_arr, gridsize=250, bins='log',
+            mincnt=1, cmap='viridis', rasterized=True)
+        plt.axvline(split_value, color='red', linestyle='--')
         plt.xlabel(plot_tag, fontsize=15)
         plt.ylabel(z, fontsize=15)
+        plt.colorbar(hb, label='Counts')
+        plt.tight_layout()
         #plt.show()
         plt.savefig(f'{output_path}/check1.pdf')
-        plt.clf()
-        
-        plt.hist(df_split, histtype='step', bins=150, density=True)
-        plt.axvline(split_value)
+        plt.close()
+
+        plt.figure()
+        plt.hist(split, histtype='step', bins=150, density=True)
+        plt.axvline(split_value, color='red', linestyle='--')
         plt.xlabel(plot_tag, fontsize=15)
-        #plt.show()
+        # plt.show()
         plt.savefig(f'{output_path}/check2.pdf')
-        plt.clf()
-    
+        plt.close()
+
     # Redshift edges for the red/blue split histograms
-    edges = np.linspace(np.min(df[z]), np.max(df[z]), nzbins + 1, endpoint=True)
-    nblue = np.histogram(df[z][df_split >= split_value], bins=edges)[0]
-    nred = np.histogram(df[z][df_split < split_value], bins=edges)[0]
+    edges = np.linspace(np.min(z_arr), np.max(z_arr), nzbins + 1, endpoint=True)
+    is_red = split < split_value
+    is_blue = ~is_red
+    # Assign each galaxy to a bin as edges[i] <= z < edges[i+1].
+    bin_idx = np.searchsorted(edges, z_arr, side='right') - 1
+    # Include the right edge in the last bin, edges[-2] <= z <= edges[-1].
+    bin_idx[z_arr == edges[-1]] = nzbins - 1
+    # Count red/blue galaxies in each bin
+    nred = np.bincount(bin_idx[is_red])
+    nblue = np.bincount(bin_idx[is_blue])
     total = nblue + nred
     red_fraction = nred / total
     blue_fraction = nblue / total
-    z_bins = (edges[1:] + edges[:-1])/2.0
+    z_bins = (edges[1:] + edges[:-1]) / 2.0
     # Fraction of red galaxies as a function of redshift
     np.savetxt(f'{output_path}/f_red.txt', np.column_stack([z_bins, red_fraction]))
-    
+
     if plots:
+        plt.figure()
         plt.plot(z_bins, blue_fraction)
         plt.xlabel(z, fontsize=15)
-        plt.ylabel('fraction of blue galaxies', fontsize=15)
+        plt.ylabel('Fraction of blue galaxies', fontsize=15)
         #plt.show()
         plt.savefig(f'{output_path}/check3.pdf')
-        plt.clf()
+        plt.close()
     
-    # Mass limits for red centrals as a function of redshift
-    obs_min = np.empty(nzbins)
-    obs_max = np.empty(nzbins)
-    for i in range(nzbins):
-        selection = df_obs[(df[z] <= edges[i+1]) & (df[z] > edges[i]) & (df_split < split_value)]# & (df['flag_central'] == 0)]
+    # Transforming after finding min/max because 10**x is monotonically increasing.
+    if if_log:
+        obs = obs.astype(np.float64, copy=False)
+
+    def get_limits(mask):
+        idx = bin_idx[mask]
+        values = obs[mask]
+
+        obs_min = np.full(nzbins, np.inf)
+        obs_max = np.full(nzbins, -np.inf)
+
+        np.minimum.at(obs_min, idx, values)
+        np.maximum.at(obs_max, idx, values)
+
         if if_log:
-            obs_min[i] = np.min(10.0**selection)
-            obs_max[i] = np.max(10.0**selection)
-        else:
-            obs_min[i] = np.min(selection)
-            obs_max[i] = np.max(selection)
-        
-    np.savetxt(f'{output_path}/red_cen_obs_pdf.txt', np.column_stack([z_bins, obs_min, obs_max]), header='z obs_min obs_max')
-    
-    # Luminosity limits for blue centrals as a function of redshift
-    obs_min = np.empty(nzbins)
-    obs_max = np.empty(nzbins)
-    for i in range(nzbins):
-        selection = df_obs[(df[z] <= edges[i+1]) & (df[z] > edges[i]) & (df_split >= split_value)]# & (df['flag_central'] == 0)]
-        if if_log:
-            obs_min[i] = np.min(10.0**selection)
-            obs_max[i] = np.max(10.0**selection)
-        else:
-            obs_min[i] = np.min(selection)
-            obs_max[i] = np.max(selection)
-        
-    np.savetxt(f'{output_path}/blue_cen_obs_pdf.txt', np.column_stack([z_bins, obs_min, obs_max]), header='z obs_min obs_max')
-    
-    
+            obs_min = 10.0 ** obs_min
+            obs_max = 10.0 ** obs_max
+
+        return obs_min, obs_max
+
+    # Calculate min/max per bin for both populations
+    obs_min_red, obs_max_red = get_limits(is_red)
+    obs_min_blue, obs_max_blue = get_limits(is_blue)
+
+    np.savetxt(f'{output_path}/red_cen_obs_pdf.txt',
+               np.column_stack([z_bins, obs_min_red, obs_max_red]),
+               header='z obs_min obs_max')
+
+    np.savetxt(f'{output_path}/blue_cen_obs_pdf.txt',
+               np.column_stack([z_bins, obs_min_blue, obs_max_blue]),
+               header='z obs_min obs_max')
+
     if plots:
+        plt.figure()
         # Check of the luminosity pdfs for red centrals at 4 different redshifts
         for i in [0,10,20,nzbins-1]:
-            selection = df_obs[(df[z] <= edges[i+1]) & (df[z] > edges[i]) & (df_split < split_value)]# & (df['flag_central'] == 0)]
+            selection_mask = (bin_idx == i) & is_red
+            selection = obs[selection_mask]
             if if_log:
-                plt.hist(np.log10(10.0**selection), bins=10, histtype='step', density=True)
+                plt.hist(selection, bins=10, histtype='step', density=True,
+                         label=f'z={z_bins[i]:.3f}')
             else:
-                plt.hist(np.log10(selection), bins=10, histtype='step', density=True)
-        plt.xlabel('log_lum',fontsize=15)
+                plt.hist(np.log10(selection), bins=10, histtype='step', density=True,
+                         label=f'z={z_bins[i]:.3f}')
+        plt.xlabel('Log(Observable)',fontsize=15)
+        plt.legend()
+        plt.tight_layout()
         #plt.show()
         plt.savefig(f'{output_path}/check4.pdf')
-        plt.clf()
-    
+        plt.close()
+
     """
+    # OUTDATED, kept for reference in case needed.
     if observable in ['lum', 'luminosity']:
         # Luminosity pdfs for blue satellites, red satellites, and red centrals as a function of redshift
         # Used for luminosity dependent IA halo model only

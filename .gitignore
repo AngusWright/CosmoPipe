@@ -13,4 +13,5 @@ config/cosebis/
 kcap_all/
 tex/
 history/
+unit_test_run/
 

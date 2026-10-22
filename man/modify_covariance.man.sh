@@ -51,14 +51,14 @@ function _inp_var {
 # Input data {{{ 
 function _inp_data { 
   #Data inputs (leave blank if none)
-  echo 
+  echo @BV:INCOVBLOCK@ @BV:INVECBLOCK@
 } 
 #}}}
 
 # Output data {{{ 
 function _outputs { 
   #Data outputs (leave blank if none)
-  echo 
+  echo @BV:OUTCOVBLOCK@ @BV:OUTVECBLOCK@
 } 
 #}}}
 

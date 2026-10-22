@@ -1,5 +1,4 @@
 import numpy as np
-import sys
 import ldac
 import astropy.io.fits as pyfits
 from argparse import ArgumentParser

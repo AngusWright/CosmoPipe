@@ -43,16 +43,28 @@ tracer_map = {
 def plot_2pt(sacc_data, statistic, type, plotdir):
     import matplotlib.pyplot as plt
     # Now another plot of the second data set that we saved and loaded
-    instance = sacc_map[statistic][type]
-    if instance not in sacc_data.tracers:
-        print(f"Skipping plot for {instance}, not in data")
+    stats_name = sacc_map[statistic][type]
+    x_name = 'theta' if statistic == '2pcf' else 'ell' if statistic == 'bandpowers' else 'n'
+    if stats_name not in sacc_data.get_data_types():
+        print(f"Skipping plot for {stats_name}, not in data")
     else:
-        for b1, b2 in sacc_data.get_tracer_combinations(instance):
-            x, y, covmat = sacc_data._get_2pt(instance, b1, b2, return_cov=True, angle_name='theta' if statistic == '2pcf' else 'ell' if statistic == 'bandpowers' else 'n')
+        for b1, b2 in sacc_data.get_tracer_combinations(stats_name):
+            x, y, covmat = sacc_data._get_2pt(stats_name, b1, b2, return_cov=True, angle_name=x_name)
             plt.errorbar(x, y, yerr=covmat.diagonal()**0.5, fmt='.', label=f'{b1}-{b2}')
             #plt.plot(x, y, label=f'{b1}-{b2}')
-            plt.xscale('log')
-            plt.yscale('log')
+            if statistic == '2pcf':
+                plt.xscale('log')
+                plt.yscale('log')
+            elif statistic == 'bandpowers':
+                plt.xscale('log')
+                plt.yscale('log')
+            elif statistic == 'cosebis':
+                plt.xscale('linear')
+                plt.yscale('linear')
+    
+            plt.legend()
+            plt.xlabel(x_name)
+            plt.ylabel(stats_name)
             
         plt.savefig(os.path.join(plotdir, f'{statistic}_{type}.png'))
         plt.clf()
@@ -77,14 +89,31 @@ def plot_1pt(sacc_data, plotdir):
 def plot_nz(sacc_data, plotdir):
     import matplotlib.pyplot as plt
     # Now another plot of the second data set that we saved and loaded
-    for b in sacc_data.get_tracer_combinations('NZ'):
-        ind = sacc_data.indices('NZ', (b,))
-        y = np.array(sacc_data.mean[ind])
-        x = np.array(sacc_data._get_tags_by_index(['z'], ind)[0])
-        plt.plot(x, y, label=b)
+    previous_bin_name = ''
+    for bin in sacc_data.tracers.keys():
+        bin_name ,bin_number = bin.split('_', )
+        tracer = sacc_data.get_tracer(bin)
+        # ind = sacc_data.indices('NZ', (bin,))
+        z = tracer.z
+        nz = tracer.nz
+        # y = np.array(sacc_data.mean[ind])
+        # x = np.array(sacc_data._get_tags_by_index(['z'], ind)[0])
         plt.xscale('linear')
         plt.yscale('linear')
-    plt.savefig(os.path.join(plotdir, 'nz.png'))
+        if bin_name !=  previous_bin_name and previous_bin_name:
+            plt.legend()
+            plt.savefig(plotdir+'/nz_'+previous_bin_name+'.pdf')
+            plt.clf()
+        
+        plt.plot(z, nz, label=bin)
+        plt.xscale('linear')
+        plt.yscale('linear')
+        plt.xlabel('z')
+        plt.ylabel('n(z)')
+        previous_bin_name = bin_name
+
+    plt.legend()
+    plt.savefig(plotdir+'/nz_'+bin_name+'.pdf')
     plt.clf()
     plt.close()
             
@@ -236,7 +265,7 @@ if __name__ == "__main__":
     parser.add_argument("--smfdatavector", dest="smfvec",nargs='*',
         help="SMF input file name", metavar="smfvec",required=False, default=None, const=None)
     parser.add_argument("-s", "--statistic", dest="statistic", type=str, required=True, choices = ['cosebis','cosebis_dimless','bandpowers','2pcf','2pcfEB'],
-        help="2pt statistic, must be either cosebis, bandpowers, or xipm")
+        help="2pt statistic, must be either cosebis, cosebis_dimless, bandpowers, or xipm")
     parser.add_argument("--mode", dest="mode",nargs='+',type=str,
         help="list modes to calculate statistis for (EE, NE, NN or OBS)",required=True, default=['EE'])
         

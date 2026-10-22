@@ -1,6 +1,6 @@
 #=========================================
 #
-# File Name : combine_cats.sh
+# File Name : combine_tomocats.sh
 # Created By : awright
 # Creation Date : 20-03-2023
 # Last Modified : Fri 02 Aug 2024 08:25:10 AM CEST

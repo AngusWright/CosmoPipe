@@ -3,7 +3,7 @@
 # File Name : combine_cats.sh
 # Created By : awright
 # Creation Date : 20-03-2023
-# Last Modified : Wed Apr  1 21:41:29 2026
+# Last Modified : Thu Oct 15 15:33:50 2026
 #
 #=========================================
 
@@ -90,13 +90,15 @@ then
   #}}}
 
   count=0
-  @RUNROOT@/INSTALL/theli-1.6.1/bin/@MACHINE@/ldacdesc -i `echo ${input} | awk '{print $1}'` -t OBJECTS > tmp 2> /dev/null 
+  tmp1=@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/tmp1
+  tmp2=@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/tmp2
+  @RUNROOT@/INSTALL/theli-1.6.1/bin/@MACHINE@/ldacdesc -i `echo ${input} | awk '{print $1}'` -t OBJECTS > $tmp1 2> /dev/null 
   for file in ${input} 
   do 
     ((count+=1))
     _message "\r   > @BLU@Checking files have common format: @RED@$((count))@BLU@ of @RED@$nfile@DEF@ "
-    @RUNROOT@/INSTALL/theli-1.6.1/bin/@MACHINE@/ldacdesc -i `echo ${input} | awk -v n=$count '{print $n}'` -t OBJECTS > tmp2 2> /dev/null 
-    ndiff=`diff tmp tmp2 | wc -l`
+    @RUNROOT@/INSTALL/theli-1.6.1/bin/@MACHINE@/ldacdesc -i `echo ${input} | awk -v n=$count '{print $n}'` -t OBJECTS > $tmp2 2> /dev/null 
+    ndiff=`diff $tmp1 $tmp2 | wc -l`
     if [ ${ndiff} -gt 0 ] 
     then 
        _message " @RED@- ERROR: formats differ!\n@DEF@ `echo ${input} | awk -v n=$count '{print $n}'`\n"

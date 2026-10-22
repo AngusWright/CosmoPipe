@@ -13,17 +13,19 @@
 # Combines two catalogues. Does not matter if they are lens or source catalouges as long as the have the same headings.
 # This is relatively slow
 
-import argparse
+from argparse import ArgumentParser
 from astropy.table import Table, vstack
 
-parser = argparse.ArgumentParser(description='Combines two catalogues with the same headings into a single catalogue')
-parser.add_argument('--files', type=[], help='Input catalogues', nargs=2, default=None, const=None)
-parser.add_argument('--output_file', type=str, help='Output catalogue', nargs='?', default=None, const=None)
+# fix this
+parser = ArgumentParser(description='Combines two catalogues with the same headings into a single catalogue')
+parser.add_argument('-i','--files', help='Input catalogues', nargs=2, default=None, const=None)
+parser.add_argument('-o','--output_file', type=str, help='Output catalogue', nargs='?', default=None, const=None)
 args = parser.parse_args()
+print('input files are:',args.files)
 
-
-cat_N_name= args.files[0]
-cat_S_name= args.files[1]
+cat_N_name= (args.files)[0]
+cat_S_name= (args.files)[1]
+print(cat_N_name, cat_S_name)
 cat_NS_name = args.output_file
 cat_N = Table.read(cat_N_name, format='fits')
 cat_S = Table.read(cat_S_name, format='fits')

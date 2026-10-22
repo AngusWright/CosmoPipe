@@ -10,10 +10,13 @@
 #=========================================
 
 
+# Combines two catalogues. Does not matter if they are lens or source catalouges as long as the have the same headings.
+# This is relatively slow
+
 import argparse
 from astropy.table import Table, vstack
 
-parser = argparse.ArgumentParser(description='Combine N and S patches to a single lens catalogue')
+parser = argparse.ArgumentParser(description='Combines two catalogues with the same headings into a single catalogue')
 parser.add_argument('--files', type=[], help='Input catalogues', nargs=2, default=None, const=None)
 parser.add_argument('--output_file', type=str, help='Output catalogue', nargs='?', default=None, const=None)
 args = parser.parse_args()

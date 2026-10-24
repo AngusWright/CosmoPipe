@@ -1,17 +1,20 @@
+#!/usr/bin/env bash
+set -eo pipefail
 #
 # Shell script for installation of the KiDS COSMOLOGY pipeline
 # Written by A.H.Wright (2023-03-10)
 #
 
 #Source the Script Documentation Functions {{{
-source man/CosmoPipe.man.sh
-source man/${0//.sh/.man.sh} 
+INSTALLER_ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+source "${INSTALLER_ROOT}/man/CosmoPipe.man.sh"
+source "${INSTALLER_ROOT}/man/COSMOPIPE_MASTER_INSTALL.man.sh"
 #}}}
 
 #Full List of available options {{{ 
-OPTLIST=`_get_optlist scripts/variables_raw.sh`
+OPTLIST=`_get_optlist "${INSTALLER_ROOT}/scripts/variables_raw.sh"`
 #Add INSTALL-only variables 
-OPTLIST=`echo $OPTLIST NOCONFIG NOCONDA`
+OPTLIST=`echo $OPTLIST NOCONFIG NOCONDA NOINSTALL VERBOSE`
 #}}}
 
 #Generate the list of possible command-line arguments {{{
@@ -27,7 +30,7 @@ NOCONFIG=1
 NOCONDA=1
 NOINSTALL=1
 #Source the main variables 
-source scripts/variables_raw.sh 
+source "${INSTALLER_ROOT}/scripts/variables_raw.sh"
 #}}}
 
 #Read any command line options  {{{
@@ -50,16 +53,20 @@ do
     shift 
   else 
     #Get the option value 
+    if [ $# -lt 2 ] || [[ "$2" == --* ]]
+    then
+      echo "ERROR - option $1 requires a value!" >&2
+      exit 1
+    fi
     value=$2
     #Check for OPTLIST matches: return 0 if not found, but do not trap-exit  
-    match=`echo $OPTLIST | grep -c $name || echo `
-    if [ "$match" == "0" ]
+    if [[ " $OPTLIST " != *" $name "* ]]
     then 
       echo "ERROR - unknown option $1! Does not match any known variable!"
       exit 1
     fi 
     #Assign the variable 
-    declare $name="$value"
+    declare "$name=$value"
     #shift to the next option 
     shift; shift; 
   fi 
@@ -67,17 +74,20 @@ done
 #}}}
 
 #Check for calling syntax {{{
-if [ ${RUNROOT} == "@RUNROOT@" ] || [ ${RUNROOT} == "" ]
+if [ "${RUNROOT}" == "@RUNROOT@" ] || [ "${RUNROOT}" == "" ]
 then 
   _runroot_error 
 fi 
 #}}}
 
 #Check for calling syntax {{{
-if [ ${PACKROOT} == "@PACKROOT@" ] || [ ${PACKROOT} == "" ]
+if [ "${PACKROOT}" == "@PACKROOT@" ] || [ "${PACKROOT}" == "" ]
 then 
-  PACKROOT=`pwd`
+  PACKROOT="${INSTALLER_ROOT}"
 fi 
+PACKROOT="$(cd -- "${PACKROOT}" && pwd)"
+mkdir -p "${RUNROOT}"
+RUNROOT="$(cd -- "${RUNROOT}" && pwd)"
 #}}}
 
 #Prompt {{{
@@ -102,24 +112,23 @@ then
   #}}}
   
   cd ${RUNROOT}/INSTALL
+  cp "${PACKROOT}/environment.yml" .
   
   #Run Conda installation {{{
   if [ "$NOCONDA" == "1" ] 
   then 
     _message "   >${RED} Installing Conda tools ${DEF}"
     #If there is no conda installation, exit {{{
-    if [ "`which conda`" == "" ] 
+    if ! command -v conda >/dev/null 2>&1
     then 
       _message " - ${RED} ERROR!\n\n"
       _message "There is no conda installation in the PATH. Install conda using the below commands:${DEF}\n"
       if [ "`uname`" == "Darwin" ]
       then 
-        _message "wget https://repo.anaconda.com/miniconda/Miniconda3-py38_4.10.3-MacOSX-x86_64.sh\n"
-        _message "bash Miniconda3-py38_4.10.3-MacOSX-x86_64.sh\n" 
+        _message "Install Miniforge for your macOS architecture: https://conda-forge.org/download/\n"
         _message "${RED}and then activate the installation with by sourcing your .bashrc:${DEF}\nsource ~/.bashrc\n" 
       else 
-        _message "wget https://repo.anaconda.com/miniconda/Miniconda3-py38_4.10.3-Linux-x86_64.sh\n"
-        _message "bash Miniconda3-py38_4.10.3-Linux-x86_64.sh\n"
+        _message "Install Miniforge for your Linux architecture: https://conda-forge.org/download/\n"
         _message "${RED}and then activate the installation with by sourcing your .bashrc:${DEF}\nsource ~/.bashrc\n" 
       fi 
       exit 1 
@@ -128,32 +137,33 @@ then
     fi 
     #}}}
     
-    #Copy the environment & requirements files to the INSTALL directory
-    #cp ${PACKROOT}/environment.yml ${PACKROOT}/requirements.txt .
-    cp ${PACKROOT}/environment*.yml .
     #Install Conda
-    nenv=`conda info --envs | grep "^${CONDAPIPENAME} " | wc -l`
+    nenv=$(conda info --envs | awk -v name="${CONDAPIPENAME}" '$1 == name {n++} END {print n+0}')
     if [ ${nenv} -ne 0 ] 
     then 
       _message " - ${RED} ERROR!\n\n"
-      _message "There is an existing conda environment that is called 'cosmopipe'!\n"
+      _message "There is an existing conda environment called '${CONDAPIPENAME}'!\n"
       _message "You need to remove it first by running: ${DEF}\n"
-      _message "conda remove -n cosmopipe --all \n"
+      _message "conda remove -n ${CONDAPIPENAME} --all \n"
       exit 1
     fi 
-    if [ "`uname`" == "Darwin" ]
-    then 
-      conda env create --file environment_darwin.yml > conda_install_output.log 2>&1
-    else 
-      conda env create --file environment.yml > conda_install_output.log 2>&1
-    fi 
+    conda env create --name "${CONDAPIPENAME}" --file environment.yml > conda_install_output.log 2>&1
     _message "${BLU} - Done! ${DEF}\n"
   fi 
   #}}}
   
+  # Keep ChainConsumer's Pydantic dependencies separate from TensorFlow 2.13.
+  cp "${PACKROOT}/environment-plotting.yml" .
+  if [ ! -d "${RUNROOT}/INSTALL/plotting-env/conda-meta" ]
+  then
+    _message "   >${RED} Installing plotting environment ${DEF}"
+    conda env create --prefix "${RUNROOT}/INSTALL/plotting-env" \
+      --file environment-plotting.yml > plotting_install_output.log 2>&1
+    _message "${BLU} - Done! ${DEF}\n"
+  fi
+
   #Install cosmosis-standard-library {{{
-  python_vers=`conda run -n ${CONDAPIPENAME} python --version | head -1 | awk '{print $2}' | awk -F. '{print "python"$1"."$2 }'`
-  cosmosis_src=`conda run -n ${CONDAPIPENAME} which cosmosis | sed "s@/bin/cosmosis@/lib/${python_vers}/site-packages/cosmosis/@"`
+  cosmosis_src=$(conda run -n "${CONDAPIPENAME}" python -c 'import pathlib, cosmosis; print(pathlib.Path(cosmosis.__file__).parent)')
   #Clone the cosmosis-standard-library repository {{{
   _message "   >${RED} Cloning the cosmosis-standard-library Git repository${DEF}"
   #Clone the repository
@@ -171,6 +181,7 @@ then
   fi 
   #}}}
   cat > csl_make.sh <<-EOF
+set -eo pipefail
 source cosmosis-configure
 cd cosmosis-standard-library
 make
@@ -261,19 +272,18 @@ EOF
     then 
       rm -f pipe_env.bash.${MACHINE}
     fi 
-    #conda run -n ${CONDAPIPENAME} bash install.sh -m ALL >> THELI_install.log 2>&1
-    warn=FALSE
-    echo "set -e" > THELI_install.sh
-    echo "bash install.sh -m ALL || echo " >> THELI_install.sh
-    echo ". pipe_env.bash.${MACHINE}" >> THELI_install.sh
-    echo "make ldactools.make" >> THELI_install.sh
-    conda run -n ${CONDAPIPENAME} bash THELI_install.sh >> THELI_install.log 2>&1 || warn=TRUE 
-    if [ "${warn}" == "TRUE" ] 
-    then 
-      _message "${BLU} - ${RED}WARNING!${BLU} Check if ldac tools installed correctly... ${DEF}\n"
-    else 
-      _message "${BLU} - Done! ${DEF}\n"
-    fi 
+    # THELI predates C23 and GCC's -fno-common default.
+    cat > THELI_install.sh <<-EOF
+set -eo pipefail
+bash install.sh -m UPDATE
+source pipe_env.bash.${MACHINE}
+sed 's!#define __PIPEVERS__!#define __PIPEVERS__ "THELI Pipeline Version: 1.6.1"!' global_vers.h.raw > ../ldactools/library/global_vers.h
+make bin_dirs ldactools.make "CC=\${CC} -std=gnu89 -fcommon"
+test -x "\${PIPEBIN}/\${EXT}/ldacrenkey"
+test -x "\${PIPEBIN}/\${EXT}/ldacfilter"
+EOF
+    conda run -n "${CONDAPIPENAME}" bash THELI_install.sh >> "${RUNROOT}/INSTALL/THELI_install.log" 2>&1
+    _message "${BLU} - Done! ${DEF}\n"
     cd ${RUNROOT}/INSTALL
   else 
       _message "${BLU} - ${RED}FAILED!${BLU} The theli-1.6.1.tgz tarball was not accessible, and was not in the PACKROOT directory.\n${DEF}\n"
@@ -292,9 +302,8 @@ EOF
   rsync -autv ${PACKROOT}/kcap ${RUNROOT}/INSTALL/ > ${RUNROOT}/INSTALL/COSEBIs_rsync.log 2>&1
   #cd ${RUNROOT}/INSTALL/kcap/cosebis/
   cd ${RUNROOT}/INSTALL/2pt_stats/
-  python_vers=`conda run -n ${CONDAPIPENAME} python --version | head -1 | awk '{print $2}' | awk -F. '{print "python"$1"."$2 }'`
-  cosmosis_src=`conda run -n ${CONDAPIPENAME} which cosmosis | sed "s@/bin/cosmosis@/lib/${python_vers}/site-packages/cosmosis/@"`
   cat > cosebis_make.sh <<-EOF
+set -eo pipefail
 source cosmosis-configure
 COSMOSIS_SRC_DIR=${cosmosis_src} make clean
 COSMOSIS_SRC_DIR=${cosmosis_src} make
@@ -304,13 +313,12 @@ EOF
   _message "${BLU} - Done! ${DEF}\n"
   #}}}
 
-fi 
-  
   #Install OneCovariance {{{
   _message "   >${RED} Installing OneCovariance ${DEF}"
   cd ${RUNROOT}/INSTALL/OneCovariance/
   cat > OneCovariance_make.sh <<-EOF
-pip install .
+set -eo pipefail
+python -m pip install .
 EOF
   conda run -n ${CONDAPIPENAME} bash OneCovariance_make.sh > ${RUNROOT}/INSTALL/OneCovariance_install.log 2>&1
   cd ${RUNROOT}/INSTALL/
@@ -321,12 +329,31 @@ EOF
   _message "   >${RED} Installing galselect ${DEF}"
   cd ${RUNROOT}/INSTALL/galselect/
   cat > galselect_make.sh <<-EOF
-pip install .
+set -eo pipefail
+python -m pip install .
 EOF
   conda run -n ${CONDAPIPENAME} bash galselect_make.sh > ${RUNROOT}/INSTALL/galselect_install.log 2>&1
   cd ${RUNROOT}/INSTALL/
   _message "${BLU} - Done! ${DEF}\n"
   #}}}
+
+  conda run -n "${CONDAPIPENAME}" python -m pip check > "${RUNROOT}/INSTALL/pip_check.log" 2>&1
+  conda run -n "${CONDAPIPENAME}" python "${PACKROOT}/scripts/check_installation.py" \
+    --runroot "${RUNROOT}" > "${RUNROOT}/INSTALL/compatibility_check.log" 2>&1
+  conda run --prefix "${RUNROOT}/INSTALL/plotting-env" python -m pip check \
+    > "${RUNROOT}/INSTALL/plotting_pip_check.log" 2>&1
+  conda run --prefix "${RUNROOT}/INSTALL/plotting-env" python -m unittest discover \
+    -s "${PACKROOT}/tests" -p test_plot_sigma8.py \
+    > "${RUNROOT}/INSTALL/plotting_check.log" 2>&1
+  conda env export -n "${CONDAPIPENAME}" > "${RUNROOT}/INSTALL/environment-resolved.yml"
+  conda env export --prefix "${RUNROOT}/INSTALL/plotting-env" \
+    > "${RUNROOT}/INSTALL/plotting-environment-resolved.yml"
+  for dependency in cosmosis-standard-library SOM_DIR CosmoPowerCosmosis OneCovariance 2pt_stats galselect
+  do
+    printf '%s ' "${dependency}"
+    git -C "${RUNROOT}/INSTALL/${dependency}" rev-parse HEAD
+  done > "${RUNROOT}/INSTALL/source-revisions.txt"
+fi
 
 cd ${RUNROOT}
 
@@ -347,6 +374,7 @@ for OPT in $OPTLIST
 do 
   ${P_SED_INPLACE} "s#\\@${OPT}\\@#${!OPT}#g" ${RUNROOT}/configure.sh ${RUNROOT}/variables.sh
 done 
+${P_SED_INPLACE} "s#^CONDAPIPENAME=.*#CONDAPIPENAME=${CONDAPIPENAME}#" "${RUNROOT}/variables.sh"
 _message "${BLU} - Done! ${DEF}\n"
 #}}}
 
@@ -388,4 +416,3 @@ _message "  3) ${BLU}Check the ${DEF}pipeline.ini${BLU} file has your desired pi
 _message "  4) ${BLU}Run the configuration: ${DEF}conda run -n ${CONDAPIPENAME} bash configure.sh ${DEF}\n"
 _message "  5) ${BLU}Follow the configuration instructions! ${DEF}\n"
 #}}}
-

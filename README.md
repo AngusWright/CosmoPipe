@@ -47,7 +47,11 @@ Do not edit or run individual steps from a generated pipeline script independent
 
 ## Installation
 
-CosmoPipe is developed for Linux and macOS and uses Conda to provision its scientific software environment. The installer creates an environment named `cosmopipe`, installs required R packages, and obtains several external scientific dependencies.
+CosmoPipe is developed for Linux and macOS and uses Conda to provision its scientific software environment. Use a current [Miniforge](https://conda-forge.org/download/) installation. The installer creates an environment named `cosmopipe`, installs required R packages, and obtains several external scientific dependencies. It does not modify the active Python environment.
+
+It also creates an isolated ChainConsumer plotting environment at
+`<runroot>/INSTALL/plotting-env`. The Sigma_8 pipeline step selects that
+interpreter automatically; keep using `cosmopipe` for the rest of the pipeline.
 
 ```bash
 git clone git@github.com:AngusWright/CosmoPipe.git
@@ -55,7 +59,7 @@ cd CosmoPipe
 bash COSMOPIPE_MASTER_INSTALL.sh --runroot /path/to/cosmopipe-run
 ```
 
-The installer infers `PACKROOT` from the current directory. For non-standard systems, pass the required paths and executable names explicitly:
+The installer infers `PACKROOT` from the source checkout containing the script. For non-standard systems, pass the required paths and executable names explicitly:
 
 ```bash
 bash COSMOPIPE_MASTER_INSTALL.sh \
@@ -74,6 +78,12 @@ conda activate cosmopipe
 ```
 
 See `COSMOPIPE_MASTER_INSTALL.sh` and `man/COSMOPIPE_MASTER_INSTALL.man.sh` for the installer’s supported options and platform-specific behavior.
+
+Use `--condapipename <name>` to create a separate environment for a new installation.
+`--noconda` reuses that named environment but builds the external dependencies;
+`--noinstall` only regenerates the run configuration and does not install packages.
+`--verbose 0` disables the interactive startup delay. An existing `INSTALL/`
+directory is not overwritten during a fresh installation.
 
 ## Configure and run an analysis
 
@@ -116,7 +126,73 @@ Processing functions must declare their data inputs and outputs accurately. This
 
 ## Dependencies
 
-The Conda environment specifications are provided in `environment.yml` (Linux) and `environment_darwin.yml` (macOS). The workflow relies on the broader cosmology ecosystem, including CosmoSIS, CAMB, TreeCorr, OneCovariance, Python, and R. The installer downloads and configures additional external repositories; network access and compilers are therefore required for a full installation.
+`environment.yml` is the shared Linux/macOS specification; the former incomplete
+`environment_darwin.yml` has been retired. It lists direct dependencies rather
+than freezing platform-specific compiler builds and transitive libraries.
+Conda-forge supplies the native toolchain, CosmoSIS, Python, R, and scientific
+libraries; pip supplies packages unavailable from that channel.
+
+The newest mutually compatible releases are selected subject to these upstream
+constraints:
+
+| Dependency | Constraint | Reason |
+| --- | --- | --- |
+| CosmoSIS | 3.26 | Updated cosmological inference framework |
+| CosmoPower | 0.2.0 | Latest release requires TensorFlow <2.14 and TensorFlow Probability <0.22 |
+| Python / TensorFlow / TensorFlow Probability | 3.11 / 2.13.1 / 0.21.0 | Matching supported interpreter and TensorFlow APIs |
+| NumPy / typing_extensions | 1.24.3 / <4.6 | TensorFlow 2.13 upper bounds |
+| ChainConsumer | >=1.3, <2 (plotting environment) | Uses the current DataFrame/`Chain` API and public `plot_contour` helper |
+| SciPy | >=1.12, <1.14 (main environment) | OneCovariance needs `cumulative_simpson`; HMF needs `simps` |
+| Matplotlib | >=3.10, <3.11 (main); >=3.10, <4 (plotting) | 3.11 requires NumPy >=1.25; the plotting environment is independent of TensorFlow |
+| Astropy / pandas / healpy | <8 / <3 / <1.20 | Newer major releases require NumPy 2 |
+| HMF | 3.5.2 | Later releases require Python >=3.12 |
+| FAST-PT / SACC / numexpr | <4.1 / <2 / <2.14.2 | Newer releases require a newer NumPy than TensorFlow permits |
+
+Installing the latest TensorFlow or NumPy independently is therefore not
+supported by the current CosmoPower release. Current ChainConsumer requires
+Pydantic >=2.2 and typing_extensions >=4.6.1, which conflicts with TensorFlow's
+typing_extensions <4.6 requirement. `environment-plotting.yml` separates those
+dependencies without bypassing package requirements or retaining legacy plotting
+code. Both environments are checked with `pip check`; the plotting check runs
+the actual weighted Sigma_8 plots for COSEBIs, band powers, and xi_pm.
+
+The installer obtains current external repositories, builds the required native
+extensions, runs `pip check`
+and scientific API smoke checks, and records the resolved environment in
+`INSTALL/environment-resolved.yml` and Git revisions in
+`INSTALL/source-revisions.txt`. Logs for each build and
+`INSTALL/compatibility_check.log` are kept under the run root. A full installation
+requires network access and can take considerable time.
+THELI's required LDAC utilities are built with the current Conda C compiler in
+GNU89 mode (`-fcommon`); unrelated THELI image-reduction programs are not built.
+If the legacy THELI download host is unavailable, place `theli-1.6.1.tgz` in the
+source checkout before running the installer. The installer prefers that local
+archive.
+
+To repeat the installation checks in an existing environment:
+
+```bash
+conda run -n cosmopipe python -m pip check
+conda run -n cosmopipe python scripts/check_installation.py --runroot /path/to/cosmopipe-run
+conda run --prefix /path/to/cosmopipe-run/INSTALL/plotting-env python -m pip check
+conda run --prefix /path/to/cosmopipe-run/INSTALL/plotting-env python -m unittest discover -s tests -p test_plot_sigma8.py
+```
+
+The plotting environment is recorded in `INSTALL/plotting-environment-resolved.yml`;
+its logs are `INSTALL/plotting_install_output.log`, `INSTALL/plotting_pip_check.log`,
+and `INSTALL/plotting_check.log`. To add it to an existing installation without
+rebuilding the scientific dependencies, run the following from the checkout,
+then regenerate the run configuration/pipeline to pick up the updated scripts:
+
+```bash
+conda env create --prefix /path/to/cosmopipe-run/INSTALL/plotting-env --file environment-plotting.yml
+```
+
+Installer argument/configuration regressions need only Python and Bash:
+
+```bash
+python -m unittest discover -s tests -p 'test_installer.py'
+```
 
 ## Contributing
 

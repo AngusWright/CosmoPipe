@@ -1,7 +1,7 @@
 import numpy as np
 import math, os
 from scipy.interpolate import interp1d
-from scipy import pi,sqrt,exp
+from numpy import pi,sqrt,exp
 from scipy.special.orthogonal import p_roots
 from numpy.polynomial.legendre import legcompanion, legval, legder
 import numpy.linalg as la
@@ -275,4 +275,3 @@ def psi_filter(tmin,tmax,n,corr_type='gg',ntheta=1000):
     else:
         print(corr_type+' is not a recognised correlation type, choose between gg and gm. Exiting now ...')
         exit()
-

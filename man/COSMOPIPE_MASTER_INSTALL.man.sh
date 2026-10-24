@@ -50,9 +50,9 @@ function _prompt {
 # Abort Message {{{
 _abort()
 {
-  _message "${RED} - !FAILED!\n"
-  _message "${BLU} An error occured while running $0.\n"
-  _message "${DEF} Check the relevant logging file for this step.\n\n"
+  VERBOSE=1 _message "${RED} - !FAILED!\n"
+  VERBOSE=1 _message "${BLU} An error occurred while running $0.\n"
+  VERBOSE=1 _message "${DEF} Check the logging files in ${RUNROOT}/INSTALL/.\n\n"
   trap : 0
   exit 1
 }
@@ -82,6 +82,12 @@ function _outputs {
 #}}}
 
 #Additional Functions 
+
+# Installer-only flags take no values: --noconda reuses CONDAPIPENAME;
+# --noinstall only writes configuration files; --noconfig runs configure.sh.
+# --verbose 0 skips the startup delay. Other options require a value.
+# Both platforms use environment.yml; --condapipename overrides its name.
+# environment-plotting.yml installs ChainConsumer in RUNROOT/INSTALL/plotting-env.
 
 #Make waiting interesting with a spinner! {{{
 function _spinner {

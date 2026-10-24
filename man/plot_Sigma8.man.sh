@@ -18,6 +18,7 @@ function _prompt {
 function _description { 
   echo "#"
   echo '# Plot Sigma_8'
+  echo '# Uses the ChainConsumer environment in RUNROOT/INSTALL/plotting-env.'
   echo "#"
   echo "# Function takes input data:"
   echo "# `_inp_data`"
@@ -42,7 +43,7 @@ set -e
 # Input variables {{{ 
 function _inp_var { 
   #Variable inputs (leave blank if none)
-  echo BLINDING BV:BLIND BV:BOLTZMAN BV:CHAINSUFFIX BV:SAMPLER BV:STATISTIC PYTHON3BIN RUNROOT SCRIPTPATH STORAGEPATH SURVEY
+  echo BLINDING BV:BLIND BV:BOLTZMAN BV:CHAINSUFFIX BV:SAMPLER BV:STATISTIC RUNROOT SCRIPTPATH STORAGEPATH SURVEY
 } 
 #}}}
 
@@ -75,4 +76,3 @@ function _unset_functions {
 #}}}
 
 #Additional Functions 
-

@@ -5,7 +5,7 @@ from   matplotlib.ticker import ScalarFormatter
 import math, os
 from matplotlib.patches import Rectangle
 from scipy.interpolate import interp1d
-from scipy import pi,sqrt,exp
+from numpy import pi,sqrt,exp
 from measure_statistics import tminus_quad, tplus, tminus, gplus, gminus, T, str2bool, h, f, rebin, psi_filter
 from argparse import ArgumentParser
 import treecorr
@@ -457,6 +457,7 @@ elif mode == 'xipm':
     all_binned_data = np.vstack((ctrBin, binned_r, binned_lnr, binned_valueBlock, binned_wgtBlock))
     print(all_binned_data.shape)
     # Write it out to a file and praise-be for Jarvis and his well documented code
-    treecorr.util.gen_write(xipmfileName, all_keys, all_binned_data, precision=12)
+    with treecorr.util.make_writer(xipmfileName, precision=12) as writer:
+        writer.write(all_keys, all_binned_data)
 else:
     raise Exception('Unknown mode!')

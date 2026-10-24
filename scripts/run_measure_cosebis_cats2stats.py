@@ -5,7 +5,7 @@ from   matplotlib.ticker import ScalarFormatter
 import math, os
 from matplotlib.patches import Rectangle
 from scipy.interpolate import interp1d
-from scipy import pi,sqrt,exp
+from numpy import pi,sqrt,exp
 from measure_cosebis import tminus_quad, tplus,tminus, str2bool
 from argparse import ArgumentParser
 
@@ -208,6 +208,5 @@ EnfileName=cfoldername+"/En_"+outputfile+".asc"
 BnfileName=cfoldername+"/Bn_"+outputfile+".asc"
 np.savetxt(EnfileName,En)
 np.savetxt(BnfileName,Bn)
-
 
 

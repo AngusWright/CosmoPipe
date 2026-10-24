@@ -6,7 +6,7 @@ import mpmath
 from scipy.interpolate import interp1d
 import multiprocessing as mpi
 from scipy.signal import argrelextrema
-from scipy import pi,sqrt,exp
+from numpy import pi,sqrt,exp
 from scipy.special import p_roots
 from numpy.polynomial.legendre import legcompanion, legval, legder
 import numpy.linalg as la
@@ -237,4 +237,3 @@ for nn in range(1,Nmax+1):
         print("> save Wn2")
         np.savetxt(file_Wn2, np.array([np.log(ell),result_Well]).T)
         
-

@@ -1,7 +1,7 @@
 import numpy as np
 import math, os
 from scipy.interpolate import interp1d
-from scipy import pi,sqrt,exp
+from numpy import pi,sqrt,exp
 from scipy.special.orthogonal import p_roots
 from numpy.polynomial.legendre import legcompanion, legval, legder
 import numpy.linalg as la
@@ -91,4 +91,3 @@ def integ_xi(xi_func,theta_edges, ntheta):
         theta_in_range=np.exp(np.log(theta_edges[tbin])+(np.log(theta_edges[tbin+1])-np.log(theta_edges[tbin]))/(ntheta)*(ix+0.5))
         xip_integrated[tbin]=sum(xi_func(theta_in_range)*theta_in_range)/sum(theta_in_range)
     return xip_integrated
-

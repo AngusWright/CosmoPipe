@@ -8,9 +8,9 @@ function _initialise {
     exit 1
   fi 
   #Check that we are in the correct conda environment {{{
-  if [ "$CONDA_DEFAULT_ENV" != "cosmopipe" ]
+  if [ "$CONDA_DEFAULT_ENV" != "@CONDAPIPENAME@" ]
   then 
-    echo "ERROR! Configuration and Pipeline must be run from within the 'cosmopipe' conda environment!"
+    echo "ERROR! Configuration and Pipeline must be run from within the '@CONDAPIPENAME@' conda environment!"
   fi 
   #}}}
   #Documentation file 
@@ -1214,4 +1214,3 @@ function _incorporate_datablock {
 #}}}
 
 #}}}
-

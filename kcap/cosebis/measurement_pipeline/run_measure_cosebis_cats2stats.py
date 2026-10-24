@@ -5,7 +5,7 @@ import numpy as np
 import math, os
 # from matplotlib.patches import Rectangle
 from scipy.interpolate import interp1d
-from scipy import pi,sqrt,exp
+from numpy import pi,sqrt,exp
 from measure_cosebis import tminus_quad, tplus,tminus
 from argparse import ArgumentParser
 from rebin import rebin
@@ -226,6 +226,5 @@ EnfileName=cfoldername+"/En_"+outputfile+".ascii"
 BnfileName=cfoldername+"/Bn_"+outputfile+".ascii"
 np.savetxt(EnfileName,En)
 np.savetxt(BnfileName,Bn)
-
 
 

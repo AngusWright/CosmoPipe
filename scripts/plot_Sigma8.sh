@@ -1,3 +1,10 @@
+plotting_python="@RUNROOT@/INSTALL/plotting-env/bin/python"
+if [ ! -x "${plotting_python}" ]
+then
+  echo "ERROR: Missing plotting environment at @RUNROOT@/INSTALL/plotting-env. See the README installation instructions." >&2
+  exit 1
+fi
+
 if [ "@BLINDING@" != "UNBLIND" ] 
 then 
   blinding=_@BV:BLIND@
@@ -5,14 +12,10 @@ else
   blinding=
 fi 
 
-#Create directory if needed
-if [ ! -d @RUNROOT@/@STORAGEPATH@/MCMC/output/@SURVEY@_@BLINDING@/@BV:BOLTZMAN@/@BV:STATISTIC@/plots ]
-then 
-  mkdir -p @RUNROOT@/@STORAGEPATH@/MCMC/output/@SURVEY@_@BLINDING@/@BV:BOLTZMAN@/@BV:STATISTIC@/plots/
-fi 
+plot_dir="@RUNROOT@/@STORAGEPATH@/MCMC/output/@SURVEY@_@BLINDING@/@BV:BOLTZMAN@/@BV:STATISTIC@/plots"
+mkdir -p "${plot_dir}"
 
-@PYTHON3BIN@ @RUNROOT@/@SCRIPTPATH@/plot_Sigma8.py \
-  --input @STORAGEPATH@/MCMC/output/@SURVEY@_@BLINDING@/@BV:BOLTZMAN@/@BV:STATISTIC@/chain/output_@BV:SAMPLER@${blinding}@BV:CHAINSUFFIX@.txt \
-  --output @STORAGEPATH@/MCMC/output/@SURVEY@_@BLINDING@/@BV:BOLTZMAN@/@BV:STATISTIC@/plots/Sigma8_@BV:SAMPLER@${blinding}_@BV:STATISTIC@@BV:CHAINSUFFIX@.pdf \
-  --statistic @BV:STATISTIC@ 2>&1 
-
+"${plotting_python}" "@RUNROOT@/@SCRIPTPATH@/plot_Sigma8.py" \
+  --inputfile "@STORAGEPATH@/MCMC/output/@SURVEY@_@BLINDING@/@BV:BOLTZMAN@/@BV:STATISTIC@/chain/output_@BV:SAMPLER@${blinding}@BV:CHAINSUFFIX@.txt" \
+  --outputfile "${plot_dir}/Sigma8_@BV:SAMPLER@${blinding}_@BV:STATISTIC@@BV:CHAINSUFFIX@.pdf" \
+  --statistic "@BV:STATISTIC@" 2>&1

@@ -128,8 +128,8 @@ then
     est_ggl=cosebi
     ggl=True
     n_arb_ne=@BV:NMAXCOSEBISNE@
-    arb_fourier_filter_gm_file="Qgm_@BV:THETAMINGT@_to_@BV:THETAMAXGT@_?.table"
-    arb_real_filter_gm_file="Wn_psigm_@BV:THETAMINGT@_to_@BV:THETAMAXGT@_?.table"
+    arb_fourier_filter_gm_file="Wn_psigm_@BV:THETAMINGT@_to_@BV:THETAMAXGT@_?.table"
+    arb_real_filter_gm_file="Qgm_@BV:THETAMINGT@_to_@BV:THETAMAXGT@_?.table"
   else
     est_ggl=cosebi
     ggl=False
@@ -139,8 +139,8 @@ then
     est_clust=cosebi
     clustering=True
     n_arb_nn=@BV:NMAXCOSEBISNN@
-    arb_fourier_filter_gg_file="Ugg_@BV:THETAMINWT@_to_@BV:THETAMAXWT@_?.table"
-    arb_real_filter_gg_file="Wn_psigg_@BV:THETAMINWT@_to_@BV:THETAMAXWT@_?.table"
+    arb_fourier_filter_gg_file="Wn_psigg_@BV:THETAMINWT@_to_@BV:THETAMAXWT@_?.table"
+    arb_real_filter_gg_file="Ugg_@BV:THETAMINWT@_to_@BV:THETAMAXWT@_?.table"
   else
     est_clust=cosebi
     clustering=False
@@ -964,14 +964,14 @@ then
       if [[ .*\ $MODES\ .* =~ " NE " ]]
       then
         n_arb_ne2=@BV:NMAXCOSEBISNE@
-        arb_fourier_filter_gm_file_second_stat="Qgm_@BV:THETAMINGT@_to_@BV:THETAMAXGT@_?.table"
-        arb_real_filter_gm_file_second_stat="Wn_psigm_@BV:THETAMINGT@_to_@BV:THETAMAXGT@_?.table"
+        arb_fourier_filter_gm_file_second_stat="Wn_psigm_@BV:THETAMINGT@_to_@BV:THETAMAXGT@_?.table"
+        arb_real_filter_gm_file_second_stat="Qgm_@BV:THETAMINGT@_to_@BV:THETAMAXGT@_?.table"
       fi
       if [[ .*\ $MODES\ .* =~ " NN " ]]
       then
         n_arb_nn2=@BV:NMAXCOSEBISNN@
-        arb_fourier_filter_gg_file_second_stat="Ugg_@BV:THETAMINWT@_to_@BV:THETAMAXWT@_?.table"
-        arb_real_filter_gg_file_second_stat="Wn_psigg_@BV:THETAMINWT@_to_@BV:THETAMAXWT@_?.table"
+        arb_fourier_filter_gg_file_second_stat="Wn_psigg_@BV:THETAMINWT@_to_@BV:THETAMAXWT@_?.table"
+        arb_real_filter_gg_file_second_stat="Ugg_@BV:THETAMINWT@_to_@BV:THETAMAXWT@_?.table"
       fi
     elif [ "${SECONDSTATISTIC^^}" == "BANDPOWERS" ]
     then

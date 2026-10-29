@@ -189,7 +189,7 @@ do
     --min_z "${z_mins}" --max_z "${z_maxs}" \
     --stellar_mass_column @BV:STELLARMASS@ \
     --z_column @BV:REDSHIFT@ \
-    --area @BV:SURVEYAREADEG_NS@ \
+    --area @BV:SURVEYAREADEG@ \
     --path @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/mass_lims \
     --f_tomo ${ftomo} \
     --nobs ${NBIN} \

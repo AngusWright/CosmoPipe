@@ -97,10 +97,11 @@ function _outputs {
   then
     output="obs_vec"
   else 
-    _message "BV:DATAVEC_TYPE is not set to a known value: ${DATAVEC_TYPE^^} is not one of {COSEBIS,PSI_STATS_GM,PSI_STATS_GG,BANDPOWERS_EE,BANDPOWERS_NE,BANDPOWERS_NN,XIPM,GT,WT}"
+    _message "BV:DATAVEC_TYPE is not set to a known value: ${DATAVEC_TYPE^^} is not one of {COSEBIS,PSI_STATS_GM,PSI_STATS_GG,BANDPOWERS_EE,BANDPOWERS_NE,BANDPOWERS_NN,XIPM,GT,WT,OBS}"
     exit 1
   fi
   #}}}
+  _message "$output"
   echo ${output}
 }
 #}}}

@@ -155,7 +155,7 @@ print('Input file is '+inputfile+', making '+str(mode)+' for theta in ['+'%.2f' 
 
 # Load the input 2pt correlation function data
 file=open(inputfile)
-header=file.readline().strip('#').split()
+header = file.readline().lstrip('# ').split()
 tpcf_in=np.loadtxt(file,comments='#')
 tpcf_data={}
 for i, col in enumerate(header):
@@ -389,8 +389,8 @@ elif mode == 'bandpowers_ne':
     for i in range(len(ell)-1):
         filter[i]=h(theta_mid*arcmin2rad, ell[i], ell[i+1])*theta_mid*arcmin2rad*T(theta_mid, thetamin_apod, thetamax_apod, logwidth)
         N = np.log(ell[i+1]/ell[i])
-        IntegralE=sum(filter[i]*gamma_t*delta_theta)
-        IntegralB=sum(filter[i]*gamma_x*delta_theta)
+        IntegralE=sum(filter[i]*gamma_t[good_args]*delta_theta)
+        IntegralB=sum(filter[i]*gamma_x[good_args]*delta_theta)
         CnE[i]=IntegralE*2*np.pi/N*arcmin2rad
         CnB[i]=IntegralB*2*np.pi/N*arcmin2rad
 
@@ -410,7 +410,7 @@ elif mode == 'bandpowers_nn':
     for i in range(len(ell)-1):
         filter[i]=f(theta_mid*arcmin2rad, ell[i], ell[i+1])*T(theta_mid, thetamin_apod, thetamax_apod, logwidth)
         N = np.log(ell[i+1]/ell[i])
-        Integral=sum(filter[i]*w_theta*delta_theta)
+        Integral=sum(filter[i]*w_theta[good_args]*delta_theta)
         Cnn[i]=Integral*2*np.pi/N*arcmin2rad
     CnnfileName=cfoldername+"/Cnn_"+outputfile+".asc"
     np.savetxt(CnnfileName,Cnn)

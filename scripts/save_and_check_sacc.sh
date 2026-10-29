@@ -47,13 +47,24 @@ then
   else
     input_datavector_nn=
   fi
-  input_covariance="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_cosebis/covariance_matrix_${non_linear_model}.mat"
-  #input_covariance="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_cosebis/covariance_list_${non_linear_model}.dat"
-  if [ -n "$ITERATION" ] && [ "$ITERATION" -eq "$ITERATION" ]
+  if [ -f @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_cosebis/covariance_matrix_${non_linear_model}_reduced.mat ]
   then
-    filename_extension=${CHAINSUFFIX}_iteration_${ITERATION}
-    input_covariance_iterative=@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_cosebis/covariance_matrix_${non_linear_model}${filename_extension}.mat
-    #input_covariance_iterative=@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_cosebis/covariance_list_${non_linear_model}${filename_extension}.dat
+    input_covariance="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_cosebis/covariance_matrix_${non_linear_model}_reduced.mat"
+    if [ -n "$ITERATION" ] && [ "$ITERATION" -eq "$ITERATION" ]
+    then
+      filename_extension=${CHAINSUFFIX}_iteration_${ITERATION}
+      input_covariance_iterative=@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_cosebis/covariance_matrix_${non_linear_model}_reduced${filename_extension}.mat
+    fi
+    #input_covariance="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_cosebis/covariance_list_${non_linear_model}_reduced.dat"
+  else
+    input_covariance="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_cosebis/covariance_matrix_${non_linear_model}.mat"
+    #input_covariance="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_cosebis/covariance_list_${non_linear_model}.dat"
+    if [ -n "$ITERATION" ] && [ "$ITERATION" -eq "$ITERATION" ]
+    then
+      filename_extension=${CHAINSUFFIX}_iteration_${ITERATION}
+      input_covariance_iterative=@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_cosebis/covariance_matrix_${non_linear_model}${filename_extension}.mat
+      #input_covariance_iterative=@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_cosebis/covariance_list_${non_linear_model}${filename_extension}.dat
+    fi
   fi
 #}}}
 elif [ "${STATISTIC^^}" == "COSEBIS_DIMLESS" ] #{{{
@@ -88,11 +99,21 @@ then
   else
     input_datavector_nn=
   fi
-  input_covariance="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_bandpowers/covariance_matrix_${non_linear_model}.mat"
-  if [ -n "$ITERATION" ] && [ "$ITERATION" -eq "$ITERATION" ]
+  if [ -f @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_bandpowers/covariance_matrix_${non_linear_model}_reduced.mat ]
   then
-    filename_extension=${CHAINSUFFIX}_iteration_${ITERATION}
-    input_covariance_iterative=@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_bandpowers/covariance_matrix_${non_linear_model}${filename_extension}.mat
+    input_covariance="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_bandpowers/covariance_matrix_${non_linear_model}_reduced.mat"
+    if [ -n "$ITERATION" ] && [ "$ITERATION" -eq "$ITERATION" ]
+    then
+      filename_extension=${CHAINSUFFIX}_iteration_${ITERATION}
+      input_covariance_iterative=@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_bandpowers/covariance_matrix_${non_linear_model}_reduced${filename_extension}.mat
+    fi
+  else
+    input_covariance="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_bandpowers/covariance_matrix_${non_linear_model}.mat"
+    if [ -n "$ITERATION" ] && [ "$ITERATION" -eq "$ITERATION" ]
+    then
+      filename_extension=${CHAINSUFFIX}_iteration_${ITERATION}
+    i nput_covariance_iterative=@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_bandpowers/covariance_matrix_${non_linear_model}${filename_extension}.mat
+    fi
   fi
 #}}}
 elif [ "${STATISTIC^^}" == "2PCF" ] #{{{
@@ -115,11 +136,21 @@ then
   else
     input_datavector_nn=
   fi
-  input_covariance="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_2pcf/covariance_matrix_${non_linear_model}.mat"
-  if [ -n "$ITERATION" ] && [ "$ITERATION" -eq "$ITERATION" ]
+  if [ -f @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_2pcf/covariance_matrix_${non_linear_model}_reduced.mat ]
   then
-    filename_extension=${CHAINSUFFIX}_iteration_${ITERATION}
-    input_covariance_iterative=@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_2pcf/covariance_matrix_${non_linear_model}${filename_extension}.mat
+    input_covariance="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_2pcf/covariance_matrix_${non_linear_model}_reduced.mat"
+    if [ -n "$ITERATION" ] && [ "$ITERATION" -eq "$ITERATION" ]
+    then
+      filename_extension=${CHAINSUFFIX}_iteration_${ITERATION}
+      input_covariance_iterative=@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_2pcf/covariance_matrix_${non_linear_model}_reduced${filename_extension}.mat
+    fi
+  else
+    input_covariance="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_2pcf/covariance_matrix_${non_linear_model}.mat"
+    if [ -n "$ITERATION" ] && [ "$ITERATION" -eq "$ITERATION" ]
+    then
+      filename_extension=${CHAINSUFFIX}_iteration_${ITERATION}
+      input_covariance_iterative=@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/covariance_2pcf/covariance_matrix_${non_linear_model}${filename_extension}.mat
+    fi
   fi
 elif [ "${STATISTIC^^}" == "XIEB" ] #{{{
 then

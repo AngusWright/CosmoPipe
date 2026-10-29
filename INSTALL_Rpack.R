@@ -1,3 +1,7 @@
+if (!requireNamespace('remotes', quietly = TRUE)) {
+    install.packages('remotes', repos = 'https://cloud.r-project.org/')
+}
+
 library('remotes')
 qrequire<-function(...) suppressWarnings(suppressPackageStartupMessages(require(...)))
 require.and.load<-function(name,githubrep,force=FALSE) {

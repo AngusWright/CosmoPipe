@@ -42,21 +42,49 @@ set -e
 # Input variables {{{ 
 function _inp_var { 
   #Variable inputs (leave blank if none)
-  echo BLU BV:NLENSBINS BV:PRIORSINI BV:TOMOLIMS BV:VALUESINI DATABLOCK DEF RED RUNROOT STORAGEPATH SURVEY
+  echo BLU BV:NLENSBINS BV:NSMFLENSBINS BV:MODES BV:PRIORSINI BV:TOMOLIMS BV:VALUESINI DATABLOCK DEF RED RUNROOT STORAGEPATH SURVEY
 } 
 #}}}
 
 # Input data {{{ 
 function _inp_data { 
   #Data inputs (leave blank if none)
-  echo nzbias_uncorr
+  MODES=`_parse_blockvars @BV:MODES@`
+  input=""
+  if [[ .*\ $MODES\ .* =~ " EE " ]] || [[ .*\ $MODES\ .* =~ " NE " ]]
+  then
+    input="${input} nzbias_uncorr"
+  fi
+  if [[ .*\ $MODES\ .* =~ " NE " ]] || [[ .*\ $MODES\ .* =~ " NN " ]]
+  then
+    input="${input} nzbias_uncorr_lens"
+  fi
+  if [[ .*\ $MODES\ .* =~ " OBS " ]]
+  then
+    input="${input} nzbias_uncorr_obs"
+  fi
+  echo "${input}"
 } 
 #}}}
 
 # Output data {{{ 
 function _outputs { 
   #Data outputs (leave blank if none)
-  echo nzbias_uncorr
+  MODES=`_parse_blockvars @BV:MODES@`
+  output=""
+  if [[ .*\ $MODES\ .* =~ " EE " ]] || [[ .*\ $MODES\ .* =~ " NE " ]]
+  then
+    output="${output} nzbias_uncorr"
+  fi
+  if [[ .*\ $MODES\ .* =~ " NE " ]] || [[ .*\ $MODES\ .* =~ " NN " ]]
+  then
+    output="${output} nzbias_uncorr_lens"
+  fi
+  if [[ .*\ $MODES\ .* =~ " OBS " ]]
+  then
+    output="${output} nzbias_uncorr_obs"
+  fi
+  echo "${output}"
 } 
 #}}}
 

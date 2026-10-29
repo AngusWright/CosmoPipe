@@ -331,8 +331,8 @@ if __name__ == '__main__':
         #Use treecorr to write out the output file and praise-be once more for Jarvis and his well documented code
         with treecorr.util.make_writer(outfile, precision=12) as writer:
             writer.write(
-                ['r_nom','meanr','meanlogr','wtheta','sigma','weight', 'nocor_wtheta', 'npairs_weighted'],
-                np.nan_to_num([ dd.rnom, dd.meanr, dd.meanlogr, wt, np.sqrt(dd.varxi), dd.weight, dd.xi, dd.npairs],
+                ['r_nom','meanr','meanlogr','wtheta','sigma', 'nocor_wtheta', 'weight', 'npairs'],
+                np.nan_to_num([ dd.rnom, dd.meanr, dd.meanlogr, wt, np.sqrt(dd.varxi), dd.xi, dd.weight, dd.npairs],
                                nan=0.0, posinf=0.0, neginf=0.0))
                 
         if center_file is not None:

@@ -921,6 +921,9 @@ npair_directory = @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_npair/
 npair_mm_file = ${npair_mm_file}
 npair_gm_file = ${npair_gm_file}
 npair_gg_file = ${npair_gg_file}
+npair_mm_column_name = npairs_weighted
+npair_gm_column_name = npairs_weighted
+npair_gg_column_name = npairs # Currently, weighted npairs are not implemented for clustering. Use npairs for now.
 Cell_directory = ${output_path}
 
 EOF

@@ -249,7 +249,6 @@ then
     csmf_N_log10M_bin=@BV:NSMFBINS@
     csmf_directory="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/smf/"
     V_max_file="@DB:vmax@" # This assumes one file, currently we have NSMFLENSBINS
-    f_tomo_file="@DB:f_tomo@" # This assumes one file, currently we have NSMFLENSBINS
   else
     _message "No SMF lens catalog metadata found, setting default CSMF parameters from saved variables.\n"
     if [ "${NOBS}" = "1" ]
@@ -264,7 +263,6 @@ then
     csmf_N_log10M_bin=@BV:NSMFBINS@
     csmf_directory="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/smf/"
     V_max_file="@DB:vmax@" # This assumes one file, currently we have NSMFLENSBINS
-    f_tomo_file="@DB:f_tomo@" # This assumes one file, currently we have NSMFLENSBINS
   fi
 else
   cstellar_mf=False
@@ -273,7 +271,6 @@ else
   csmf_N_log10M_bin=10
   csmf_directory="@RUNROOT@/INSTALL/OneCovariance/input/conditional_smf/"
   V_max_file="V_max.asc"
-  f_tomo_file="f_tomo.asc"
 fi
 
 
@@ -619,7 +616,6 @@ csmf_N_log10M_bin = ${csmf_N_log10M_bin}
 csmf_directory = ${csmf_directory}
 ;csmf_log10M_bins =
 V_max_file = ${V_max_file}
-f_tomo_file = ${f_tomo_file}
 csmf_diagonal = False
 csmf_auto_only = True
 csmf_diagonal_lenses = True

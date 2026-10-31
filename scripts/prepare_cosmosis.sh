@@ -210,7 +210,6 @@ then
       _message " > @BLU@ Patch @DEF@${patch}@BLU@ ZBIN @DEF@${ZBIN1}@BLU@x@DEF@${ZBIN2}"
       cp ${file} \
         @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_npair_${patch}_@BV:BLIND@/XI_@SURVEY@_${patch}_nBins_${NTOMO}_Bin${ZBIN1}_Bin${ZBIN2}.ascii
-      gawk -i inplace '{print $1, $2, $3, $NF}' @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_npair_${patch}_@BV:BLIND@/XI_@SURVEY@_${patch}_nBins_${NTOMO}_Bin${ZBIN1}_Bin${ZBIN2}.ascii
       _message " - @RED@ Done! (`date +'%a %H:%M'`)@DEF@\n"
       #}}}
       #Save the file to the output list {{{
@@ -278,7 +277,6 @@ then
       _message " > @BLU@ Patch @DEF@${patch}@BLU@ BIN @DEF@${LBIN1}@BLU@x@DEF@${ZBIN2}"
       cp ${file} \
         @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_npair_${patch}_@BV:BLIND@/GT_@SURVEY@_${patch}_nBins_${NLENS}_Bin${LBIN1}_Bin${ZBIN2}.ascii
-      gawk -i inplace '{print $1, $2, $3, $NF}' @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_npair_${patch}_@BV:BLIND@/GT_@SURVEY@_${patch}_nBins_${NLENS}_Bin${LBIN1}_Bin${ZBIN2}.ascii
       _message " - @RED@ Done! (`date +'%a %H:%M'`)@DEF@\n"
       #}}}
       #Save the file to the output list {{{
@@ -340,7 +338,6 @@ then
       _message " > @BLU@ Patch @DEF@${patch}@BLU@ BIN @DEF@${LBIN1}@BLU@@DEF@"
       cp ${file} \
         @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_npair_${patch}_@BV:BLIND@/WT_@SURVEY@_${patch}_nBins_${NLENS}_Bin${LBIN1}_Bin${LBIN1}.ascii
-      gawk -i inplace '{print $1, $2, $3, $NF}' @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_npair_${patch}_@BV:BLIND@/WT_@SURVEY@_${patch}_nBins_${NLENS}_Bin${LBIN1}_Bin${LBIN1}.ascii
       _message " - @RED@ Done! (`date +'%a %H:%M'`)@DEF@\n"
       #}}}
       #Save the file to the output list {{{

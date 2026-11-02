@@ -3,7 +3,7 @@
 # File Name : compute_nz.sh
 # Created By : awright
 # Creation Date : 21-03-2023
-# Last Modified : Tue Jun 30 19:57:20 2026
+# Last Modified : Mon Nov  2 16:27:29 2026
 #
 #=========================================
 
@@ -12,7 +12,7 @@ input="@DB:ALLHEAD@"
 ninp=`echo ${input} | awk '{print NF}'`
 #Get the SOMs from BV:SOMBLOCK 
 soms=`_read_datablock @BV:SOMBLOCK@`
-soms=`_blockentry_to_filelist $som`
+soms=`_blockentry_to_filelist $soms`
 nsom=`echo ${soms} | awk '{print NF}'`
 #Check for more mismatch in soms and target catalogues  {{{
 if [ ${nsom} -ne 1 ] && [ ${nsom} -ne ${ninp} ] && [ ${ninp} -ne 1 ]
@@ -21,6 +21,11 @@ then
   _message "@RED@ The provided SOM list is length @BLU@${nsom}@RED@, and@DEF@\n"
   _message "@RED@ the provided target catalogue list is length @BLU@${ninp}@RED@. These @DEF@\n"
   _message "@RED@ should be of the same length, or one should be a single catalogue.@DEF@\n"
+  exit 1
+elif [ ${nsom} -eq 0 ]
+then 
+  _message "@RED@ ERROR!@DEF@\n"
+  _message "@RED@ The provided SOM list is length @BLU@${nsom}@RED@?!\n"
   exit 1
 elif [ ${nsom} -ne ${ninp} ]
 then 
@@ -43,6 +48,9 @@ then
   fi 
 fi 
 #}}}
+
+_message "@BLU@ The provided SOM list is length @RED@${nsom}@BLU@, and@DEF@\n"
+_message "@BLU@ the provided target catalogue list is length @RED@${ninp}@BLU@.@DEF@\n"
 #Update the nsom value 
 nsom=`echo ${soms} | awk '{print NF}'`
 

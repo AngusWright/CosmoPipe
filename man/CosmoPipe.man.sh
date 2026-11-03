@@ -1060,7 +1060,7 @@ function _incorporate_datablock {
         _itemlist="${_itemlist} ${_itemfile}"
       done 
       #_itemlist=`echo ${_itemlist}`
-      @P_SED_INPLACE@ "s#\\@BV:${item%%=*}\\@#${_itemlist:1}#g" ${1//.${ext}/_prehead.${ext}}
+      @P_SED_INPLACE@ "s#\\@BV:${item%%=*}\\@#${_itemlist:1}#gi" ${1//.${ext}/_prehead.${ext}}
     done 
     ((nloop+=1))
     if [ ${nloop} -gt 100 ]

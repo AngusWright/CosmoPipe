@@ -37,11 +37,51 @@ class InstallerTests(unittest.TestCase):
                 self.assertIn("unknown option", result.stdout)
 
     def test_missing_value_rejected(self):
-        for args in (("--runroot",), ("--runroot", "--noinstall")):
+        for args in (
+            ("--runroot",), ("--runroot", "--noinstall"),
+            ("--condapipename",), ("--condapipename", "--noconda"),
+        ):
             with self.subTest(args=args):
                 result = self.run_installer(*args)
                 self.assertNotEqual(result.returncode, 0)
                 self.assertIn("requires a value", result.stderr)
+
+    def test_cosmosis_build_uses_conda_fortran(self):
+        with tempfile.TemporaryDirectory() as temp:
+            directory = Path(temp)
+            runroot = directory / "run"
+            (runroot / "INSTALL" / "plotting-env" / "conda-meta").mkdir(parents=True)
+            mockbin = directory / "bin"
+            mockbin.mkdir()
+            compiler = mockbin / "gfortran"
+            compiler.write_text("#!/bin/sh\nexit 0\n")
+            compiler.chmod(0o755)
+            (mockbin / "cosmosis-configure").write_text("export COSMOSIS_SRC_DIR=/mock\n")
+            calls = directory / "compiler-calls"
+            make = mockbin / "make"
+            make.write_text(f'#!/bin/sh\nprintf "%s\\n" "$FC" > "{calls}"\nexit 42\n')
+            make.chmod(0o755)
+            git = mockbin / "git"
+            git.write_text('#!/bin/sh\nmkdir cosmosis-standard-library\n')
+            git.chmod(0o755)
+            conda = mockbin / "conda"
+            conda.write_text(
+                '#!/bin/sh\nshift 3\n'
+                'if [ "$1" = "python" ]; then echo /mock; exit 0; fi\n'
+                'exec "$@"\n'
+            )
+            conda.chmod(0o755)
+            env = {**os.environ, "PATH": f"{mockbin}:{os.environ['PATH']}",
+                   "CONDA_PREFIX": str(directory)}
+            env.pop("FC", None)
+            result = subprocess.run(
+                ["bash", str(INSTALLER), "--runroot", str(runroot),
+                 "--condapipename", "cosmopipe_v3", "--noconda", "--verbose", "0"],
+                env=env, text=True, capture_output=True, timeout=30,
+            )
+            self.assertNotEqual(result.returncode, 0)
+            self.assertEqual(calls.read_text().strip(), str(compiler))
+            self.assertNotIn("Pipeline Installation Complete", result.stderr)
 
     def test_environment_creation_name_and_failure(self):
         with tempfile.TemporaryDirectory() as temp:

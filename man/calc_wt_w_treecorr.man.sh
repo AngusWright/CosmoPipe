@@ -50,7 +50,7 @@ function _inp_var {
 # Input data {{{ 
 function _inp_data { 
   #Data inputs (leave blank if none)
-  echo lens_cats rand_cats
+  echo lens_cat rand_cat
 }
 #}}}
 

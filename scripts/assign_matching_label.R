@@ -111,6 +111,20 @@ if (!args$duplicates) {
   prediction = train_data[[args$label]][idx$nn.idx[,1]]
 }
 
+cat("Training:\n")
+if (length(which(!duplicated(train_data[[args$label]])))>10) { 
+  print(summary(train_data[[args$label]]))
+} else { 
+  print(table(train_data[[args$label]])) 
+}
+
+cat("Prediction:\n")
+if (length(which(!duplicated(prediction)))>10) { 
+  print(summary(prediction))
+} else { 
+  print(table(prediction)) 
+}
+
 cat("writing output data\n")
 test_data[[args$label]] = prediction
 helpRfuncs::write.file(test_data,file=args$output)

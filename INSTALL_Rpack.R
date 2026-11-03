@@ -10,7 +10,7 @@ require.and.load<-function(name,githubrep,force=FALSE) {
     }
     if (!loaded || force) {
         if (!missing(githubrep)) {
-            remotes::install_github(paste(githubrep,name,sep='/'),upgrade='always')
+            remotes::install_github(paste(githubrep,name,sep='/'),upgrade='never')
         } else {
             install.packages(name,repos='https://cloud.r-project.org/')
         }
@@ -30,3 +30,4 @@ require.and.load('itertools')
 require.and.load('matrixStats')
 require.and.load('argparser')
 require.and.load('seqinr')
+require.and.load('extrafont')

@@ -183,6 +183,9 @@ then
   cat > csl_make.sh <<-EOF
 set -eo pipefail
 source cosmosis-configure
+# Make otherwise defaults to system f77 when Conda does not export FC.
+export FC="\${FC:-\${CONDA_PREFIX}/bin/gfortran}"
+command -v "\${FC}" >/dev/null
 cd cosmosis-standard-library
 make
 cd ..
@@ -305,6 +308,8 @@ EOF
   cat > cosebis_make.sh <<-EOF
 set -eo pipefail
 source cosmosis-configure
+export FC="\${FC:-\${CONDA_PREFIX}/bin/gfortran}"
+command -v "\${FC}" >/dev/null
 COSMOSIS_SRC_DIR=${cosmosis_src} make clean
 COSMOSIS_SRC_DIR=${cosmosis_src} make
 EOF

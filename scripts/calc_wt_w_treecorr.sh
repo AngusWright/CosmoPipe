@@ -3,14 +3,14 @@
 # File Name : calc_wt_w_treecorr.sh
 # Created By : dvornik
 # Creation Date : 18-04-2024
-# Last Modified : Thu 18 Apr 2024 14:57:46 PM CET
+# Last Modified : Sun Nov  1 21:50:56 2026
 #
 #=========================================
 
 ### Estimate corrrelation functions ### {{{
 _message "Estimating galaxy-clustering correlation functions:"
-lensfiles="@BV:LENS_CATS@"
-randfiles="@BV:RAND_CATS@"
+lensfiles="@DB:lens_cat@"
+randfiles="@DB:rand_cat@"
   
 for patch in @ALLPATCH@ @BV:PATCHLIST@
 do
@@ -18,7 +18,7 @@ do
   #Select the catalogues from DATAHEAD in this patch
     if [ -d ${lensfiles} ]
   then
-    inputlist=`ls @BV:LENS_CATS@`
+    inputlist=@DB:lens_cat@
     lens_filelist=""
     #This just makes sure that the files are added correctly
     for file in ${inputlist}
@@ -37,7 +37,7 @@ do
       lens_filelist=${lensfiles}
     fi
   else
-    _message "${RED} - ERROR: Main input lens catalogue @BV:LENS_CATS@ does not exist!"
+    _message "${RED} - ERROR: Main input lens catalogue(s) @DB:lens_cat@ do(es) not exist!"
     exit -1
   fi
   

@@ -3,7 +3,7 @@
 # File Name : ldac_crossmask.sh
 # Created By : awright
 # Creation Date : 09-09-2025
-# Last Modified : Tue Jun 30 17:28:59 2026
+# Last Modified : Mon Nov  2 19:25:28 2026
 #
 #=========================================
 
@@ -23,6 +23,7 @@ do
   output=${maskbase##*/}
   ext=${output##*.}
   outbase=${output%.*}
+  outbase=${outbase%_cell}
   output=${output%.*}_cmask.${ext}
   output=@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/DATAHEAD/${output}
   allout="${allout} ${output}"

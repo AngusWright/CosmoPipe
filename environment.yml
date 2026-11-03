@@ -47,6 +47,7 @@ dependencies:
   - pkg-config
   - r-base
   - r-remotes
+  - r-arrow
   - r-data.table
   - r-plotrix
   - r-rcolorbrewer

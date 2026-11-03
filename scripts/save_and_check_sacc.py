@@ -251,7 +251,14 @@ def process_2pt_data(mode, nangle, min_val, max_val, n1, n2, datavec_files, stat
         add_2pt_points(sacc_data, statistic, mode, auto, n1, n2, min_val, max_val, nangle, datavec)
         if datavec_no_mbias:
             add_2pt_points(sacc_data_no_mbias, statistic, mode, auto, n1, n2, min_val, max_val, nangle, datavec_no_mbias)
-        
+
+def add_extname_data(filename):
+    # sacc does not write EXTNAME for data extensions. Add the name manually.
+    with fits.open(filename, mode='update') as f:
+        for hdu in f[1:]:
+            h = hdu.header
+            if h.get('SACCTYPE') == 'data' and not hdu.name:
+                hdu.name = f"data:{h['SACCNAME']}"
 
 if __name__ == "__main__":
 
@@ -454,6 +461,8 @@ if __name__ == "__main__":
     # Save the SACC data to a file
     sacc_data.save_fits(f'{outputfile}.sacc', overwrite=True)
     sacc_data_no_mbias.save_fits(f'{outputfile}_no_m_bias.sacc', overwrite=True)
+    add_extname_data(f'{outputfile}.sacc')
+    add_extname_data(f'{outputfile}_no_m_bias.sacc')
 
     """
     # Plotting

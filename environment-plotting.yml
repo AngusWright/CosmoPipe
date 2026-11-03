@@ -1,0 +1,15 @@
+channels:
+  - conda-forge
+  - nodefaults
+dependencies:
+  - python=3.11
+  - numpy
+  - scipy
+  - matplotlib-base>=3.10,<4
+  - pandas>=2.1.1,<3
+  - statsmodels>=0.14,<1
+  - h5py
+  - pip
+  - pip:
+      # Pydantic's typing_extensions requirement conflicts with TensorFlow 2.13.
+      - chainconsumer>=1.3,<2

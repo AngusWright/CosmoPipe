@@ -1,6 +1,4 @@
-import sys
 
-import collections as clt
 import numpy as np
 import os
 from argparse import ArgumentParser
@@ -255,13 +253,15 @@ def process_2pt_data(mode, nangle, min_val, max_val, n1, n2, datavec_files, stat
 
 if __name__ == "__main__":
 
-    parser = ArgumentParser(description='Construct a cosmosis mcmc input file')
+    parser = ArgumentParser(description='Construct a cosmosis style sacc data file')
     parser.add_argument("--datavector_ee", dest="datavector_ee",nargs='*',
-        help="Full Input file names", metavar="datavector_ee",required=True, default=None, const=None)
+        help="Full Input file names for shear-shear E-modes", metavar="datavector_ee",required=True, default=None, const=None)
+    parser.add_argument("--datavector_bb", dest="datavector_bb",nargs='*',
+        help="Full Input file names for shear-shear B-modes", metavar="datavector_bb",required=True, default=None, const=None)
     parser.add_argument("--datavector_ne", dest="datavector_ne",nargs='*',
-        help="Full Input file names", metavar="datavector_ne",required=True, default=None, const=None)
+        help="Full Input file names for position-shear", metavar="datavector_ne",required=True, default=None, const=None)
     parser.add_argument("--datavector_nn", dest="datavector_nn",nargs='*',
-        help="Full Input file names", metavar="datavector_nn",required=True, default=None, const=None)
+        help="Full Input file names for position-position", metavar="datavector_nn",required=True, default=None, const=None)
     parser.add_argument("--smfdatavector", dest="smfvec",nargs='*',
         help="SMF input file name", metavar="smfvec",required=False, default=None, const=None)
     parser.add_argument("-s", "--statistic", dest="statistic", type=str, required=True, choices = ['cosebis','cosebis_dimless','bandpowers','2pcf','2pcfEB'],

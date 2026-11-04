@@ -1443,7 +1443,7 @@ do
 			else
 				ne="False"
 			fi
-			if [[ .*\ $MODES\ .* =~ " NN " ]]
+			if [[ .*\ $MODES\ .* =~ " NN " ]] || [[ .*\ $MODES\ .* =~ " OBS " ]]
 			then
 				nn="True"
 			else

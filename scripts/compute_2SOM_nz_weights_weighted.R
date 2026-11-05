@@ -3,7 +3,7 @@
 # File Name : compute_2SOM_nz_weights.R
 # Created By : awright
 # Creation Date : 18-07-2025
-# Last Modified : Wed Nov  5 16:54:35 2025
+# Last Modified : Thu Nov  5 06:02:34 2026
 #
 #=========================================
 
@@ -58,6 +58,44 @@ if (args$spec.weight=='') args$spec.weight<-NULL
 if (args$wide.weight=='') args$wide.weight<-NULL
 
 cat("reading input data\n")
+#Check the spec data for required columns {{{
+cols<-helpRfuncs::read.colnames(args$spec)
+#Check for groupID {{{
+if (!"groupID" %in% cols) { 
+  stop("There is no 'groupID' column in the spec catalogue")
+}
+#}}}
+#Check for spec.weight if requested {{{
+if (!is.null(args$spec.weight)) { 
+  if (!args$spec.weight %in% cols) { 
+    lowmatch<-which(tolower(args$spec.weight) %in% tolower(cols))
+    if (length(lowmatch==1)) { 
+      args$spec.weight<-cols[lowmatch]
+    } else { 
+      stop(paste("There is no column ",args$spec.weight,"in the spec catalogue, and no unique case-insensitive match."))
+    }
+  } 
+}#}}}
+#}}}
+#Check the wide data for required columns {{{
+cols<-helpRfuncs::read.colnames(args$wide)
+#Check for groupID {{{
+if (!"groupID" %in% cols) { 
+  stop("There is no 'groupID' column in the spec catalogue")
+}
+#}}}
+#Check for wide.weight if requested {{{
+if (!is.null(args$wide.weight)) { 
+  if (!args$wide.weight %in% cols) { 
+    lowmatch<-which(tolower(args$wide.weight) %in% tolower(cols))
+    if (length(lowmatch==1)) { 
+      args$wide.weight<-cols[lowmatch]
+    } else { 
+      stop(paste("There is no column ",args$wide.weight,"in the wide catalogue, and no unique case-insensitive match."))
+    }
+  } 
+}#}}}
+#}}}
 spec_data = helpRfuncs::read.file(args$spec,cols=c("groupID",args$spec.weight),ext=args$extname)
 wide_data = helpRfuncs::read.file(args$wide,cols=c("groupID",args$wide.weight),ext=args$extname)
 tfun = as.matrix(helpRfuncs::read.file(args$transfer))

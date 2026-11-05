@@ -3,7 +3,7 @@
 # File Name : combine_patch.sh
 # Created By : awright
 # Creation Date : 20-03-2023
-# Last Modified : Sat Jan 31 18:30:57 2026
+# Last Modified : Thu Nov  5 19:15:44 2026
 #
 #=========================================
 
@@ -144,9 +144,15 @@ do
 
   #Combine the catalogues into one 
   _message "   > @BLU@Constructing patch-combined catalogue @DEF@${outname##*/}@DEF@ "
-  @RUNROOT@/INSTALL/theli-1.6.1/bin/@MACHINE@/ldacpaste \
-    -i ${inplist} \
-    -o ${outname} 2>&1 
+  ninp=`echo ${inplist} | awk '{print NF}'`
+  if [ $ninp == 1 ]
+  then 
+    cp -f ${inplist} ${outname}
+  else 
+    @RUNROOT@/INSTALL/theli-1.6.1/bin/@MACHINE@/ldacpaste \
+      -i ${inplist} \
+      -o ${outname} 2>&1 
+  fi 
   _message " @RED@- Done! (`date +'%a %H:%M'`)@DEF@\n"
 
   if [ "${links}" == "TRUE" ] 

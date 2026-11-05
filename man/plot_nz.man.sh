@@ -43,14 +43,14 @@ set -e
 # Input variables {{{ 
 function _inp_var { 
   #Variable inputs (leave blank if none)
-  echo BV:TOMOLIMS DATABLOCK P_RSCRIPT RUNROOT SCRIPTPATH STORAGEPATH
+  echo BV:NZ_PLOTBLOCK BV:TOMOLIMS DATABLOCK P_RSCRIPT RUNROOT SCRIPTPATH STORAGEPATH
 } 
 #}}}
 
 # Input data {{{ 
 function _inp_data { 
   #Data inputs (leave blank if none)
-  echo nz
+  echo @BV:NZ_PLOTBLOCK@
 } 
 #}}}
 

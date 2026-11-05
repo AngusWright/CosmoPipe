@@ -3,7 +3,7 @@
 # File Name : plot_nz.R
 # Created By : awright
 # Creation Date : 23-03-2023
-# Last Modified : Fri Oct 17 10:25:10 2025
+# Last Modified : Wed Nov  4 07:28:17 2026
 #
 #=========================================
 
@@ -62,6 +62,34 @@ outputbase<-paste(outputbase[-length(outputbase)],collapse='/')
 #Setup the layout image
 npanel<-ceiling(length(binstrings)/3)*3
 cat(paste("using",npanel,"panels\n"))
+
+#Check the binstrings 
+found<-FALSE
+for (tomo in 1:length(binstrings)) {
+  #Get the files in this bin 
+  binfiles<-which(grepl(binstrings[tomo],filelist,fixed=T))
+  print(paste(binstrings[tomo],length(binfiles))) 
+  if (length(binfiles)!=0) {
+    found<-TRUE
+  }
+}
+if (!found) { 
+  warning("binstrings does not identify any file! Trying numerical listing _1_,_2_,_3_,...")
+  binstrings<-paste0("_",1:length(binstrings),"_")
+  #Check the new binstrings 
+  found<-FALSE
+  for (tomo in 1:length(binstrings)) {
+    #Get the files in this bin 
+    binfiles<-which(grepl(binstrings[tomo],filelist,fixed=T))
+    print(paste(binstrings[tomo],length(binfiles))) 
+    if (length(binfiles)!=0) {
+      found<-TRUE
+    }
+  }
+  if (!found) { 
+    warning("binstrings does not identify any file! Nothing will be plotted.")
+  }
+}
 
 #Output the valid Nz plot {{{
 cat("Plotting Nz\n")

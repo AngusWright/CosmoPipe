@@ -3,7 +3,7 @@
 # File Name : plot_nz.sh
 # Created By : awright
 # Creation Date : 23-03-2023
-# Last Modified : Fri Oct 10 10:36:20 2025
+# Last Modified : Wed Nov  4 13:16:26 2026
 #
 #=========================================
 
@@ -39,6 +39,15 @@ else
   truth=$truth_out
 fi 
 
+
+nzfiles=`_read_datablock @BV:NZ_PLOTBLOCK@`
+nzfiles=`_blockentry_to_filelist ${nzfiles}`
+inplist=''
+for f in $nzfiles 
+do
+  inplist="$inplist /@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/@BV:NZ_PLOTBLOCK@/$f"
+done
+
 #Run the R plotting code 
-@P_RSCRIPT@ @RUNROOT@/@SCRIPTPATH@/plot_nz.R -i @DB:nz@ --truth "${truth}" --binstrings ${binstrings} 2>&1
+@P_RSCRIPT@ @RUNROOT@/@SCRIPTPATH@/plot_nz.R -i $inplist --truth "${truth}" --binstrings ${binstrings} 2>&1
 

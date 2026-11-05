@@ -751,20 +751,29 @@ function _parse_blockvars {
       else 
         #If defined, maintain the BV string
         _filelist=`echo ${_prompt}`
-        ##Prompt about the update
-        #>&2 echo "${_var} -> ${_prompt}" 
+        #Prompt about the update
+        #>&2 echo "${_var} -> ${_prompt} -> ${_filelist}" 
       fi 
       #Loop over variable values (i.e. allow for block variable to contain multiple entries)
       if [[ ${string} =~ ",@BV:${_var}@" ]] || [[ ${string} =~ "@BV:${_var}@," ]]
       then 
         #Do not vectorise substitution 
+        #>&2 echo "Not-vectorised"
         outstring="${string/@BV:${_var}@/${_filelist}}"
       else 
         #Vectorise the substitution 
         outstring=''
+        #>&2 echo "vectorised"
+        #>&2 echo "---------"
+        #>&2 echo "${string}"
+        #>&2 echo "@BV:${_var}@"
+        #>&2 echo "${_filelist}"
+        #>&2 echo "${string/@BV:${_var}@/${_filelist//\&/#AMP#}}"
+        #>&2 echo "========="
         for _value in ${_filelist}
         do 
-          outstring="${outstring} ${string/@BV:${_var}@/${_value}}"
+          _tmp=${string/@BV:${_var}@/${_value//\&/#AMP#}}
+          outstring="${outstring} ${_tmp//#AMP#/\&}"
         done 
       fi 
       string=`echo ${outstring//\"/}`

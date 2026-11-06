@@ -3,7 +3,7 @@
 # File Name : plot_xisys.sh
 # Created By : awright
 # Creation Date : 29-02-2024
-# Last Modified : Sat Dec  6 05:46:07 2025
+# Last Modified : Fri Nov  6 21:48:00 2026
 #
 #=========================================
 
@@ -47,7 +47,7 @@ NTOMO=`echo @BV:TOMOLIMS@ | awk '{print NF-1}'`
   --nmax @BV:NXIPM@ \
   --thetamin @BV:THETAMINXI@ \
   --thetamax @BV:THETAMAXXI@ \
-  --output @RUNROOT@/@STORAGEPATH@/MCMC/output/@SURVEY@_@BLINDING@/@BV:BOLTZMAN@/@BV:STATISTIC@/plots/Xi_PSF_@BV:LIST_INPUT_SAMPLER@${blinding}.pdf \
+  --output @RUNROOT@/@STORAGEPATH@/MCMC/output/@SURVEY@_@BLINDING@/@BV:BOLTZMAN@/@BV:STATISTIC@/plots/Xi_PSF_@BV:LIST_INPUT_SAMPLER@${blinding}@BV:CHAINSUFFIX@.pdf \
   2>&1
 #Run the R plotting code 
 @P_RSCRIPT@ @RUNROOT@/@SCRIPTPATH@/plot_xigpsf.R \
@@ -59,7 +59,7 @@ NTOMO=`echo @BV:TOMOLIMS@ | awk '{print NF-1}'`
   --nmax @BV:NXIPM@ \
   --thetamin @BV:THETAMINXI@ \
   --thetamax @BV:THETAMAXXI@ \
-  --output @RUNROOT@/@STORAGEPATH@/MCMC/output/@SURVEY@_@BLINDING@/@BV:BOLTZMAN@/@BV:STATISTIC@/plots/Xi_gPSF_@BV:LIST_INPUT_SAMPLER@${blinding}.pdf \
+  --output @RUNROOT@/@STORAGEPATH@/MCMC/output/@SURVEY@_@BLINDING@/@BV:BOLTZMAN@/@BV:STATISTIC@/plots/Xi_gPSF_@BV:LIST_INPUT_SAMPLER@${blinding}@BV:CHAINSUFFIX@.pdf \
   2>&1
 #Run the R plotting code 
 @P_RSCRIPT@ @RUNROOT@/@SCRIPTPATH@/plot_xisys.R \
@@ -73,7 +73,7 @@ NTOMO=`echo @BV:TOMOLIMS@ | awk '{print NF-1}'`
   --title @BV:SURVEY@ \
   --thetamin @BV:THETAMINXI@ \
   --thetamax @BV:THETAMAXXI@ \
-  --output @RUNROOT@/@STORAGEPATH@/MCMC/output/@SURVEY@_@BLINDING@/@BV:BOLTZMAN@/@BV:STATISTIC@/plots/Xi_Sys_@BV:LIST_INPUT_SAMPLER@${blinding}.pdf \
+  --output @RUNROOT@/@STORAGEPATH@/MCMC/output/@SURVEY@_@BLINDING@/@BV:BOLTZMAN@/@BV:STATISTIC@/plots/Xi_Sys_@BV:LIST_INPUT_SAMPLER@${blinding}@BV:CHAINSUFFIX@.pdf \
   2>&1
 
 

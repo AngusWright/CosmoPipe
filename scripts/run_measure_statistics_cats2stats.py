@@ -1,3 +1,49 @@
+#=========================================
+#
+# File Name : run_measure_statistics_cats2stats.py
+# Created By : Marika Asgari and B.Stoelzner
+# Python script to return COSEBIS E and B modes, Psi stats, Bandpowers (EE, NE, NN) and binned xipm 
+# Input is a finely binned 2pt correlation function
+#
+#=========================================
+
+# Example run for binned xipm
+# # %%bash
+# nbins=6
+# tmin=2.00
+# tmax=300.00
+# stats=xipm
+# outputfolder_name=xipm_measurements
+# nbins_2pcf=9
+
+# for ((i = 1 ; i <= ${nbins} ; i++)); do
+#     for ((j = ${i} ; j <= ${nbins} ; j++)); do
+#         echo ${i}_${j}
+#         xipm_file=XI_KiDS_Legacy_NScomb_nBins_6_Bin${i}_Bin${j}.ascii
+#         python run_measure_statistics_cats2stats.py --statistic ${stats} -i ${xipm_file} -t r_nom -p xip -m xim --thetamin ${tmin} --thetamax ${tmax} --cfoldername ${outputfolder_name} --outputfile KiDS_Legacy_NScomb_nBins_6_Bin${i}_Bin${j} --binning log --nbins_2pcf ${nbins_2pcf} --verbose True
+#     done
+# done
+# 
+
+# Example run for binned COSEBIs
+# # %%bash
+# nbins=6
+# tmin=2.00
+# tmax=300.00
+# norm_file=2pt_stats/TLogsRootsAndNorms/Normalization_${tmin}-${tmax}.table
+# root_file=2pt_stats/TLogsRootsAndNorms/Root_${tmin}-${tmax}.table
+# stats=cosebis
+
+# for ((i = 1 ; i <= ${nbins} ; i++)); do
+#     for ((j = ${i} ; j <= ${nbins} ; j++)); do
+#         echo ${i}_${j}
+#         xipm_file=XI_KiDS_Legacy_NScomb_nBins_6_Bin${i}_Bin${j}.ascii
+#         python run_measure_statistics_cats2stats.py --statistic ${stats} -i ${xipm_file} -t r_nom -p xip -m xim --thetamin ${tmin} --thetamax ${tmax} --cfoldername cosebis_measurements --outputfile KiDS_Legacy_NScomb_nBins_6_Bin${i}_Bin${j} -n 20 --binning log --tfoldername tpm_cosebis --tplusfile tp --tminusfile tm --norm ${norm_file} --root ${root_file} --verbose True
+#     done
+# done
+
+
+
 import numpy as np
 import os
 from scipy.interpolate import interp1d
@@ -5,21 +51,14 @@ from measure_statistics import tplus, tminus, gplus, gminus, T, str2bool, h, f, 
 from argparse import ArgumentParser
 import treecorr
 
-# Written by Marika Asgari (ma@roe.ac.uk), bandpowers implementation by B.Stoelzner
-# Python script to return COSEBIS E and B modes and Bandpowers (EE, NE, NN) given a measured 2pt correlation function
-# Note that the input correlation function needs to contain data that 
-# exactly spans the required ${tmin}-${tmax} range
-
-# example run:
-# tmin=0.50
-# tmax=100.00
-# python run_measure_cosebis_cats2stats.py -i xi_nBins_1_Bin1_Bin1 -o nBins_1_Bin1_Bin1 --norm ./TLogsRootsAndNorms/Normalization_${tmin}-${tmax}.table -r 
-# ./TLogsRootsAndNorms/Root_${tmin}-${tmax}.table -b lin --thetamin ${tmin} --thetamax ${tmax} -n 20
 
 # Specify the input arguments
 parser = ArgumentParser(description='Take input 2pcfs files and calculate 2pt statistics')
 parser.add_argument("-d", "--statistic", dest="statistic", type=str, required=True, choices = ['cosebis', 'bandpowers_ee', 'bandpowers_ne', 'bandpowers_nn', 'xipm', 'psi_gg', 'psi_gm', 'gt', 'wt'],
     help="Desired 2pt statistic, must be either cosebis, bandpowers_ee, bandpowers_ne, bandpowers_nn, xipm, or psi")
+parser.add_argument('--verbose',dest="verbose",nargs='?',default=False,required=False,
+    help='If True prints out more messages. Default is FALSE.')
+
 
 # Input file, columns, theta range, and other options
 parser.add_argument("-i", "--inputfile", dest="inputfile", required=True,
@@ -57,9 +96,9 @@ parser.add_argument('-n','--nCOSEBIs', dest="nCOSEBIs", type=int, default=10, na
 parser.add_argument('--tfoldername', dest="tfoldername", default="Tplus_minus", required=False,
     help='name and full address of the folder for Tplus Tminus files for COSEBIs, will make it if it does not exist')
 parser.add_argument('--tplusfile', dest="tplusfile", default="Tplus", required=False,
-    help='name of Tplus file for COSEBIs, will look for it before running the code')
+    help="start of the Tplus file name for COSEBIs, will look for it before running the code. Full name is: tplusfile+'_n'+str(n)+'_'+thetaRange+'.table'")
 parser.add_argument('--tminusfile', dest="tminusfile", default="Tminus", required=False,
-    help='name of Tplus file for COSEBIs, will look for it before running the code')
+    help="start of the Tminus file name for COSEBIs, will look for it before running the code. Full name is: tminusfile+'_n'+str(n)+'_'+thetaRange+'.table'")
 parser.add_argument('-c','--norm', dest="normfile", metavar="norm",required=False,
     help='normalisation file name and address for T_plus/minus for COSEBIs')
 parser.add_argument('-r','--root', dest="rootfile", metavar="root",required=False,
@@ -99,6 +138,7 @@ parser.add_argument('--nPsi', dest="nModes_psi", type=int,default=10, nargs='?',
 args = parser.parse_args()
 # Mode
 mode=args.statistic 
+verbose=args.verbose
 # General options
 inputfile=args.inputfile
 theta_col=args.theta_col
@@ -149,7 +189,8 @@ elif(mode=='psi_gm'):
     correlation = " (galaxy-galaxy lensing)"
     filename = qfile
 
-print('Input file is '+inputfile+', making '+str(mode)+' for theta in ['+'%.2f' %thetamin+"'," 
+if verbose:
+    print('Input file is '+inputfile+', making '+str(mode)+' for theta in ['+'%.2f' %thetamin+"'," 
     +'%.2f' %thetamax+"'], outputfiles are: "+cfoldername+"/En_"+outputfile+'.ascii and '+cfoldername+'/Bn_'+outputfile+'.ascii')
 
 
@@ -250,7 +291,7 @@ if mode == 'cosebis':
     #Define theta-strings for Tplus/minus filename
     tmin='%.2f' % thetamin
     tmax='%.2f' % thetamax
-    thetaRange=args.thetamin+'-'+args.thetamax
+    thetaRange=tmin+'-'+tmax
 
     for n in range(1,nModes+1):
         #define Tplus and Tminus file names for this mode
@@ -259,11 +300,13 @@ if mode == 'cosebis':
         TminusFileName= tfoldername+'/'+tminusfile+'_n'+str(n)+'_'+thetaRange+'.table'
 
         if(os.path.isfile(TplusFileName)):
-            print('T_plus file: %s found!'%TplusFileName)
+            # if verbose:
+                # print('T_plus file: %s found!'%TplusFileName)
             file = open(TplusFileName)
             tp=np.loadtxt(file,comments='#')
         else:
-            print('T_plus file: %s not found! Calculating now!'%TplusFileName)
+            if verbose:
+                print('T_plus file: %s not found! Calculating now!'%TplusFileName)
             file = open(normfile)
             norm_all=np.loadtxt(file,comments='#')
             norm_in=norm_all[n-1]
@@ -277,7 +320,8 @@ if mode == 'cosebis':
             np.savetxt(TplusFileName,tp)
     # 
         if(os.path.isfile(TminusFileName)):
-            print('T_minus file: %s found!'%TminusFileName)
+            # if verbose:
+                # print('T_minus file: %s found!'%TminusFileName)
             file = open(TminusFileName)
             tm=np.loadtxt(file,comments='#')
         else:
@@ -309,6 +353,10 @@ if mode == 'cosebis':
 
     EnfileName=cfoldername+"/En_"+outputfile+".asc"
     BnfileName=cfoldername+"/Bn_"+outputfile+".asc"
+    if verbose:
+        print('output files are')
+        print(EnfileName)
+        print(BnfileName)
     np.savetxt(EnfileName,En)
     np.savetxt(BnfileName,Bn)
     if save_kernels:
@@ -352,6 +400,9 @@ elif (mode == 'psi_gg') or (mode == 'psi_gm'):
 
 
     psifileName=psifoldername+"/psi_"+corr_type+"_"+outputfile+".asc"
+    if verbose:
+        print('output filename is')
+        print(psifileName)
     np.savetxt(psifileName,psi,header=" theta_min = " + tmin + ", theta_max = "+ tmax)
 
 elif mode == 'bandpowers_ee':
@@ -372,6 +423,10 @@ elif mode == 'bandpowers_ee':
 
     CEfileName=cfoldername+"/CEE_"+outputfile+".asc"
     CBfileName=cfoldername+"/CBB_"+outputfile+".asc"
+    if verbose:
+        print('output filenames are')
+        print(CEfileName)
+        print(CBfileName)
     np.savetxt(CEfileName,CE)
     np.savetxt(CBfileName,CB)
     if save_kernels:
@@ -396,6 +451,10 @@ elif mode == 'bandpowers_ne':
 
     CnEfileName=cfoldername+"/CnE_"+outputfile+".asc"
     CnBfileName=cfoldername+"/CnB_"+outputfile+".asc"
+    if verbose:
+        print('output filenames are')
+        print(CnEfileName)
+        print(CnBfileName)
     np.savetxt(CnEfileName,CnE)
     np.savetxt(CnBfileName,CnB)
     if save_kernels:
@@ -413,6 +472,9 @@ elif mode == 'bandpowers_nn':
         Integral=sum(filter[i]*w_theta[good_args]*delta_theta)
         Cnn[i]=Integral*2*np.pi/N*arcmin2rad
     CnnfileName=cfoldername+"/Cnn_"+outputfile+".asc"
+    if verbose:
+        print('output filename is')
+        print(CnnfileName)
     np.savetxt(CnnfileName,Cnn)
     if save_kernels:
         FilterFileName=cfoldername+"/FilterNN_"+outputfile+".asc"
@@ -447,15 +509,20 @@ elif mode == 'xipm':
     valueBlock[sigma_idx] = np.sqrt(valueBlock[sigma_idx])
 
     all_keys = np.concatenate((['r_nom','meanr', 'meanlogr'], valueBlock_keys, wgtBlock_keys))
-    print(all_keys)
-    print(ctrBin.shape)
-    print(binned_valueBlock.shape)
-    print(binned_wgtBlock.shape)
     all_binned_data = np.vstack((ctrBin, binned_r, binned_lnr, binned_valueBlock, binned_wgtBlock))
-    print(all_binned_data.shape)
+    # if verbose:
+        # print(all_keys)
+        # print(ctrBin.shape)
+        # print(binned_valueBlock.shape)
+        # print(binned_wgtBlock.shape)
+        # print(all_binned_data.shape)
+
     # Write it out to a file and praise-be for Jarvis and his well documented code
     #treecorr.util.gen_write(xipmfileName, all_keys, all_binned_data, precision=12)
     with treecorr.util.make_writer(xipmfileName, precision=12) as writer:
+        if verbose:
+            print('output filename is')
+            print(xipmfileName)
         writer.write(all_keys, all_binned_data)
     
 elif mode == 'gt':
@@ -487,12 +554,13 @@ elif mode == 'gt':
     valueBlock[sigma_idx] = np.sqrt(valueBlock[sigma_idx])
 
     all_keys = np.concatenate((['r_nom','meanr', 'meanlogr'], valueBlock_keys, wgtBlock_keys))
-    print(all_keys)
-    print(ctrBin.shape)
-    print(binned_valueBlock.shape)
-    print(binned_wgtBlock.shape)
     all_binned_data = np.vstack((ctrBin, binned_r, binned_lnr, binned_valueBlock, binned_wgtBlock))
-    print(all_binned_data.shape)
+    if verbose:
+        print(all_keys)
+        print(ctrBin.shape)
+        print(binned_valueBlock.shape)
+        print(binned_wgtBlock.shape)
+        print(all_binned_data.shape)
     # Write it out to a file and praise-be for Jarvis and his well documented code
     #treecorr.util.gen_write(gtfileName, all_keys, all_binned_data, precision=12)
     with treecorr.util.make_writer(gtfileName, precision=12) as writer:
@@ -527,12 +595,14 @@ elif mode == 'wt':
     valueBlock[sigma_idx] = np.sqrt(valueBlock[sigma_idx])
 
     all_keys = np.concatenate((['r_nom','meanr', 'meanlogr'], valueBlock_keys, wgtBlock_keys))
-    print(all_keys)
-    print(ctrBin.shape)
-    print(binned_valueBlock.shape)
-    print(binned_wgtBlock.shape)
     all_binned_data = np.vstack((ctrBin, binned_r, binned_lnr, binned_valueBlock, binned_wgtBlock))
-    print(all_binned_data.shape)
+
+    if verbose:
+        print(all_keys)
+        print(ctrBin.shape)
+        print(binned_valueBlock.shape)
+        print(binned_wgtBlock.shape)
+        print(all_binned_data.shape)
     # Write it out to a file and praise-be for Jarvis and his well documented code
     #treecorr.util.gen_write(wtfileName, all_keys, all_binned_data, precision=12)
     with treecorr.util.make_writer(wtfileName, precision=12) as writer:

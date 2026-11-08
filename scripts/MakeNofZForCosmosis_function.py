@@ -1,10 +1,4 @@
-
-
-import sys
-import os
 import numpy as np
-import pylab as plt
-from   matplotlib.ticker import ScalarFormatter
 import astropy.io.fits as pyfits
 from argparse import ArgumentParser
 

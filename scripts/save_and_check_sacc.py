@@ -178,7 +178,7 @@ def add_1pt_points(sacc_data, files):
 
     for i, file in enumerate(files):
 
-        tracer_name = f"lens_{i}"
+        tracer_name = f"obs_{i}"
 
         mass, value, extra = np.loadtxt(file).T
 

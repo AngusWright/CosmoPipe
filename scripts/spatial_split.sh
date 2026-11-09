@@ -3,7 +3,7 @@
 # File Name : spatial_split.sh
 # Created By : awright
 # Creation Date : 04-07-2023
-# Last Modified : Wed Jul  8 13:21:04 2026
+# Last Modified : Sun Nov  8 22:44:58 2026
 #
 #=========================================
 
@@ -38,14 +38,18 @@ for i in `seq @BV:NSPLITKEEP@`
 do 
   #Select sources in this bin {{{
   _message "@BLU@ Selection spatial split ${i}@DEF@"
+  fail=0
   @PYTHON3BIN@ @RUNROOT@/@SCRIPTPATH@/ldacfilter.py \
            -i ${input}_tmp \
   	       -o ${outbase}_${i}.${outext} \
   	       -t OBJECTS \
-  	       -c "(spatial_bins==${i});" 2>&1 
+  	       -c "(spatial_bins==${i});" 2>&1 || fail=1
   _message " -@RED@ Done! (`date +'%a %H:%M'`)@DEF@\n"
-  outlist="${outlist} ${outbase}_${i}.${outext}"
-  outlist_trunc="${outlist_trunc} ${outbase##*/}_${i}.${outext}"
+  if [ $fail == 0 ] 
+  then 
+    outlist="${outlist} ${outbase}_${i}.${outext}"
+    outlist_trunc="${outlist_trunc} ${outbase##*/}_${i}.${outext}"
+  fi 
   #}}}
 done 
 

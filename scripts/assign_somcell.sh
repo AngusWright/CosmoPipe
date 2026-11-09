@@ -3,7 +3,7 @@
 # File Name : compute_nz.sh
 # Created By : awright
 # Creation Date : 21-03-2023
-# Last Modified : Mon Nov  2 16:27:29 2026
+# Last Modified : Thu Nov  5 23:21:48 2026
 #
 #=========================================
 
@@ -72,7 +72,7 @@ do
   _message "  @RED@SOM:@DEF@ ${current_som##*/}@DEF@\n"
   _message "  @RED@Cat:@DEF@ ${current_input##*/}@DEF@\n"
   _message "   -> @BLU@Assigning cell IDs @DEF@"
-  @P_RSCRIPT@ @RUNROOT@/@SCRIPTPATH@/assign_somcell.R \
+  @P_RSCRIPT@ --max-connections=$((@BV:NTHREADS@+10)) @RUNROOT@/@SCRIPTPATH@/assign_somcell.R \
     -i ${current_input} \
     -s ${current_som} \
     --data.threshold @BV:DATATHRESHOLD@ \

@@ -194,6 +194,30 @@ Installer argument/configuration regressions need only Python and Bash:
 python -m unittest discover -s tests -p 'test_installer.py'
 ```
 
+## LDAC utilities
+
+`scripts/ldac_optimised.py` is an optional alternative to `scripts/ldac.py`.
+Existing callers continue to use the original. To opt in, use
+`import ldac_optimised as ldac` with `scripts/` on the Python import path.
+
+The alternative avoids allocating a catalogue-name list for membership checks,
+searches backwards for the last matching table, avoids copying column-name lists,
+and handles modern Astropy's integer HDU size without raising a `TypeError` on
+every row-count query. It deliberately preserves deferred rebuild timing,
+mutable lists/HDUs, array aliasing, and the original errors and quirks. FITS I/O
+and full table copies are unchanged: batching column additions further would
+change observable rebuild behaviour.
+
+Differential tests compare return values, exceptions, diagnostics, dtypes,
+vector/string/scaled/variable-length fields, mutation sequences, headers, and
+byte-for-byte FITS output. Run these checks and the repeatable benchmark in the
+scientific environment:
+
+```bash
+python -m unittest discover -s tests -p test_ldac_optimised.py
+python tests/benchmark_ldac.py
+```
+
 ## Contributing
 
 Contributions that improve processing functions, configurations, documentation, and reproducibility are welcome. When adding or modifying a processing function:

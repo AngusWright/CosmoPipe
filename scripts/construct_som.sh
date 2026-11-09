@@ -3,7 +3,7 @@
 # File Name : specz_som.sh
 # Created By : awright
 # Creation Date : 21-03-2023
-# Last Modified : Mon Jul 21 12:22:12 2025
+# Last Modified : Thu Nov  5 23:09:30 2026
 #
 #=========================================
 
@@ -28,7 +28,7 @@ else
 fi 
 #Notify
 _message "@BLU@ > Constructing a SOM for @DEF@${outname}@DEF@"
-@P_RSCRIPT@ @RUNROOT@/INSTALL/SOM_DIR/R/SOM_DIR.R \
+@P_RSCRIPT@ --max-connections=$((@BV:NTHREADS@+10)) @RUNROOT@/INSTALL/SOM_DIR/R/SOM_DIR.R \
   -r none \
   -t @DB:DATAHEAD@ \
   @BV:TOROIDAL@ --topo @BV:TOPOLOGY@ @BV:UNWHITEN_FEATURES@ \

@@ -3,7 +3,7 @@
 # File Name : compute_nz.sh
 # Created By : awright
 # Creation Date : 21-03-2023
-# Last Modified : Tue 14 Nov 2023 10:14:32 PM CET
+# Last Modified : Thu Nov  5 22:53:28 2026
 #
 #=========================================
 
@@ -95,7 +95,7 @@ do
   #Launch the Nz weight computation job in a screen 
   screen -L -Logfile @RUNROOT@/@LOGPATH@/CosmoPipe_NzWeight_job${i}_of_${NTOMO}.log \
     -S @PIPELINE@_CosmoPipe_NzWeight_job${i}_of_${NTOMO} -d -m \
-    @P_RSCRIPT@ @RUNROOT@/INSTALL/SOM_DIR/R/SOM_DIR.R \
+    @P_RSCRIPT@ --max-connections=$((@BV:NTHREADS+10)) @RUNROOT@/INSTALL/SOM_DIR/R/SOM_DIR.R \
       -r ${tomo_ref_files} \
       -t ${tomo_train_files} \
       ${calibweightname} \

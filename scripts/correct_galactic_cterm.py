@@ -4,10 +4,10 @@
 # Author:              Catherine Heymans (heymans@roe.ac.uk)
 # Description:         short python script to apply a c-correction as a function of galactic latitude
 # ----------------------------------------------------------------
-import sys
+# import sys
 import ldac
 import numpy as np
-from astropy.io import fits
+# from astropy.io import fits
 from astropy import units as u
 from astropy.coordinates import SkyCoord
 import scipy.stats as stats

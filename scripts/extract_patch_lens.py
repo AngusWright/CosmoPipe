@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import argparse
-import numpy as np
+# import numpy as np
 import astropy.io.fits as fits
 
 

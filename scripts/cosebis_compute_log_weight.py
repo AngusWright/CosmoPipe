@@ -1,4 +1,4 @@
-#implement the coefficients of the weight functions needed for COSEBIs
+#implement the coefficients of the filter functions needed for COSEBIs
 #based on arxiv:1002.2136
 #written by Agnes Ferte
 

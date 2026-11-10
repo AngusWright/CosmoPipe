@@ -4,10 +4,10 @@
 # Author:              Catherine Heymans (heymans@roe.ac.uk)
 # Description:         short python script to apply a c-correction
 # ----------------------------------------------------------------
-import sys
+# import sys
 import ldac
 import numpy as np
-from astropy.io import fits
+# from astropy.io import fits
 from argparse import ArgumentParser
 
 parser = ArgumentParser(description='Take input information and correct c-term')

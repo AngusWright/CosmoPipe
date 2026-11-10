@@ -10,7 +10,7 @@
 #=========================================
 
 
-# Combines two catalogues. Does not matter if they are lens or source catalouges as long as the have the same headings.
+# Combines two catalogues. Does not matter if they are lens or source catalouges as long as they have the same headings.
 # This is relatively slow
 
 import argparse

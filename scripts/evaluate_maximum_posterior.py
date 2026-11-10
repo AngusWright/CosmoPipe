@@ -1,7 +1,7 @@
 from argparse import ArgumentParser
 import numpy as np
-import pandas as pd
-import scipy.optimize
+# import pandas as pd
+# import scipy.optimize
 from mcmc_tools import load_chain_simple
 from cosmosis.runtime.pipeline import LikelihoodPipeline
 from cosmosis.runtime.config import Inifile

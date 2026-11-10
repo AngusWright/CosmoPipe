@@ -11,9 +11,9 @@
 
 import numpy as np
 import pandas as pd
-import statsmodels.api as sm 
+# import statsmodels.api as sm 
 
-from scipy import stats
+# from scipy import stats
 from argparse import ArgumentParser
 import mcal_functions as mcf
 

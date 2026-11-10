@@ -7,8 +7,6 @@
 
 
 import numpy as np
-from scipy import pi,sqrt,exp
-from scipy.special import p_roots
 from argparse import ArgumentParser
 import os
 

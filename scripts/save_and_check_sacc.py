@@ -1,6 +1,12 @@
-import sys
+# ----------------------------------------------------------------
+# Creates a sacc file from input data vectors, redshift distributions and covariance matrices
+# sacc file is a glorified fits file that cosmosis can read and use for likelihood estimation.
+# The current code can create sacc files for 3x2pt+1 for COSEBIs, Bandpowers and 2PCFs.
+# ----------------------------------------------------------------
 
-import collections as clt
+
+# import sys
+# import collections as clt
 import numpy as np
 import os
 from argparse import ArgumentParser

@@ -1,3 +1,10 @@
+#=========================================
+#
+# Makes the correlated covariance for m_bias prior
+# Note this is not the same as the m_cov that is part of the 2pt cov
+#
+#=========================================
+
 import numpy as np
 from argparse import ArgumentParser
 # make m_cov based on sigma_m values for each redshift bin 

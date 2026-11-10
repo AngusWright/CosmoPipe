@@ -1,26 +1,28 @@
+#=========================================
+#
+# Takes redshift files with z and nz columns 
+# Turns them into one fits file with separate bins  with all redshift distributions 
+# The format of the fits file is what Cosmosis expects
+# Expected cosmosis Nz file format is: 
+# NZDATA  = T          // This sentinel marks the extension as n(z) data
+# EXTNAME = NAME       // The name of this n(z) kernel.
+# NBIN    = 5          // Integer number of tomographic bins
+# NZ      = 100        // Integer number of histogram bins
+# The extension must then contain these data columns:
+# Z_LOW   8-byte real  // Real, the z value for the lower end of each redshift histogram bin
+# Z_MID   8-byte real  // Real, the z value for a middle point of each redshift histogram bin
+# Z_HIGH  8-byte real  // Real, the z value for the upper end of each redshift histogram bin
+# BIN1    8-byte real  // Real, the n(z) value for this histogram bin for the first tomographic bin
+# etc.    BIN2, BIN3, etc.
+#
+#=========================================
 
-
-import sys
-import os
 import numpy as np
-import pylab as plt
-from   matplotlib.ticker import ScalarFormatter
 import astropy.io.fits as pyfits
 from argparse import ArgumentParser
 
 def MakeNofz_fits(input_files,outputfileName,OneBin_nofzFileName,neff=[],single_bin=True,type='lowerEdge',suffix='SAMPLE'):
-    #Expected cosmosis Nz file format is: 
-    #NZDATA  = T          // This sentinel marks the extension as n(z) data
-    #EXTNAME = NAME       // The name of this n(z) kernel.
-    #NBIN    = 5          // Integer number of tomographic bins
-    #NZ      = 100        // Integer number of histogram bins
-    #The extension must then contain these data columns:
     
-    #Z_LOW   8-byte real  // Real, the z value for the lower end of each redshift histogram bin
-    #Z_MID   8-byte real  // Real, the z value for a middle point of each redshift histogram bin
-    #Z_HIGH  8-byte real  // Real, the z value for the upper end of each redshift histogram bin
-    #BIN1    8-byte real  // Real, the n(z) value for this histogram bin for the first tomographic bin
-    #etc.    BIN2, BIN3, etc.
     nBins=len(input_files)
     print('I got '+str(nBins)+' files from input. Type is set to '+type)
     cols=[]

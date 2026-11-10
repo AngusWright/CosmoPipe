@@ -1,3 +1,10 @@
+#=========================================
+#
+# Turns COSEBIs measurements and covariance 
+# into pure E/B-mode correlation functions
+#
+#=========================================
+
 import numpy as np
 from mpmath import mp
 from argparse import ArgumentParser

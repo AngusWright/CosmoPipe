@@ -1,5 +1,5 @@
 # ----------------------------------------------------------------
-# Generates the files needed for the Halo Model IA term. 
+# Generates the files needed for the Halo Model IA term. [FIX] what are these?
 # Splits the input catalogue into two samples (e.g. red and blue)
 # based on one (e.g. T_B) or two properties in the catalogue (e.g. u-r)
 # ----------------------------------------------------------------

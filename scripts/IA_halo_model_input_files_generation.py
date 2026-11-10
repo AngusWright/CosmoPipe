@@ -1,10 +1,16 @@
+# ----------------------------------------------------------------
+# Generates the files needed for the Halo Model IA term. 
+# Splits the input catalogue into two samples (e.g. red and blue)
+# based on one (e.g. T_B) or two properties in the catalogue (e.g. u-r)
+# ----------------------------------------------------------------
+
 
 import numpy as np
-import pandas as pd
+# import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use('Agg')
-from scipy.interpolate import interp1d
+# from scipy.interpolate import interp1d
 from astropy.io import fits
 import argparse
 
@@ -12,11 +18,13 @@ import argparse
 
 if __name__ == '__main__':
 
-    parser = argparse.ArgumentParser(description='Generate files needed for the IA halo model')
+    parser = argparse.ArgumentParser(description='Generate files needed for the Halo Model IA')
     parser.add_argument('-n', '--nzbins', dest="nzbins",type=int,
         help='Number of redshift bins',required=True, default=30)
     parser.add_argument('-s','--split_value', dest="split_value", type=float,required=True,
-             help='red/blue split value', default=3.0)
+             help='split value to divide the catalogue into two samples one<split_value and two>=split_value. Example one=red gals, two= blue gals', default=3.0)
+    parser.add_argument('-t','--split_tag', dest="split_tag", type=str,required=False,
+                 help='Column name(s) (maximum 2) of the quantity(s) to perform the split using split_value. If two columns are given then first one - second one is used to do the split.', default='T_B',nargs='+')
     parser.add_argument('-c','--catalogue', dest="catalogue", type=str,required=True,
              help='Input catalogue')
     parser.add_argument('-o','--observable', dest="observable", type=str,required=False,
@@ -27,8 +35,7 @@ if __name__ == '__main__':
              help='file for output catalogue')
     parser.add_argument('-z','--redshift_column', dest="z", type=str,required=False,
              help='Column name of redshift', default='Z_B')
-    parser.add_argument('-t','--split_tag', dest="split_tag", type=str,required=False,
-             help='Column name of the quantity to perform split in', default='T_B',nargs='+')
+    
              
     #TO-DO: pass the redshift column name and color coloumn name as an argument
 
@@ -58,6 +65,7 @@ if __name__ == '__main__':
         obs = np.asarray(df[observable])
         z_arr = np.asarray(df[z])
 
+        # [FIX] comment is not correct. There are two options now
         # For the moment we use a cut in the u-r absolute color vs redshift
         if len(split_tag) == 1:
             split = np.asarray(df[split_tag[0]])

@@ -1,3 +1,10 @@
+# ----------------------------------------------------------------
+# Author:              Marika Asgari (marika.asgari@newcastle.ac.uk)
+# Author:              B.Stoelzner ()
+# Description:         measures COSEBIs E/B-mode, Bandpowers (cosmic shear, GGL and clustering) and 
+#                      xipm_binned given a finely binned input xipm.
+# ----------------------------------------------------------------
+
 import numpy as np
 import os
 from scipy.interpolate import interp1d

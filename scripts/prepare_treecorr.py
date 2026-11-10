@@ -1,12 +1,12 @@
 # ----------------------------------------------------------------
-# File Name:           correct_cterm.py
+# File Name:           prepare_treecorr.py
 # Author:              Angus H Wright (awright@astro.rub.de)
 # Author:              Catherine Heymans (heymans@roe.ac.uk)
-# Description:         short python script to apply a c-correction
+# Description:         prepare cats for treecorr
 # ----------------------------------------------------------------
-import sys
+# import sys
 import ldac
-import numpy as np
+# import numpy as np
 from astropy.io import fits
 from argparse import ArgumentParser
 

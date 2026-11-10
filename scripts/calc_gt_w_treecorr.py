@@ -160,7 +160,7 @@ if __name__ == '__main__':
         lenswname = None
 
     if center_file:
-
+        # center_file for patch centers for jackknife/bootstrap covariance. If given calculate covariance
         lenscat = treecorr.Catalog(args.lenscat, ra_col=lensraname, dec_col=lensdecname, ra_units='deg',
                                    dec_units='deg', w_col=lenswname, patch_centers=center_file)
         rancat = treecorr.Catalog(args.randcat, ra_col=randraname, dec_col=randdecname, ra_units='deg',
@@ -177,8 +177,6 @@ if __name__ == '__main__':
         if lensing:
             sourcecat = treecorr.Catalog(args.sourcecat, ra_col=sourceraname, dec_col=sourcedecname,
                                     ra_units='deg', dec_units='deg', g1_col=e1name, g2_col=e2name, w_col=sourcewname)#, flip_g1=True)
-    
-        
     
 
     ## Set bin_slop
@@ -258,18 +256,20 @@ if __name__ == '__main__':
         # NrNs = nrns.weight/nrns.tot
         # SR/NrNs = rs.xi
     
-        #gamma_t = ls.xi*(nlns.weight/nrns.weight)*N_oversample - rs.xi
-        #gamma_x = ls.xi_im*(nlns.weight/nrns.weight)*N_oversample - rs.xi_im
-        func_gamma_t = lambda corrs: corrs[0].xi*(corrs[1].weight/corrs[2].weight)*N_oversample - corrs[3].xi
-        func_gamma_x = lambda corrs: corrs[0].xi_im*(corrs[1].weight/corrs[2].weight)*N_oversample - corrs[3].xi_im
+        gamma_t = ls.xi*(nlns.weight/nrns.weight)*N_oversample - rs.xi
+        gamma_x = ls.xi_im*(nlns.weight/nrns.weight)*N_oversample - rs.xi_im
         
-        corrs_gamma_t = [ls, nlns, nrns, rs]
-        corrs_gamma_x = [ls, nlns, nrns, rs]
-        
-        gamma_t = func_gamma_t(corrs_gamma_t)
-        gamma_x = func_gamma_x(corrs_gamma_x)
+        # gamma_t = func_gamma_t(corrs_gamma_t)
+        # gamma_x = func_gamma_x(corrs_gamma_x)
         
         if center_file is not None:
+            # center_file for patch centers for jackknife/bootstrap covariance. If given calculate covariance
+            func_gamma_t = lambda corrs: corrs[0].xi*(corrs[1].weight/corrs[2].weight)*N_oversample - corrs[3].xi
+            func_gamma_x = lambda corrs: corrs[0].xi_im*(corrs[1].weight/corrs[2].weight)*N_oversample - corrs[3].xi_im
+            
+            corrs_gamma_t = [ls, nlns, nrns, rs]
+            corrs_gamma_x = [ls, nlns, nrns, rs]
+
             cov_gt = treecorr.estimate_multi_cov(corrs_gamma_t, method='jackknife', func=func_gamma_t)
             samples_gt, w_gt = treecorr.build_multi_cov_design_matrix(corrs_gamma_t, method='jackknife', func=func_gamma_t)
             np.savetxt(covoutfile, cov_gt)
@@ -308,6 +308,12 @@ if __name__ == '__main__':
                     'rangamT','rangamX','ransigma','npairs','weight','npairs_weighted'],
                     np.nan_to_num([ ls.rnom,ls.meanr, ls.meanlogr, gamma_t, gamma_x, np.sqrt(ls.varxi),
                     ls.xi, ls.xi_im, rs.xi, rs.xi_im, np.sqrt(rs.varxi), ls.npairs, ls.weight, npairs_weighted], nan=0.0, posinf=0.0, neginf=0.0))
+                    # 'r_nom','meanr','meanlogr'  ,'gamT','gamX'  ,'sigma', 
+                    # ls.rnom,ls.meanr,ls.meanlogr, gamma_t, gamma_x, np.sqrt(ls.varxi),
+                    # 'nocor_gamT', 'nocor_gamX',
+                    # ls.xi,        ls.xi_im,
+                    # 'rangamT','rangamX','ransigma'.       ,'npairs'. ,'weight'  ,'npairs_weighted'
+                    # rs.xi,     rs.xi_im, np.sqrt(rs.varxi), ls.npairs, ls.weight, npairs_weighted
     
         else:
             #Use treecorr to write out the output file and praise-be once more for Jarvis and his well documented code
@@ -336,6 +342,7 @@ if __name__ == '__main__':
                                nan=0.0, posinf=0.0, neginf=0.0))
                 
         if center_file is not None:
+            # center_file for patch centers for jackknife/bootstrap covariance. If given calculate covariance
             cov_wt = dd.estimate_cov(method='jackknife')
             samples_wt, w_wt = dd.build_cov_design_matrix(method='jackknife')
             np.savetxt(covoutfile, cov_wt)

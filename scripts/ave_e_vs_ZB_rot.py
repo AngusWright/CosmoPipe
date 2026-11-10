@@ -4,12 +4,13 @@ import numpy as np
 import ldac
 
 """This script takes an input LDAC catalogue
+[FIX] And does what?
 """
 #
 
 # Read in user input
 if len(sys.argv) <4: 
-    print "Usage: %s InputCat Weightname Grid " % sys.argv[0] 
+    print ("Usage:", sys.argv[0], "InputCat Weightname Grid")
     sys.exit(1)
 else:
     infile="@PATCHPATH@/@SURVEY@_%s_%s@FILESUFFIX@.cat" % (sys.argv[1], sys.argv[3])
@@ -71,7 +72,7 @@ PSFe2=PSFe2_in[goodgal]
 
 ngals_all = len(e1_gz)
 
-print "# z_select ngals_frac e1_ave e1_err e2_ave e2_err ngals sum_weight"
+print ("# z_select ngals_frac e1_ave e1_err e2_ave e2_err ngals sum_weight")
 
 for j in range(ncut):
   # Testing dependence on ZB

@@ -1,7 +1,8 @@
 # ----------------------------------------------------------------
 # Author:              Marika Asgari (marika.asgari@newcastle.ac.uk)
 # Author:              B.Stoelzner ()
-# Description:         measures COSEBIs E/B-mode, Bandpowers (cosmic shear, GGL and clustering) and 
+# Description:         measures COSEBIs E/B-mode and Psi-stats (GGL and clustering), 
+#                      Bandpowers (cosmic shear, GGL and clustering) and 
 #                      xipm_binned given a finely binned input xipm.
 # ----------------------------------------------------------------
 
@@ -12,16 +13,7 @@ from measure_statistics import tplus, tminus, gplus, gminus, T, str2bool, h, f, 
 from argparse import ArgumentParser
 import treecorr
 
-# Written by Marika Asgari (ma@roe.ac.uk), bandpowers implementation by B.Stoelzner
-# Python script to return COSEBIS E and B modes and Bandpowers (EE, NE, NN) given a measured 2pt correlation function
-# Note that the input correlation function needs to contain data that 
-# exactly spans the required ${tmin}-${tmax} range
 
-# example run:
-# tmin=0.50
-# tmax=100.00
-# python run_measure_cosebis_cats2stats.py -i xi_nBins_1_Bin1_Bin1 -o nBins_1_Bin1_Bin1 --norm ./TLogsRootsAndNorms/Normalization_${tmin}-${tmax}.table -r 
-# ./TLogsRootsAndNorms/Root_${tmin}-${tmax}.table -b lin --thetamin ${tmin} --thetamax ${tmax} -n 20
 
 # Specify the input arguments
 parser = ArgumentParser(description='Take input 2pcfs files and calculate 2pt statistics')

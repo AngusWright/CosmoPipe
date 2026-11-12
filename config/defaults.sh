@@ -62,7 +62,7 @@ ZSPECNAME='z_spec'
 ZPHOTNAME='Z_B'
 
 #Number of threads
-NTHREADS=180
+NTHREADS=10
 
 #Nz delta-z stepsize (Default is KiDS-Legacy)
 NZSTEP=0.05
@@ -118,7 +118,7 @@ THETAMINXIM=4
 #Minimum Number of modes for COSEBIs (Default is KiDS-Legacy)
 NMINCOSEBIS=1
 #Maximum Number of modes for COSEBIs (Default is KiDS-Legacy)
-NMAXCOSEBIS=20
+NMAXCOSEBIS=6
 
 
 #lower theta limit for gamma_t (arcmin; Default is KiDS-Legacy)
@@ -133,7 +133,7 @@ NGT=9
 #Minimum Number of modes for Psi_gm (Default is KiDS-Legacy)
 NMINCOSEBISNE=1
 #Maximum Number of modes for Psi_gm (Default is KiDS-Legacy)
-NMAXCOSEBISNE=20
+NMAXCOSEBISNE=6
 
 
 #lower theta limit for w(theta) (arcmin; Default is KiDS-Legacy)
@@ -148,7 +148,7 @@ NWT=9
 #Minimum Number of modes for Psi_gg (Default is KiDS-Legacy)
 NMINCOSEBISNN=1
 #Maximum Number of modes for Psi_gg (Default is KiDS-Legacy)
-NMAXCOSEBISNN=20
+NMAXCOSEBISNN=6
 
 
 #Name of the lensing weight variable (Default is KiDS-Legacy)
@@ -159,11 +159,16 @@ CALIBWEIGHTNAME=@BV:WEIGHTNAME@_wPV
 
 #Name to base the Nz labels on 
 NZNAME_BASEBLOCK=som_weight_calib_cats
+# ADDED
+#Name to base the Nz labels on 
+NZNAME_BASEBLOCK_LENS=lens_nz
+#Name to base the Nz labels on 
+NZNAME_BASEBLOCK_OBS=obs_nz
 
 #Name of the base file for cosmosis/onecov
-NPAIRBASE_XI=XI_@BV:SURVEY@_NScomb        #Use the combined XIpm counts as fiducial
-NPAIRBASE_GT=GT_@BV:SURVEY@_NScomb        #Use the combined XIpm counts as fiducial
-NPAIRBASE_WT=WT_@BV:SURVEY@_NScomb        #Use the combined XIpm counts as fiducial
+NPAIRBASE_XI=XI_@BV:SURVEY@_NS        #Use the combined XIpm counts as fiducial
+NPAIRBASE_GT=GT_@BV:SURVEY@_NS        #Use the combined XIpm counts as fiducial
+NPAIRBASE_WT=WT_@BV:SURVEY@_NS        #Use the combined XIpm counts as fiducial
 
 #Statistic of choice for chain (Default is KiDS-Legacy fiducial)
 STATISTIC=cosebis
@@ -353,8 +358,12 @@ PRIOR_WA="0.0"
 PRIOR_MNU="0.06"
 #Priors: log(T_AGN)
 PRIOR_LOGTAGN="7.3 8.0 8.3"
+#Priors: log(T_AGN)
+PRIOR_M_B="13.87"
 #Priors: Baryon feedback Amplitude A (HM2015)
 PRIOR_ABARY="2.0 2.6 3.13"
+#Priors: T_CMB
+PRIOR_TCMB="2.7255"
 
 #IA model choice: can be linear, linear_z, massdep or tatt
 IAMODEL=massdep
@@ -413,6 +422,63 @@ PRIOR_ALPHA1=0.0
 PRIOR_ALPHA2=0.0
 #scale dep IA model: Bias 
 PRIOR_BIAS_TA="-0.5 0.0 1.5"
+
+#HOD parameters
+PRIOR_LOG10_OBS_NORM_C="9.0 10.52 13.0"
+PRIOR_LOG10_M_CH="9.0 11.14 13.0"
+PRIOR_G1="1.0 7.385 10.0"
+PRIOR_G2="0.0 0.201 2.0"
+PRIOR_SIGMA_LOG10_O_C="0.0000001 0.159 0.5"
+PRIOR_NORM_S="0.562"
+PRIOR_PIVOT="13.0"
+PRIOR_ALPHA_S="-1.0 -0.847 0.0"
+PRIOR_BETA_S="2.0"
+PRIOR_B0="-1.0 -0.120 1.0"
+PRIOR_B1="-2.0 1.177  2.0"
+PRIOR_B2="0.0"
+PRIOR_A_CEN="-1.0 0.0 1.0"
+PRIOR_A_SAT="-1.0 0.0 1.0"
+
+#PROFILE parameters
+PRIOR_NORMCEN="0.0 1.0 2.0"
+PRIOR_NORMSAT="0.0 1.0 2.0"
+PRIOR_ETACEN="-1.0 0.0 1.0"
+PRIOR_ETASAT="-1.0 0.0 1.0"
+
+#PK parameters
+PRIOR_POISSON="1.0"
+PRIOR_SLOPE="0.0 0.1 3.0"
+PRIOR_M_0="13.0"
+
+# IA model red
+PRIOR_MPIVOT_CEN_RED="13.5"
+PRIOR_MPIVOT_SAT_RED="13.5"
+PRIOR_GAMMA_2H_AMPLITUDE_RED="gaussian 5.74 0.3"
+PRIOR_BETA_CEN_RED="gaussian 0.44 0.3"
+PRIOR_GAMMA_1H_SLOPE_RED="-2.0"
+PRIOR_GAMMA_1H_AMPLITUDE_RED="gaussian 0.0015 0.0001"
+PRIOR_BETA_SAT_RED="gaussian 0.44 0.3"
+PRIOR_BETA_TWO_RED="-1.0 0.0 1.0"
+
+# IA model_blue
+PRIOR_MPIVOT_CEN_BLUE="13.5"
+PRIOR_MPIVOT_SAT_BLUE="13.5"
+PRIOR_GAMMA_2H_AMPLITUDE_BLUE="gaussian 0.0 0.3"
+PRIOR_BETA_CEN_BLUE="0.0"
+PRIOR_GAMMA_1H_SLOPE_BLUE="-2.0"
+PRIOR_GAMMA_1H_AMPLITUDE_BLUE="gaussian -0.002 0.3"
+PRIOR_BETA_SAT_BLUE="gaussian 0.44 0.3"
+PRIOR_BETA_TWO_BLUE="-1.0 0.0 1.0"
+
+# Linear galaxy bias
+PRIOR_BIAS_1="-1.0 0.0 1.0"
+PRIOR_BIAS_2="-2.0 0.0 2.0"
+PRIOR_BIAS_3="-3.0 0.0 3.0"
+PRIOR_BIAS_4="-4.0 0.0 4.0"
+PRIOR_BIAS_5="-5.0 0.0 5.0"
+PRIOR_BIAS_6="gaussian 1.0 0.2"
+# dz bias prior for single obs bin
+PRIOR_OBS_BIAS_1="gaussian 0.01 0.001"
 
 #Magnitude limits for the wide field sample (effective after weighting)
 MAGLIMITS="20 23.5"

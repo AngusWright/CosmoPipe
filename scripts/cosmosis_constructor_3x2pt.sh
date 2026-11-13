@@ -13,10 +13,44 @@ if [ ! -d @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/ ]
 then
     mkdir -p @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/
 fi
-
-IAMODEL="@BV:IAMODEL@"
 CHAINSUFFIX=@BV:CHAINSUFFIX@
 blind=@BV:BLIND@
+
+RESPONSE="@BV:RESPONSE@"
+BOLTZMAN="@BV:BOLTZMAN@"
+IAMODEL="@BV:IAMODEL@"
+GALAXY_BIAS="@BV:GALAXY_BIAS@"
+SPLIT_IA="@BV:SPLIT_IA@"
+
+if [ "${RESPONSE^^}" == "TRUE" ] && [ "${BOLTZMAN^^}" == "CAMB_HM2020" ]
+then
+	_message "Boltzmann variable set to ${BOLTZMAN^^}, ignoring response setting!\n"
+fi
+
+if [ "${SPLIT_IA^^}" == "TRUE" ] && [ "${IAMODEL^^}" != "HALO_MODEL" ]
+then
+	_message "SPLIT IA is not implemented for ${IAMODEL^^} IA model!\n"
+elif [ "${SPLIT_IA^^}" == "FALSE" ] && [ "${IAMODEL^^}" == "HALO_MODEL" ]
+then
+	_message "Running halo model IA without colour split. Using BLUE SAMPLE priors!\n"
+fi
+
+if [ "${GALAXY_BIAS^^}" != "HALO_MODEL" ] && [ "${GALAXY_BIAS^^}" != "LINEAR" ]
+then
+	_message "Bias model not implemented: ${GALAXY_BIAS^^}!\n"
+	exit 1
+fi
+
+if [ "${BOLTZMAN^^}" == "HALO_MODEL" ] && [ "${GALAXY_BIAS^^}" != "HALO_MODEL" ]
+then
+	_message "BOLTZMAN=${BOLTZMAN^^} requires GALAXY_BIAS=HALO_MODEL!\n"
+	exit 1
+elif [ "${BOLTZMAN^^}" == "CAMB_HM2020" ] && [ "${GALAXY_BIAS^^}" == "HALO_MODEL" ]
+then
+	_message "BOLTAMAN=${BOLTZMAN^^} requires GALAXY_BIAS=LINEAR!\n"
+	exit 1
+fi
+
 
 cat > @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_base.ini <<- EOF
 [DEFAULT]
@@ -36,7 +70,7 @@ redshift_name_lens = lens
 redshift_name_obs  = obs
 
 ; default values for halo model part
-nz_def = 5 ; 15
+nz_def = 15
 nk_def = 300 ; 300
 zmin_def =  0.0
 zmax_def = 1.2
@@ -55,12 +89,31 @@ EOF
 #}}}
 STATISTIC="@BV:STATISTIC@"
 SAMPLER="@BV:SAMPLER@"
-BOLTZMAN="@BV:BOLTZMAN@"
 MODES="@BV:MODES@"
 NTOMO=`echo @BV:TOMOLIMS@ | awk '{print NF-1}'`
 NLENSBINS="@BV:NLENSBINS@"
 NSMFLENSBINS="@BV:NSMFLENSBINS@"
 NSMFBINS="@BV:NSMFBINS@"
+
+if [[ .*\ $MODES\ .* =~ " EE " ]]
+then
+	ee="True"
+else
+	ee="False"
+fi
+if [[ .*\ $MODES\ .* =~ " NE " ]]
+then
+	ne="True"
+else
+	ne="False"
+fi
+if [[ .*\ $MODES\ .* =~ " NN " ]] || [[ .*\ $MODES\ .* =~ " OBS " ]]
+then
+	nn="True"
+else
+	nn="False"
+fi
+
 #Define the data file name {{{
 if [ "${BOLTZMAN^^}" == "COSMOPOWER_HM2020" ] || [ "${BOLTZMAN^^}" == "CAMB_HM2020" ] || [ "${BOLTZMAN^^}" == "HALO_MODEL" ] || [ "${BOLTZMAN^^}" == "COSMOPOWER_HALO_MODEL" ]
 then
@@ -246,7 +299,6 @@ W_file_name = W_Psi
 output_section_name = psi_stats_gm
 input_section_name = galaxy_shear_cl
 
-
 EOF
 fi
 
@@ -266,7 +318,6 @@ W_output_folder_name = ${cosebis_configpath}/WnLog/
 W_file_name = W_Psi
 output_section_name = psi_stats_gg
 input_section_name = galaxy_cl
-
 
 EOF
 fi
@@ -649,8 +700,6 @@ file = %(HMPATH)s/cosmosis_modules/convert_theta/convert_theta.py
 output_units = arcmin
 section_name = galaxy_xi
 
-
-
 EOF
 fi
 #}}}
@@ -922,7 +971,8 @@ fi
 if [[ .*\ $MODES\ .* =~ " OBS " ]]
 then
 	photo_z_bias="${photo_z_bias} obs_photoz_bias"
-	if [ "${NSMFLENSBINS}" -gt 1 ]; then
+	if [ "${NSMFLENSBINS}" -gt 1 ]
+	then
 	  corr_dz_priors="${corr_dz_priors} correlated_dz_priors_obs"
 	fi
 fi
@@ -934,70 +984,60 @@ then
     # Set up boltzmann code blocks
     if [ "${BOLTZMAN^^}" == "HALO_MODEL" ]
     then
-        boltzmann_pipeline="camb"
+        boltzmann_pipeline="camb onepower"
     elif [ "${BOLTZMAN^^}" == "COSMOPOWER_HALO_MODEL" ]
     then
-        boltzmann_pipeline="cosmopower"
+        boltzmann_pipeline="cosmopower onepower"
+	elif [ "${BOLTZMAN^^}" == "CAMB_HM2020" ]
+	then
+		if [[ .*\ $MODES\ .* =~ " OBS " ]]
+		then
+			_message "MODE=OBS requires BOLTZMAN=HALO_MODEL!\n"
+			exit 1
+		fi
+        boltzmann_pipeline="camb"
     else
         _message "Boltzmann code not implemented: ${BOLTZMAN^^}\n"
           exit 1
     fi
     # Set up intrinsic alignment pipeline blocks {{{
+	if [[ .*\ $MODES\ .* =~ " NE " ]] && [ "${BOLTZMAN^^}" == "HALO_MODEL" ] && [ "${IAMODEL^^}" != "HALO_MODEL" ]
+	then
+		# compute galaxy_intrinsic separately because SMF bins are not implemented in linear_alignment module
+		linear_alignment="linear_alignment galaxy_intrinsic"
+	else
+		linear_alignment="linear_alignment"
+	fi
     if [ "${IAMODEL^^}" == "LINEAR" ]
     then
-        iamodel_pipeline="linear_alignment projection"
+        iamodel_pipeline="${linear_alignment} projection add_intrinsic"
     elif [ "${IAMODEL^^}" == "TATT" ]
     then
-        iamodel_pipeline="fast_pt tatt projection add_intrinsic"
+		# compute galaxy_intrinsic separately because SMF bins are not implemented in tatt
+		if [[ .*\ $MODES\ .* =~ " NE " ]] && [ "${BOLTZMAN^^}" == "HALO_MODEL" ] && [ "${IAMODEL^^}" != "HALO_MODEL" ]
+		then
+			iamodel_pipeline="fast_pt tatt galaxy_intrinsic projection add_intrinsic"
+		else
+			iamodel_pipeline="fast_pt tatt projection add_intrinsic"
+		fi
     elif [ "${IAMODEL^^}" == "LINEAR_Z" ]
     then
-        iamodel_pipeline="linear_alignment projection lin_z_dependence_for_ia add_intrinsic"
+        iamodel_pipeline="${linear_alignment} projection lin_z_dependence_for_ia add_intrinsic"
     elif [ "${IAMODEL^^}" == "MASSDEP" ]
     then
-        iamodel_pipeline="correlated_massdep_priors linear_alignment projection mass_dependence_for_ia add_intrinsic"
+        iamodel_pipeline="correlated_massdep_priors ${linear_alignment} projection mass_dependence_for_ia add_intrinsic"
     elif [ "${IAMODEL^^}" == "HALO_MODEL" ]
     then
-        #iamodel_pipeline="projection add_intrinsic"
+        iamodel_pipeline="projection add_intrinsic"
+	elif [ "${IAMODEL^^}" == "NONE" ]
+    then
 		iamodel_pipeline="projection"
     else
         _message "Intrinsic alignment model not implemented: ${IAMODEL^^}\n"
           exit 1
     fi
 
-    COSMOSIS_PIPELINE="sample_S8 ${corr_dz_priors} load_nz_sacc ${photo_z_bias} consistency ${boltzmann_pipeline} onepower ${iamodel_pipeline} ${twopt_modules}"
-    
-elif [ "@BV:COSMOSIS_PIPELINE@" == "lin_bias" ]
-then
-    # Set up boltzmann code blocks
-    if [ "${BOLTZMAN^^}" == "HALO_MODEL" ]
-    then
-        boltzmann_pipeline="camb"
-    elif [ "${BOLTZMAN^^}" == "COSMOPOWER_HALO_MODEL" ]
-    then
-        boltzmann_pipeline="cosmopower"
-    else
-        _message "Boltzmann code not implemented: ${BOLTZMAN^^}\n"
-          exit 1
-    fi
-    # Set up intrinsic alignment pipeline blocks {{{
-    if [ "${IAMODEL^^}" == "LINEAR" ]
-    then
-        iamodel_pipeline="linear_alignment projection"
-    elif [ "${IAMODEL^^}" == "TATT" ]
-    then
-        iamodel_pipeline="fast_pt tatt projection add_intrinsic"
-    elif [ "${IAMODEL^^}" == "LINEAR_Z" ]
-    then
-        iamodel_pipeline="linear_alignment projection lin_z_dependence_for_ia add_intrinsic"
-    elif [ "${IAMODEL^^}" == "MASSDEP" ]
-    then
-        iamodel_pipeline="correlated_massdep_priors linear_alignment projection mass_dependence_for_ia add_intrinsic"
-    else
-        _message "Intrinsic alignment model not implemented: ${IAMODEL^^}\n"
-          exit 1
-    fi
-    
-    COSMOSIS_PIPELINE="sample_S8 ${corr_dz_priors} load_nz_sacc ${boltzmann_pipeline} extrapolate_power ${photo_z_bias} ${iamodel_pipeline} ${twopt_modules}"
+    COSMOSIS_PIPELINE="sample_S8 consistency ${corr_dz_priors} load_nz_sacc ${photo_z_bias} ${boltzmann_pipeline} ${iamodel_pipeline} ${twopt_modules}"
 else
 	COSMOSIS_PIPELINE="@BV:COSMOSIS_PIPELINE@"
 fi
@@ -1117,20 +1157,21 @@ EOF
 #}}}
 
 #Requested boltzman {{{
-if [ "${BOLTZMAN^^}" == "HALO_MODEL" ] #{{{
+if [ "${BOLTZMAN^^}" == "HALO_MODEL" ] || [ "${BOLTZMAN^^}" == "CAMB_HM2020" ] #{{{
 then
-  if [ "@BV:COSMOSIS_PIPELINE@" == "lin_bias" ]
+  if [ "${RESPONSE^^}" == "TRUE" ] || [ "${BOLTZMAN^^}" == "CAMB_HM2020" ]
   then
     nl="pk"
   else
     nl="none"
   fi
+
 cat > @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_boltzman.ini <<- EOF
 [camb]
 file = %(CSL_PATH)s/boltzmann/camb/camb_interface.py
 do_reionization = F
 mode = power
-nonlinear = ${nl} ; none ; pk
+nonlinear = ${nl}
 halofit_version = mead2020_feedback
 neutrino_hierarchy = normal
 kmax = 20.0
@@ -1147,7 +1188,7 @@ EOF
 #}}}
 elif [ "${BOLTZMAN^^}" == "COSMOPOWER_HALO_MODEL" ] #{{{
 then
-  if [ "@BV:COSMOSIS_PIPELINE@" == "lin_bias" ]
+  if [ "${GALAXY_BIAS}" == "linear" ]
   then
     nl="pk"
     emu="nonlin_matter_power_emulator = %(MY_PATH)s/INSTALL/CosmoPowerCosmosis/train_emulator_camb_S8/outputs/log10_reference_non_lin_matter_power_emulator_mead2020_feedback"
@@ -1344,18 +1385,6 @@ do
 			EOF
 			;; #}}}
 	"add_intrinsic") #{{{
-			if [[ .*\ $MODES\ .* =~ " EE " ]]
-			then
-				ee="True"
-			else
-				ee="False"
-			fi
-			if [[ .*\ $MODES\ .* =~ " NE " ]]
-			then
-				ne="True"
-			else
-				ne="False"
-			fi
 			add_intrinsic=True
 			cat >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_other.ini <<- EOF
 			[$module]
@@ -1431,25 +1460,6 @@ do
 			;; #}}}
 
 	"onepower") #{{{
-			if [[ .*\ $MODES\ .* =~ " EE " ]]
-			then
-				ee="True"
-			else
-				ee="False"
-			fi
-			if [[ .*\ $MODES\ .* =~ " NE " ]]
-			then
-				ne="True"
-			else
-				ne="False"
-			fi
-			if [[ .*\ $MODES\ .* =~ " NN " ]] || [[ .*\ $MODES\ .* =~ " OBS " ]]
-			then
-				nn="True"
-			else
-				nn="False"
-			fi
-			
 			hod_obs_mins=""
 			hod_obs_maxs=""
 			hod_z_mins=""
@@ -1578,7 +1588,7 @@ do
 			red_obs_file="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/IA_hm_data/red_cen_obs_pdf.txt"
 			blue_obs_file="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/IA_hm_data/blue_cen_obs_pdf.txt"
 			
-			if [ "$add_intrinsic" == "True" ]
+			if [ "$add_intrinsic" == "True" ] && [ "${IAMODEL^^}" == "HALO_MODEL" ]
 			then
 				cat >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_other.ini <<- EOF
 				[$module]
@@ -1589,8 +1599,7 @@ do
 				p_gI = ${ne}
 				p_mI = ${ee}
 				p_II = ${ee}
-				split_ia = True
-				
+				split_ia = ${SPLIT_IA}
 				EOF
 			else
 				cat >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_other.ini <<- EOF
@@ -1602,7 +1611,7 @@ do
 				p_gI = False
 				p_mI = False
 				p_II = False
-				split_ia = True
+				split_ia = False
 				
 				EOF
 			fi
@@ -1613,7 +1622,7 @@ do
 			poisson_type = constant
 			point_mass = True
 			dewiggle = True
-			response = False
+			response = ${RESPONSE}
 			output_suffix = onepower
 			hmcode_ingredients = %(hmcode_ingredients_)s
 			
@@ -1659,19 +1668,33 @@ do
 			central_IA_depends_on = halo_mass
 			satellite_IA_depends_on = halo_mass
 			
-			hod_section_name_ia_1 = hod_ia_red
-			observables_file_ia_1 = ${red_obs_file}
-			nobs_ia_1 = 200
-			nz_ia_1 = 50 ; %(nz_def)s
-			output_suffix_ia_1 = ia_red
-			
-			hod_section_name_ia_2 = hod_ia_blue
-			observables_file_ia_2 = ${blue_obs_file}
-			nobs_ia_2 = 200 
-			nz_ia_2 = 50 ; %(nz_def)s
-			output_suffix_ia_2 = ia_blue
-			
 			EOF
+			if [ "${SPLIT_IA^^}" == "TRUE" ]
+			then
+				cat >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_other.ini <<- EOF
+				hod_section_name_ia_1 = hod_ia_blue
+				observables_file_ia_1 = ${blue_obs_file}
+				nobs_ia_1 = 200 
+				nz_ia_1 = 50 ; %(nz_def)s
+				output_suffix_ia_1 = ia_blue
+
+				hod_section_name_ia_2 = hod_ia_red
+				observables_file_ia_2 = ${red_obs_file}
+				nobs_ia_2 = 200
+				nz_ia_2 = 50 ; %(nz_def)s
+				output_suffix_ia_2 = ia_red
+				
+				EOF
+			else
+				cat >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_other.ini <<- EOF
+				hod_section_name_ia = hod_ia_blue
+				observables_file_ia = ${blue_obs_file}
+				nobs_ia = 200 
+				nz_ia = 50 ; %(nz_def)s
+				output_suffix_ia = ia_blue
+
+				EOF
+			fi
 			;; #}}}
 
 	"projection") #{{{
@@ -1700,15 +1723,21 @@ do
 				fi
 				if [[ .*\ $MODES\ .* =~ " NE " ]]
 				then
-					if [ "@BV:COSMOSIS_PIPELINE@" == "default" ]
+					if [ "${GALAXY_BIAS^^}" == "HALO_MODEL" ]
 					then
+						if [ "${IAMODEL^^}" != "HALO_MODEL" ]
+						then
+							smfbins=":{1-${NLENSBINS}}:"
+						else
+							smfbins=""
+						fi
 						cat >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_other.ini <<- EOF
 						; GGL projections
 						GenericClustering-Shear = %(redshift_name_lens)s-%(redshift_name)s:{1-${NLENSBINS}}:
-						GenericClustering-Intrinsic = %(redshift_name_lens)s-%(redshift_name)s ; :{1-${NLENSBINS}}:
+						GenericClustering-Intrinsic = %(redshift_name_lens)s-%(redshift_name)s${smfbins}
 			
 						EOF
-					elif [ "@BV:COSMOSIS_PIPELINE@" == "lin_bias" ]
+					elif [ "${GALAXY_BIAS^^}" == "LINEAR" ]
 					then
 						cat >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_other.ini <<- EOF
 						; GGL projections
@@ -1716,18 +1745,11 @@ do
 						lingal-intrinsic = %(redshift_name_lens)s-%(redshift_name)s
 			
 						EOF
-					else
-						cat >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_other.ini <<- EOF
-						; GGL projections
-						position-shear = %(redshift_name_lens)s-%(redshift_name)s
-						position-intrinsic = %(redshift_name_lens)s-%(redshift_name)s
-			
-						EOF
 					fi
 				fi
 				if [[ .*\ $MODES\ .* =~ " NN " ]]
 				then
-					if [ "@BV:COSMOSIS_PIPELINE@" == "default" ]
+					if [ "${GALAXY_BIAS}" == "halo_model" ]
 					then
 						cat >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_other.ini <<- EOF
 						; Clustering projections
@@ -1735,19 +1757,12 @@ do
 						GenericClustering-GenericClustering = %(redshift_name_lens)s-%(redshift_name_lens)s:{1-${NLENSBINS}}:
 			
 						EOF
-					elif [ "@BV:COSMOSIS_PIPELINE@" == "lin_bias" ]
+					elif [ "${GALAXY_BIAS}" == "linear" ]
 					then
 						cat >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_other.ini <<- EOF
 						; Clustering projections
 						auto_only = genericclustering-genericclustering
 						lingal-lingal = %(redshift_name_lens)s-%(redshift_name_lens)s
-			
-						EOF
-					else
-						cat >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_other.ini <<- EOF
-						; Clustering projections
-						auto_only = genericclustering-genericclustering
-						position-position = %(redshift_name_lens)s-%(redshift_name_lens)s
 			
 						EOF
 					fi
@@ -1763,31 +1778,25 @@ do
 				fi
 				if [[ .*\ $MODES\ .* =~ " NE " ]]
 				then
-					if [ "@BV:COSMOSIS_PIPELINE@" == "default" ]
+					if [ "${GALAXY_BIAS}" == "halo_model" ]
 					then
 						cat >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_other.ini <<- EOF
 						; GGL projections
 						GenericClustering-Shear = %(redshift_name_lens)s-%(redshift_name)s:{1-${NLENSBINS}}:
 			
 						EOF
-					elif [ "@BV:COSMOSIS_PIPELINE@" == "lin_bias" ]
+					elif [ "${GALAXY_BIAS}" == "linear" ]
 					then
 						cat >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_other.ini <<- EOF
 						; GGL projections
 						lingal-shear = %(redshift_name_lens)s-%(redshift_name)s
 			
 						EOF
-					else
-						cat >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_other.ini <<- EOF
-						; GGL projections
-						position-shear = %(redshift_name_lens)s-%(redshift_name)s
-			
-						EOF
 					fi
 				fi
 				if [[ .*\ $MODES\ .* =~ " NN " ]]
 				then
-					if [ "@BV:COSMOSIS_PIPELINE@" == "default" ]
+					if [ "${GALAXY_BIAS}" == "halo_model" ]
 					then
 						cat >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_other.ini <<- EOF
 						; Clustering projections
@@ -1795,19 +1804,12 @@ do
 						GenericClustering-GenericClustering = %(redshift_name_lens)s-%(redshift_name_lens)s:{1-${NLENSBINS}}:
 			
 						EOF
-					elif [ "@BV:COSMOSIS_PIPELINE@" == "lin_bias" ]
+					elif [ "${GALAXY_BIAS}" == "linear" ]
 					then
 						cat >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_other.ini <<- EOF
 						; Clustering projections
 						auto_only = genericclustering-genericclustering
 						lingal-lingal = %(redshift_name_lens)s-%(redshift_name_lens)s
-			
-						EOF
-					else
-						cat >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_other.ini <<- EOF
-						; Clustering projections
-						auto_only = genericclustering-genericclustering
-						position-position = %(redshift_name_lens)s-%(redshift_name_lens)s
 			
 						EOF
 					fi
@@ -1819,6 +1821,14 @@ do
 			[$module]
 			file = %(CSL_PATH)s/intrinsic_alignments/la_model/linear_alignments_interface.py
 			method = bk_corrected
+			do_galaxy_intrinsic = False
+			
+			EOF
+			;; #}}}
+	"galaxy_intrinsic") #{{{
+			cat >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_other.ini <<- EOF
+			[$module]
+			file = @RUNROOT@/INSTALL/ia_models/galaxy_intrinsic_bins/galaxy_intrinsic_bins.py
 			
 			EOF
 			;; #}}}
@@ -1827,24 +1837,12 @@ do
 			[$module]
 			file = %(CSL_PATH)s/intrinsic_alignments/tatt/tatt_interface.py
 			sub_lowk=F
-			do_galaxy_intrinsic=F
+			do_galaxy_intrinsic = False
 			ia_model=tatt
 			
 			EOF
 			;; #}}}
 	"lin_z_dependence_for_ia") #{{{
-			if [[ .*\ $MODES\ .* =~ " EE " ]]
-			then
-				ee="True"
-			else
-				ee="False"
-			fi
-			if [[ .*\ $MODES\ .* =~ " NE " ]]
-			then
-				ne="True"
-			else
-				ne="False"
-			fi
 			cat >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_other.ini <<- EOF
 			[$module]
 			file = @RUNROOT@/INSTALL/ia_models/lin_z_dependent_ia/lin_z_dependent_ia_model.py
@@ -1855,18 +1853,6 @@ do
 			EOF
 			;; #}}}
 	"mass_dependence_for_ia") #{{{
-			if [[ .*\ $MODES\ .* =~ " EE " ]]
-			then
-				ee="True"
-			else
-				ee="False"
-			fi
-			if [[ .*\ $MODES\ .* =~ " NE " ]]
-			then
-				ne="True"
-			else
-				ne="False"
-			fi
 			cat >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_other.ini <<- EOF
 			[$module]
 			file = @RUNROOT@/INSTALL/ia_models/mass_dependent_ia/mass_dependent_ia_model.py

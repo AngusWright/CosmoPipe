@@ -1,0 +1,79 @@
+name: galaxy_intrinsic_bins
+version: '1.0'
+purpose: runs the "do_galaxy_intrinsic" part of linear_alignment_interface for an arbitrary number of bins
+url: ''
+interface: galaxy_intrinsic_bin.py
+attribution: [Benjamin Stoelzner]
+rules: ''
+cite: []
+
+explanation: 
+    This module generalises the do_galaxy_intrinsic step of the linear_alignments_interface.py 
+    for an arbitrary number of bins. 
+    Run Onepower and linear_alignment_interface with do_galaxy_intrinsic=False first.
+    Takes matter_galaxy_power_<i>, matter_power_nl, and matter_intrinsic_power.
+    Computes P_gI = P_GI * p_gm / p_nl and writes galaxy_intrinsic_power.
+    It also handles the standard (unbinned) case in the same way as the linear_alignment_interface.py does.
+
+params: 
+        name:
+        meaning: If set, save the outputs to sections with the
+            name as a suffix, e.g intrinsic_power_NAME.
+            (same as the "name" option of the intrinsic alignment module)
+        type: str
+        default:
+
+inputs:
+    matter_power_nl:
+        z:
+            meaning: redshift values of P(k,z) samples
+            type: real 1d
+            default:
+        k_h:
+            meaning: k values of P(k,z) samples in units of Mpc/h
+            type: real 1d
+            default:
+        P_k:
+            meaning: non-linear matter power spectrum at samples in (Mpc/h)^{-3}
+            type: real 2d
+            default:
+    matter_intrinsic_power:
+        z:
+            meaning: Redshift values of P(k,z) samples (if grid_mode=F, the default)
+            type: real 1d
+        k_h:
+            meaning: ; k values of P(k,z) samples in units of Mpc/h (if grid_mode=F,
+                the default)
+            type: real 1d
+        P_k:
+            meaning: Spectrum of shear-intrinsic power at samples in (Mpc/h)^{-3}
+                (if grid_mode=F, the default)
+            type: real 2d
+    matter_galaxy_power_<i>:
+        z:
+            meaning: redshift values of P(k,z) samples
+            type: real 1d
+            default:
+        k_h:
+            meaning: k values of P(k,z) samples in units of Mpc/h
+            type: real 1d
+            default:
+        P_k:
+            meaning: Nonlinear matter-galaxy cross power spectrum at samples in
+                (Mpc/h)^{-3}
+            type: real 2d
+            default:
+    
+outputs:
+        galaxy_intrinsic_power_<i>:
+        z:
+            meaning: redshift values of P(k,z) samples
+            type: real 1d
+        k_h:
+            meaning: k values of P(k,z) samples in units of Mpc/h
+            type: real 1d
+        P_k:
+            meaning: Spectrum of galaxy-intrinsic power P_gI at samples in (Mpc/h)^{-3}
+            type: real 2d
+
+    

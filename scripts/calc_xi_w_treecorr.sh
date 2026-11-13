@@ -3,14 +3,14 @@
 # File Name : calc_xi_w_treecorr.sh
 # Created By : awright
 # Creation Date : 27-03-2023
-# Last Modified : Mon Feb  2 04:22:35 2026
+# Last Modified : Fri Nov 13 11:32:21 2026
 #
 #=========================================
 
 ### Estimate corrrelation functions ### {{{
 _message "Estimating Correlation Functions:"
 headfiles="@DB:ALLHEAD@"
-for patch in @ALLPATCH@ @BV:PATCHLIST@ 
+for patch in `printf "%s\n" @ALLPATCH@ @BV:PATCHLIST@ | sort -u` 
 do 
   _message " > Patch ${patch} {\n"
   #Select the catalogues from DATAHEAD in this patch 

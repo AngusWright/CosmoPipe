@@ -3,14 +3,14 @@
 # File Name : calc_xipsf_w_treecorr.sh
 # Created By : awright
 # Creation Date : 29-02-2024
-# Last Modified : Sat Sep  6 04:10:44 2025
+# Last Modified : Fri Nov 13 11:33:00 2026
 #
 #=========================================
 
 ### Estimate corrrelation functions ### {{{
 _message "Estimating Correlation Functions:"
 headfiles="@DB:ALLHEAD@"
-for patch in @ALLPATCH@ @BV:PATCHLIST@ 
+for patch in `printf "%s\n" @ALLPATCH@ @BV:PATCHLIST@ | sort -u` 
 do 
   _message " > Patch ${patch} {\n"
   #Select the catalogues from DATAHEAD in this patch 

@@ -3,7 +3,7 @@
 # File Name : calc_wt_w_treecorr.sh
 # Created By : dvornik
 # Creation Date : 18-04-2024
-# Last Modified : Sun Nov  1 21:50:56 2026
+# Last Modified : Fri Nov 13 11:32:51 2026
 #
 #=========================================
 
@@ -12,7 +12,7 @@ _message "Estimating galaxy-clustering correlation functions:"
 lensfiles="@DB:lens_cat@"
 randfiles="@DB:rand_cat@"
   
-for patch in @ALLPATCH@ @BV:PATCHLIST@
+for patch in `printf "%s\n" @ALLPATCH@ @BV:PATCHLIST@ | sort -u` 
 do
   _message " > Patch ${patch} {\n"
   #Select the catalogues from DATAHEAD in this patch

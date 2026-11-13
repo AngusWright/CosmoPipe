@@ -47,7 +47,7 @@ DEF='\033[0m'    #Default
 #Variables requires at pipeline compilation 
 
 #Designation for "all patches" (Default is Euclid TR1)
-ALLPATCH=LE3
+ALLPATCH=DR1
 
 #COSEBIs binning format; 'lin' or 'log' (Default is Euclid TR1)
 BINNING='log'

@@ -73,7 +73,7 @@ redshift_name_obs  = obs
 nz_def = 15
 nk_def = 300 ; 300
 zmin_def =  0.0
-zmax_def = 1.2
+zmax_def = 3.0
 nmass_def = 100 ; 200
 logmassmin_def = 9.0
 logmassmax_def = 18.0
@@ -95,6 +95,8 @@ NLENSBINS="@BV:NLENSBINS@"
 NSMFLENSBINS="@BV:NSMFLENSBINS@"
 NSMFBINS="@BV:NSMFBINS@"
 
+DO_GALAXY_INTRINSIC="False"
+
 if [[ .*\ $MODES\ .* =~ " EE " ]]
 then
 	ee="True"
@@ -104,6 +106,7 @@ fi
 if [[ .*\ $MODES\ .* =~ " NE " ]]
 then
 	ne="True"
+	DO_GALAXY_INTRINSIC="@BV:DO_GALAXY_INTRINSIC@"
 else
 	ne="False"
 fi
@@ -1001,7 +1004,7 @@ then
           exit 1
     fi
     # Set up intrinsic alignment pipeline blocks {{{
-	if [[ .*\ $MODES\ .* =~ " NE " ]] && [ "${BOLTZMAN^^}" == "HALO_MODEL" ] && [ "${IAMODEL^^}" != "HALO_MODEL" ]
+	if [[ .*\ $MODES\ .* =~ " NE " ]] && [ "${BOLTZMAN^^}" == "HALO_MODEL" ] && [ "${DO_GALAXY_INTRINSIC^^}" == "TRUE" ]
 	then
 		# compute galaxy_intrinsic separately because SMF bins are not implemented in linear_alignment module
 		linear_alignment="linear_alignment galaxy_intrinsic"
@@ -1014,7 +1017,7 @@ then
     elif [ "${IAMODEL^^}" == "TATT" ]
     then
 		# compute galaxy_intrinsic separately because SMF bins are not implemented in tatt
-		if [[ .*\ $MODES\ .* =~ " NE " ]] && [ "${BOLTZMAN^^}" == "HALO_MODEL" ] && [ "${IAMODEL^^}" != "HALO_MODEL" ]
+		if [[ .*\ $MODES\ .* =~ " NE " ]] && [ "${BOLTZMAN^^}" == "HALO_MODEL" ] && [ "${DO_GALAXY_INTRINSIC^^}" == "TRUE" ]
 		then
 			iamodel_pipeline="fast_pt tatt galaxy_intrinsic projection add_intrinsic"
 		else
@@ -1390,7 +1393,7 @@ do
 			[$module]
 			file=%(CSL_PATH)s/shear/add_intrinsic/add_intrinsic.py
 			shear-shear=${ee}
-			position-shear=${ne}
+			position-shear=${DO_GALAXY_INTRINSIC}
 			perbin=F
 			
 			EOF
@@ -1596,7 +1599,7 @@ do
 				p_mm = ${ee}
 				p_gg = ${nn}
 				p_gm = ${ne}
-				p_gI = ${ne}
+				p_gI = ${DO_GALAXY_INTRINSIC}
 				p_mI = ${ee}
 				p_II = ${ee}
 				split_ia = ${SPLIT_IA}
@@ -1734,17 +1737,29 @@ do
 						cat >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_other.ini <<- EOF
 						; GGL projections
 						GenericClustering-Shear = %(redshift_name_lens)s-%(redshift_name)s:{1-${NLENSBINS}}:
-						GenericClustering-Intrinsic = %(redshift_name_lens)s-%(redshift_name)s${smfbins}
-			
+
 						EOF
+						if [ "${DO_GALAXY_INTRINSIC^^}" == "TRUE" ]
+						then
+							cat >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_other.ini <<- EOF
+							GenericClustering-Intrinsic = %(redshift_name_lens)s-%(redshift_name)s${smfbins}
+				
+							EOF
+						fi
 					elif [ "${GALAXY_BIAS^^}" == "LINEAR" ]
 					then
 						cat >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_other.ini <<- EOF
 						; GGL projections
 						lingal-shear = %(redshift_name_lens)s-%(redshift_name)s
-						lingal-intrinsic = %(redshift_name_lens)s-%(redshift_name)s
-			
+
 						EOF
+						if [ "${DO_GALAXY_INTRINSIC^^}" == "TRUE" ]
+						then
+							cat >> @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/cosmosis_inputs/@SURVEY@_CosmoPipe_constructed_other.ini <<- EOF
+							lingal-intrinsic = %(redshift_name_lens)s-%(redshift_name)s
+			
+							EOF
+						fi
 					fi
 				fi
 				if [[ .*\ $MODES\ .* =~ " NN " ]]
@@ -1848,7 +1863,7 @@ do
 			file = @RUNROOT@/INSTALL/ia_models/lin_z_dependent_ia/lin_z_dependent_ia_model.py
 			sample = %(redshift_name)s
 			do_shear_intrinsic = ${ee}
-			do_galaxy_intrinsic = ${ne}
+			do_galaxy_intrinsic = ${DO_GALAXY_INTRINSIC}
 			
 			EOF
 			;; #}}}
@@ -1857,7 +1872,7 @@ do
 			[$module]
 			file = @RUNROOT@/INSTALL/ia_models/mass_dependent_ia/mass_dependent_ia_model.py
 			do_shear_intrinsic = ${ee}
-			do_galaxy_intrinsic = ${ne}
+			do_galaxy_intrinsic = ${DO_GALAXY_INTRINSIC}
 			
 			EOF
 			;; #}}}

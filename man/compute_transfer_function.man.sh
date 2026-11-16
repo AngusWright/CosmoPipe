@@ -51,7 +51,7 @@ function _inp_var {
 # Input data {{{ 
 function _inp_data { 
   #Data inputs (leave blank if none)
-  echo 
+  echo @BV:SOMCELL_SETS@
 } 
 #}}}
 

@@ -1679,13 +1679,11 @@ do
 				hod_section_name_ia_1 = hod_ia_blue
 				observables_file_ia_1 = ${blue_obs_file}
 				nobs_ia_1 = 200 
-				nz_ia_1 = 50 ; %(nz_def)s
 				output_suffix_ia_1 = ia_blue
 
 				hod_section_name_ia_2 = hod_ia_red
 				observables_file_ia_2 = ${red_obs_file}
 				nobs_ia_2 = 200
-				nz_ia_2 = 50 ; %(nz_def)s
 				output_suffix_ia_2 = ia_red
 
 				fraction_file = ${fraction_file}

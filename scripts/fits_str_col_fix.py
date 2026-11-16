@@ -8,6 +8,7 @@ import sys
 
 import astropandas as apd
 import mcal_functions as mcf
+import numpy as np 
 import pandas as pd
 
 if len(sys.argv) != 3:
@@ -26,6 +27,10 @@ if isinstance(data, pd.DataFrame):
         #Convert if needed
         if dtype.kind == "O":  # string columns are represented as python objects
             data[col] = data[col].astype("|S")  # required minimum width is determined automatically
+            print("converted column '{:}' to data type '{:}'".format(col, data[col].dtype.str))
+            modified=True
+        if dtype == np.int64:  # string columns are represented as python objects
+            data[col] = data[col].astype(np.int32)  # required minimum width is determined automatically
             print("converted column '{:}' to data type '{:}'".format(col, data[col].dtype.str))
             modified=True
     

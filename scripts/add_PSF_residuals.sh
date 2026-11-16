@@ -9,9 +9,14 @@
 
 #Catalogue(s) from DATAHEAD 
 current=@DB:DATAHEAD@ 
+mode=@BV:PSFMODE@
 
 #Construct file names for shape recalibration {{{
-appendstr="_PSFR2"
+case "${mode}" in
+  size) appendstr="_PSFR2" ;;
+  ell)  appendstr="_PSFELL" ;;
+  *) _message " - @RED@Unknown PSFMODE '${mode}' (expected 'size' or 'ell')@DEF@"; exit 1 ;;
+esac
 #Define the file name extension
 extn=${current##*.}
 #Define the output file name 

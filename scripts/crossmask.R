@@ -3,7 +3,7 @@
 # File Name : spatial_split.R
 # Created By : awright
 # Creation Date : 10-07-2023
-# Last Modified : Tue Jun 30 15:07:37 2026
+# Last Modified : Thu Nov 12 20:37:42 2026
 #
 #=========================================
 
@@ -94,15 +94,20 @@ fullmask <- mask_and
 basename<-function(X) {
   unlist(lapply(X, function(Y) {
                   paste(collapse='.',rev(rev(helpRfuncs::vecsplit(helpRfuncs::vecsplit(Y,by='/',n=-1),by='.'))[-1]))
-                }))
+}))
 }
 
 #Select the catalogues that match the file name of the base catalogue {{{
-if (any(grepl(basename(base.cat),basename(input.cats)))) {
-  cat("reducing the input file list to only those which match the base file name\n")
-  cat(paste(sep='/',length(which(grepl(basename(base.cat),basename(input.cats)))),length(input.cats)))
-  cat("\n")
-  input.cats<-input.cats[which(grepl(basename(base.cat),basename(input.cats)))]
+base<-helpRfuncs::vecsplit(basename(base.cat),by="")
+ref<-basename(input.cats)
+for (i in length(base):1) {
+  if (any(grepl(paste0(base[1:i],collapse=''),ref))){
+    cat("reducing the input file list to only those which match the base file name\n")
+    cat(paste(sep='/',length(which(grepl(paste0(base[1:i],collapse=''),ref))),length(input.cats)))
+    cat("\n")
+    input.cats<-input.cats[which(grepl(paste0(base[1:i],collapse=''),ref))]
+    break
+  }
 }
 #}}}
 

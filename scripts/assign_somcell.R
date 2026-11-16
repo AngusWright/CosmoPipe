@@ -77,6 +77,6 @@ if (is.finite(as.numeric(args$n.cluster.bins))) {
 
 cat("writing output data\n")
 helpRfuncs::write.file(data.frame(SeqNr=test_data$SeqNr,FIELD_POS=test_data$FIELD_POS,
-                                  cellID=som$unit.classif,groupID=som$clust.classif),
+                                  cellID=as.integer(som$unit.classif),groupID=as.integer(som$clust.classif)),
                        file=args$output)
 

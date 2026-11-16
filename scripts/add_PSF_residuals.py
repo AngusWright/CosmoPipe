@@ -23,9 +23,8 @@ parser.add_argument(
     "--outpath", type=str, 
     help="the output path for the final catalogue") 
 parser.add_argument(
-    "--mode", type=str, 
-    help="the PSF residual to add (either size or ell)") 
-parser.add_argument(
+    "--mode", type=str, required=True, choices=("size", "ell"),
+    help="the PSF residual to add ('size' or 'ell')")
     "--PSF_table", type=str,
     help="table with FoV PSF model")
 

@@ -1,6 +1,6 @@
 #=========================================
 #
-# File Name : prepare_cosmosis.sh
+# File Name : prepare_cobaya.sh
 # Created By : awright
 # Creation Date : 31-03-2023
 # Last Modified : Thu 07 Sep 2023 05:56:22 PM UTC

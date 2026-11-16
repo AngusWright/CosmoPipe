@@ -3,7 +3,7 @@
 # File Name : combine_realisations.sh
 # Created By : awright
 # Creation Date : 30-06-2026
-# Last Modified : Tue Jun 30 22:21:39 2026
+# Last Modified : Sun Nov 15 12:30:25 2026
 #
 #=========================================
 
@@ -31,8 +31,6 @@ do
     #Get the output name from the base file 
     output=${base}
     output=${output##*/}
-    #First file extension 
-    ext=${output##*.}
     #Get the part we want to use 
     output=${output%_r1[._]*}
     

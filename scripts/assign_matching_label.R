@@ -80,6 +80,17 @@ test_white=kohonen::kohwhiten(test_data,train.expr=args$features,data.missing=NA
 train_white=kohonen::kohwhiten(train_data,train.expr=args$features,data.missing=NA,data.threshold=c(-Inf,Inf),
                                whiten.param=test_white$whiten.param)
 
+#Check for missing values in the test and training data 
+means<-rowMeans(test_white$data.white)
+if (any(is.na(means))) { 
+  stop("There are NA/NaN entries in the test data! These are not allowed in the match.\n")
+}
+means<-rowMeans(train_white$data.white)
+if (any(is.na(means))) { 
+  #There are NA/NaNs in the train data
+  stop("There are NA/NaN entries in the train data! These are not allowed in the match.\n")
+}
+
 idx = RANN::nn2(query=test_white$data.white, 
                 data=train_white$data.white, k=ifelse(!args$duplicates,args$nodup_nmatch,1))
 

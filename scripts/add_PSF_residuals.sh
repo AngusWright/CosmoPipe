@@ -1,6 +1,6 @@
 #=========================================
 #
-# File Name : add_PSFSize_residuals.sh
+# File Name : add_PSF_residuals.sh
 # Created By : hendrik
 # Creation Date : 02-03-2026
 # Last Modified : Mon March 02 2026

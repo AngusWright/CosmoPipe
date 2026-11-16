@@ -14,7 +14,7 @@ from scipy.interpolate import LinearNDInterpolator, NearestNDInterpolator
 
 # +++++++++++++++++++++++++++++ parser for command-line interfaces
 parser = argparse.ArgumentParser(
-    description=f"step1_methodC.py: correct alpha in variance with method C.",
+    description="add_PSF_residuals.py: add PSF residual quantities to an LDAC catalogue based on focal-plane position.",
     formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument(
     "--inpath", type=str,

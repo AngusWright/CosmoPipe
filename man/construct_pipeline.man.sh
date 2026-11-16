@@ -11,6 +11,7 @@ function _prompt {
     _message "${BLU}=====================================================${DEF}\n\n"
     _message "Constructing the pipeline ${RED}${PIPELINE}${DEF} from the configuration file:\n"
     _message "${BLU}${RUNROOT}/${SCRIPTPATH}/pipeline.ini${DEF}\n\n"
+    _message "An offline interactive viewer is written to ${RUNROOT}/${PIPELINE}_graph.html.\n"
   fi 
 }
 #}}}
@@ -204,5 +205,4 @@ function _closingprompt {
   echo "echo -e \"@BLU@====================================@DEF@\""
 }
 #}}}
-
 

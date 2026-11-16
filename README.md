@@ -113,6 +113,77 @@ The source checkout and a configured analysis run are intentionally separate. Af
 
 Generated logs are stored beneath `RUNTIME_<pipeline-name>/logs/`; analysis products and data-block state are stored beneath `work_<pipeline-name>/` by default.
 
+### Interactive pipeline viewer
+
+Configuration also writes `<pipeline-name>_graph.html` in the run root. Open it
+directly in a browser: the page embeds its graph, JavaScript, and styling, and
+needs neither an R session, an internet connection, nor a web server.
+
+The viewer starts with **Data flow**: a product-to-product dependency graph.
+Its layout follows dependency depth rather than subroutine boundaries, so
+splitting the same processing sequence into zero or many subroutines does not
+change the data visualisation. Dependency layers are not execution durations.
+Select a product version to highlight its inputs and descendants, or use the
+inspector's trace buttons to isolate its lineage. A clickable overview map,
+search, pan/zoom, **Fit all**, and **Readable** help navigate larger graphs.
+
+The **Products** tab is a searchable, sortable catalogue of product versions,
+lifecycles, producers, and consumer counts. Lifecycle filters and clickable
+summary cards focus on available/exported outputs, inherited inputs, temporary
+products, superseded/renamed versions, or runtime-resolved names. Colours and
+text labels identify each lifecycle without relying on colour alone.
+Summary cards count named block/exported products, not working-head aliases
+or catalogue files; working-head rows are identified separately.
+
+The **Processing** tab adds the operations that generate or handle the data.
+Execution-order connections and **Organise by subroutine** are optional source
+context, off by default. Individual nested/repeated calls can still be expanded
+or collapsed in that optional view; expanding a nested call opens its ancestors,
+while collapsing a parent preserves its children's state. Working DATAHEAD
+versions and pre-resume history can also be shown. Intermediate working heads
+are hidden by default; inherited and final DATAHEAD products remain visible.
+SVG diagram and JSON metadata downloads work without external services.
+
+Product identities follow construction order, not just a block name. Each write
+creates a new version; deletion ends that binding, and rename/export operations
+have explicit dependencies. Two temporary `match_base` products in separate
+subroutine calls therefore remain distinct, while intentionally shared products
+stay connected across calls. Version labels and inspector details identify
+each product and its producer; subroutine context is secondary provenance.
+The graph describes declared processing-function inputs
+and outputs, not a runtime inventory of catalogue files.
+
+The companion `<pipeline-name>_graph.json` records this model.
+`<pipeline-name>_graph.events` is the construction trace used to build it.
+The legacy `_graph.R`/`_links.R` files remain available for compatibility, but
+the HTML viewer is the recommended visualisation. Reconfigure an existing run
+normally (not `--pipeline-only`) after updating the source checkout so that the
+new graph generator and viewer assets are copied into its runtime directory.
+To restyle an existing viewer without reconstructing or executing the pipeline,
+run the updated generator from the source checkout against its saved trace:
+
+```bash
+python scripts/pipeline_graph.py \
+  --events <run-root>/<pipeline-name>_graph.events \
+  --output <run-root>/<pipeline-name>_graph.html
+```
+
+Only the generated HTML needs copying to another machine, even for the
+interactive catalogue, lineage tracing, and overview map.
+
+Graph provenance and construction regressions use Python and Bash only:
+
+```bash
+python -m unittest discover -s tests -p test_pipeline_graph.py
+```
+
+Optional browser interaction checks require Python Playwright and its Chromium
+browser (`python -m playwright install chromium`):
+
+```bash
+python tests/check_pipeline_graph_browser.py --output-directory /tmp/cosmopipe-graph-check
+```
+
 ## Building a pipeline
 
 Start from a reference pipeline and compose it from documented processing functions. Read a function’s corresponding manual before adding it. For example:

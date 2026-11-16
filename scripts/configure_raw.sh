@@ -204,6 +204,7 @@ do
   _message "   >${RED} Constructing Pipeline ${pipe} ${DEF}" 
   PIPELINE=${pipe} VERBOSE=0 bash ${RUNROOT}/${SCRIPTPATH}/construct_pipeline.sh ${RUNROOT}/pipeline.ini ${resume} ${resumenum} > ${pipe}_pipeline.log
   _message "${BLU} - Done! ${DEF}\n"
+  _message "   ${BLU} Pipeline viewer: ${DEF}${RUNROOT}/${pipe}_graph.html\n"
 done 
 #}}}
 

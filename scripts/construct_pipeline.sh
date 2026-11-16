@@ -47,6 +47,27 @@ blockneeds=`_varcheck $0`
 
 #Read the pipeline description file {{{
 pipeline_steps=`VERBOSE=1 _read_pipe @PIPELINE@`
+graph_events="@RUNROOT@/@PIPELINE@_graph.events"
+rm -f "@RUNROOT@/@PIPELINE@_graph.html" "@RUNROOT@/@PIPELINE@_graph.json"
+: > "${graph_events}"
+_graph_event() {
+  printf '%s\0' "$@" >> "${graph_events}"
+}
+_graph_declarations() {
+  local direction="$1" raw="$2" parsed="$3" declaration expansion
+  local -a raw_fields parsed_fields
+  read -r -a raw_fields <<< "${raw//$'\n'/ }"
+  read -r -a parsed_fields <<< "${parsed//$'\n'/ }"
+  if [ "${#raw_fields[@]}" != "${#parsed_fields[@]}" ]
+  then
+    for declaration in "${raw_fields[@]}"
+    do
+      expansion=$(VERBOSE=0 _parse_blockvars "${declaration}")
+      _graph_event declaration "${graph_sequence}" "${direction}" "${declaration}" "${expansion}" "" "" ""
+    done
+  fi
+}
+_graph_event root "" "@PIPELINE@" "${pipeline_steps}" "" "" "" ""
 echo ${pipeline_steps}
 count=0
 echo "Expanding pipeline items"
@@ -82,6 +103,7 @@ do
       echo "Getting substeps for step: ${step}"
       #Read the substep modes 
       sublist=`VERBOSE=1 _read_pipe $step ${stepnum}` 
+      _graph_event group "${stepnum}" "${step}" "${sublist}" "" "" "" ""
       #Sanitise the sublist 
       sublist=${sublist//&/\\&}
       #Replace the substep (whole matches only)
@@ -100,6 +122,7 @@ do
 done
 echo "Ending:\n${pipeline_steps}"
 echo "Done!"
+_graph_event plan "" "" "${pipeline_steps}" "${resume}" "${resumenum}" "" ""
 #}}}
 #If running resume, and RESUME not found, create it explicitly {{{
 
@@ -221,6 +244,7 @@ echo  > @RUNROOT@/@PIPELINE@_links.R
 currstep=0
 currsubstep=0
 found_resume="FALSE"
+graph_sequence=0
 #}}}
 #For each step in the pipeline: 
 for step in ${pipeline_steps}
@@ -250,6 +274,13 @@ do
     fi 
   fi
   #}}}
+  graph_sequence=$((graph_sequence+1))
+  graph_token="${step}"
+  graph_status=active
+  if [ "${resume}" == "TRUE" ] && [ "${found_resume}" == "FALSE" ] && [ "${step:0:1}" != "+" ]
+  then
+    graph_status=skipped
+  fi
   #Strip out the version number {{{
   stepnum=${step##*=}            #Strip out numbers 
   stepnum=${stepnum%%.*}         #Get the first number 
@@ -312,6 +343,7 @@ do
     #Modify the HEAD to the request value {{{
     _target=${step:1}
     _target=`VERBOSE=0 _parse_blockvars ${_target}`
+    _graph_event select "${graph_sequence}" "${graph_token}" "${_target}" "" "" "" "${graph_status}"
     echo parsed: ${_target}
     if [ "$(_inblock $_target)" == "0" ]
     then 
@@ -334,6 +366,7 @@ do
     #Modify the datablock with the current HEAD {{{
     _target=${step:1}
     _target=`VERBOSE=0 _parse_blockvars ${_target}`
+    _graph_event store "${graph_sequence}" "${graph_token}" "${_target}" "" "" "" "${graph_status}"
     echo parsed: ${_target}
 		VERBOSE=1 _write_datablock ${_target} "`_read_datahead`"
     #Write the link between the previous processing function and this block element
@@ -350,6 +383,7 @@ do
     #Delete an item from the datablock  {{{
     name=${step:1}
     name=`VERBOSE=0 _parse_blockvars ${name}`
+    _graph_event delete "${graph_sequence}" "${graph_token}" "${name}" "" "" "" "${graph_status}"
     echo BLOCK deletion: removing ${name} 
 		VERBOSE=1 _delete_blockitem "${name}" TEST
     #}}}
@@ -361,6 +395,7 @@ do
     oldname=`VERBOSE=0 _parse_blockvars ${oldname}`
     newname=${names##*-}
     newname=`VERBOSE=0 _parse_blockvars ${newname}`
+    _graph_event rename "${graph_sequence}" "${graph_token}" "${oldname}" "${newname}" "" "" "${graph_status}"
     echo BLOCK rename: moving ${oldname} to ${newname}
 		VERBOSE=1 _rename_blockitem "${oldname}" "${newname}" TEST
     if [ "${lastassign}" == "${oldname}" ] 
@@ -380,6 +415,7 @@ do
     blockname=`VERBOSE=0 _parse_blockvars ${blockname}`
     outname=${names##*-}
     outname=`VERBOSE=0 _parse_blockvars ${outname}`
+    _graph_event export "${graph_sequence}" "${graph_token}" "${blockname}" "${outname}" "" "" "${graph_status}"
     echo BLOCK export: copying ${blockname} to external folder ${outname}
 		VERBOSE=1 _export_blockitem "${blockname}" "${outname}" TEST
     #}}}
@@ -399,6 +435,7 @@ do
       _var=${_var%%=*}
     fi 
     _varval=`VERBOSE=0 _parse_blockvars ${_varval}`
+    _graph_event variable "${graph_sequence}" "${graph_token}" "${_var}" "${_varval}" "" "" "${graph_status}"
     echo _write_blockvars ${_var} "${_varval}"
     _write_blockvars ${_var} "${_varval}"
     #}}}
@@ -484,8 +521,10 @@ do
     echo Checking inputs 
     #Check inputs and outputs {{{
     inputs=`_inp_data`
+    graph_raw_inputs="${inputs}"
     echo "Raw inputs: ${inputs}"
     inputs=`VERBOSE=0 _parse_blockvars ${inputs}` 
+    _graph_declarations inputs "${graph_raw_inputs}" "${inputs}"
     echo "After variable parse: ${inputs}"
     #}}}
     #Check the data block for these inputs & add graph entries {{{
@@ -557,8 +596,12 @@ do
     #Expand any outputs that are variables {{{
     outlist=''
     outputs=`_outputs`
+    graph_raw_outputs="${outputs}"
     echo "Raw outputs: ${outputs}"
     outputs=`VERBOSE=0 _parse_blockvars ${outputs}` 
+    _graph_declarations outputs "${graph_raw_outputs}" "${outputs}"
+    _graph_event script "${graph_sequence}" "${graph_token}" "${inputs}" "${outputs}" \
+      "${graph_raw_inputs}" "${graph_raw_outputs}" "${graph_status}"
     echo "After variable parse: ${outputs}"
     ##}}}
     #Save these outputs to the data block  {{{
@@ -1012,6 +1055,10 @@ EOF
 
 #Add the pipeline end
 cat @RUNROOT@/@SCRIPTPATH@/pipeline_close.sh >> @RUNROOT@/@PIPELINE@_pipeline.sh
+
+"@PYTHON3BIN@" "@RUNROOT@/@SCRIPTPATH@/pipeline_graph.py" \
+  --events "${graph_events}" --output "@RUNROOT@/@PIPELINE@_graph.html" \
+  --json-output "@RUNROOT@/@PIPELINE@_graph.json"
 
 #}}}
 

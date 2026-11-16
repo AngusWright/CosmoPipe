@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; connect-src 'none'; base-uri 'none'">
+<title>__PIPELINE_NAME__ · CosmoPipe pipeline</title>
+<style id="graph-styles">__GRAPH_STYLE__</style>
+</head>
+<body>
+<div class="app-shell">
+  <header class="hero">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="8" fill="currentColor"/><ellipse cx="24" cy="24" rx="22" ry="12" fill="none" stroke="currentColor" stroke-width="2" transform="rotate(-35 24 24)"/><circle cx="41" cy="12" r="4" fill="#55dcc8"/></svg>
+      <div><span class="eyebrow">COSMOPIPE / PIPELINE EXPLORER</span><h1 id="pipeline-title"></h1><p>Follow the data. Understand what creates it and where it goes.</p></div>
+    </div>
+    <div class="header-actions"><span class="offline-badge">Standalone · Offline</span><div class="button-row"><button id="download-svg">Save diagram</button><button id="download-json">Save metadata</button></div></div>
+  </header>
+  <section class="metrics" aria-label="Pipeline overview">
+    <button class="metric metric-blue" id="metric-products"><span class="metric-label">Named product versions</span><strong id="count-products">0</strong><small>Excludes working-head aliases</small></button>
+    <button class="metric metric-teal" id="metric-outputs"><span class="metric-label">Available named outputs</span><strong id="count-outputs">0</strong><small>Including exported products</small></button>
+    <button class="metric metric-amber" id="metric-temporary"><span class="metric-label">Temporary products</span><strong id="count-temporary">0</strong><small>Deleted after use</small></button>
+    <button class="metric metric-violet" id="metric-processes"><span class="metric-label">Operations</span><strong id="count-processes">0</strong><small>Processing and data handling</small></button>
+  </section>
+  <main>
+    <aside class="panel controls" aria-label="Pipeline controls">
+      <span class="section-label">EXPLORE THE DATA</span>
+      <h2>Find a product</h2>
+      <label for="search" class="sr-only">Search products or operations</label>
+      <input id="search" type="search" placeholder="Product or operation name…" autocomplete="off">
+      <p id="search-count" class="muted" aria-live="polite"></p>
+      <div id="search-results" class="search-results"></div>
+      <label for="product-scope">Product lifecycle</label>
+      <select id="product-scope"><option value="all">All product versions</option><option value="output">Available / exported outputs</option><option value="input">Inherited inputs</option><option value="temporary">Temporary products</option><option value="retired">Superseded / renamed</option><option value="runtime">Runtime-resolved names</option></select>
+      <div id="focus-control" class="focus-card" hidden><span class="section-label">FOCUSED LINEAGE</span><p id="focus-label"></p><button id="clear-focus">Show the whole pipeline</button></div>
+      <h2>Display options</h2>
+      <label class="check"><input id="show-head" type="checkbox">Intermediate working data (DATAHEAD)</label>
+      <label class="check" id="resume-control" hidden><input id="show-skipped" type="checkbox">Include pre-resume history</label>
+      <div id="process-controls" hidden>
+        <label class="check"><input id="show-order" type="checkbox">Execution-order connections</label>
+        <label class="check"><input id="group-context" type="checkbox">Organise by subroutine</label>
+        <div id="routine-controls" hidden><div class="button-row"><button id="expand-all">Expand all</button><button id="collapse-all">Collapse all</button></div><p class="muted">Optional source-code organisation, not a data boundary.</p><div id="routine-list"></div></div>
+      </div>
+      <section class="legend" aria-label="Product legend"><h2>Product lifecycle</h2><span class="swatch input"></span>Inherited input<span class="swatch output"></span>Available output<span class="swatch temporary"></span>Temporary<span class="swatch retired"></span>Superseded / renamed<span class="swatch exported"></span>Exported</section>
+      <p class="construction-note">Declared dependencies at configuration time. Layers show dependency depth, not duration or runtime file counts.</p>
+      <select id="view-mode" hidden aria-label="Internal graph mode"><option value="products">Data products</option><option value="pipeline">Processing</option></select>
+    </aside>
+    <section class="panel workspace" aria-label="Pipeline views">
+      <nav class="tabs" role="tablist" aria-label="Visualisation">
+        <button id="tab-lineage" role="tab" aria-selected="true" aria-controls="visualisation" data-view="lineage">Data flow<span>Product-to-product lineage</span></button>
+        <button id="tab-catalogue" role="tab" aria-selected="false" aria-controls="visualisation" tabindex="-1" data-view="catalogue">Products<span>Versions and lifetimes</span></button>
+        <button id="tab-processes" role="tab" aria-selected="false" aria-controls="visualisation" tabindex="-1" data-view="processes">Processing<span>How the data is made</span></button>
+      </nav>
+      <div id="visualisation" class="visualisation" role="tabpanel" aria-labelledby="tab-lineage">
+        <div class="toolbar"><div><h2 id="view-title">Data lineage</h2><span id="summary"></span></div><div id="graph-tools" class="button-row"><button id="zoom-out" aria-label="Zoom out">−</button><button id="zoom-in" aria-label="Zoom in">+</button><button id="readable">Readable</button><button id="fit">Fit all</button></div></div>
+        <div id="error" role="alert" hidden></div>
+        <div id="notice" class="notice" hidden></div>
+        <div id="canvas"><svg id="graph" xmlns="http://www.w3.org/2000/svg" role="group" aria-label="Pipeline data lineage"></svg><p id="empty" hidden>No declared data in this view. Try another lifecycle filter.</p><div id="mini-panel" class="mini-panel"><span>PIPELINE MAP · CLICK TO NAVIGATE</span><svg id="minimap" xmlns="http://www.w3.org/2000/svg" role="button" tabindex="0" aria-label="Pipeline overview; click to navigate, Enter to fit all"></svg></div></div>
+        <div id="catalogue" class="catalogue" hidden><div class="catalogue-heading"><p>Every row is a distinct product version. Select a product to inspect or trace it.</p><label for="sort-products">Sort by</label><select id="sort-products"><option value="created">Construction order</option><option value="name">Product name</option><option value="status">Lifecycle</option></select></div><div class="table-scroll"><table><thead><tr><th scope="col">Product</th><th scope="col">Version</th><th scope="col">Lifecycle</th><th scope="col">Producer</th><th scope="col">Consumers</th></tr></thead><tbody id="product-rows"></tbody></table><p id="catalogue-empty" class="muted" hidden>No products match this search and filter.</p></div></div>
+        <p id="graph-hint" class="hint">Drag to pan · Scroll to move · Ctrl+scroll to zoom · Select a product to trace its inputs and descendants</p>
+      </div>
+    </section>
+    <aside class="panel details" aria-label="Selection details">
+      <span class="section-label">PRODUCT INSPECTOR</span><h2>Provenance &amp; lineage</h2>
+      <div id="details"><div class="inspector-empty"><span class="inspector-symbol" aria-hidden="true">◎</span><h3>Start with a data product</h3><p>Select a node or catalogue row to see its producer, consumers, version, and complete lineage.</p></div></div>
+      <div class="provenance-note"><strong>A name is not an identity</strong><p>Separate <code>match_base</code> lifetimes remain separate products. Real shared inputs stay connected, regardless of how the source pipeline is split into subroutines.</p></div>
+    </aside>
+  </main>
+  <footer>CosmoPipe · Configuration-time data provenance <span>Self-contained HTML · No external services</span></footer>
+</div>
+<noscript>This offline viewer needs JavaScript enabled. The companion graph.json contains the pipeline metadata.</noscript>
+<script id="graph-data" type="application/json">__GRAPH_DATA__</script>
+<script>__GRAPH_SCRIPT__</script>
+</body>
+</html>

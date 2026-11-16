@@ -29,12 +29,12 @@ then
 fi 
 #}}}
 
-#Add PSF size residuals {{{
-_message " > @BLU@Adding PSF size residuals to @RED@${current##*/}@DEF@"
+#Add PSF residuals {{{
+_message " > @BLU@Adding PSF ${mode} residuals to @RED@${current##*/}@DEF@"
 @PYTHON3BIN@ @RUNROOT@/@SCRIPTPATH@/add_PSF_residuals.py\
     --inpath ${current} \
     --outpath ${outputname} \
-    --mode @BV:PSFMODE@ \
+    --mode ${mode} \
     --PSF_table @BV:PSFTABLE@ 2>&1
 _message " - @RED@Done! (`date +'%a %H:%M'`)@DEF@\n"
 #}}}

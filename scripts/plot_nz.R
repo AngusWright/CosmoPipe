@@ -3,7 +3,7 @@
 # File Name : plot_nz.R
 # Created By : awright
 # Creation Date : 23-03-2023
-# Last Modified : Wed Nov  4 07:28:17 2026
+# Last Modified : Tue Nov 17 16:20:09 2026
 #
 #=========================================
 
@@ -63,6 +63,37 @@ outputbase<-paste(outputbase[-length(outputbase)],collapse='/')
 npanel<-ceiling(length(binstrings)/3)*3
 cat(paste("using",npanel,"panels\n"))
 
+#Setup the truth binstrings 
+binstrings_truth<-binstrings 
+
+#Check the binstrings 
+found_truth<-FALSE
+for (tomo in 1:length(binstrings_truth)) {
+  #Get the files in this bin 
+  binfiles<-which(grepl(binstrings_truth[tomo],truth.list,fixed=T))
+  print(paste(binstrings_truth[tomo],length(binfiles))) 
+  if (length(binfiles)!=0) {
+    found_truth<-TRUE
+  }
+}
+if (!found_truth) { 
+  warning("binstrings_truth does not identify any file! Trying numerical listing _1_,_2_,_3_,...")
+  binstrings_truth<-paste0("_",1:length(binstrings_truth),"_")
+  #Check the new binstrings 
+  found_truth<-FALSE
+  for (tomo in 1:length(binstrings_truth)) {
+    #Get the files in this bin 
+    binfiles<-which(grepl(binstrings_truth[tomo],truth.list,fixed=T))
+    print(paste(binstrings_truth[tomo],length(binfiles))) 
+    if (length(binfiles)!=0) {
+      found_truth<-TRUE
+    }
+  }
+  if (!found_truth) { 
+    warning("binstrings_truth does not identify any file! Nothing will be plotted for truth.")
+  }
+}
+
 #Check the binstrings 
 found<-FALSE
 for (tomo in 1:length(binstrings)) {
@@ -73,7 +104,10 @@ for (tomo in 1:length(binstrings)) {
     found<-TRUE
   }
 }
-if (!found) { 
+if (!found & found_truth) { 
+  warning("binstrings does not identify any file! But binstrings_truth does; using the truth indices for both lists!")
+  binstrings<-binstrings_truth 
+} else if (!found & !found_truth) { 
   warning("binstrings does not identify any file! Trying numerical listing _1_,_2_,_3_,...")
   binstrings<-paste0("_",1:length(binstrings),"_")
   #Check the new binstrings 
@@ -107,7 +141,11 @@ xmax<-ymax<-0
 #loop over the inputs 
 for (tomo in 1:length(binstrings)) {
   #Get the files in this bin 
-  binfiles<-which(grepl(binstrings[tomo],filelist,fixed=T))
+  if (!found & found_truth) { 
+    binfiles<-which(grepl(binstrings_truth[tomo],truth.list,fixed=T))
+  } else { 
+    binfiles<-which(grepl(binstrings[tomo],filelist,fixed=T))
+  }
   #initialise the nz list 
   truth[[tomo]]<-nz[[tomo]]<-list()
   if (length(binfiles)!=0) { 
@@ -118,16 +156,18 @@ for (tomo in 1:length(binstrings)) {
       #Update progress bar 
       count=count+1
       setTxtProgressBar(pb,count)
-      #read the nz
-      nz[[tomo]][[col.count]]<-helpRfuncs::read.file(filelist[file])
-      #Get the ymax
-      ymax<-max(c(max(nz[[tomo]][[col.count]]$density),ymax))
-      #Get the xmax
-      xmax<-max(c(nz[[tomo]][[col.count]]$binstart[min(which(cumsum(nz[[tomo]][[col.count]]$density)/sum(nz[[tomo]][[col.count]]$density)>0.99))],xmax))
+      if (file.exists(filelist[file])) { 
+        #read the nz
+        nz[[tomo]][[col.count]]<-helpRfuncs::read.file(filelist[file])
+        #Get the ymax
+        ymax<-max(c(max(nz[[tomo]][[col.count]]$density),ymax))
+        #Get the xmax
+        xmax<-max(c(nz[[tomo]][[col.count]]$binstart[min(which(cumsum(nz[[tomo]][[col.count]]$density)/sum(nz[[tomo]][[col.count]]$density)>0.99))],xmax))
+      }
     }
   }
   #Get the files in this bin of the truth 
-  binfiles<-which(grepl(binstrings[tomo],truth.list,fixed=T))
+  binfiles<-which(grepl(binstrings_truth[tomo],truth.list,fixed=T))
   if (length(binfiles)!=0) { 
     col.count<-0
     for (file in binfiles) {
@@ -148,7 +188,11 @@ for (tomo in 1:length(binstrings)) {
 #loop over the inputs 
 for (tomo in 1:length(binstrings)) {
   #Get the files in this bin 
-  binfiles<-which(grepl(binstrings[tomo],filelist,fixed=T))
+  if (!found & found_truth) { 
+    binfiles<-which(grepl(binstrings_truth[tomo],truth.list,fixed=T))
+  } else { 
+    binfiles<-which(grepl(binstrings[tomo],filelist,fixed=T))
+  }
   #Set up the plot panel
   magicaxis::magplot(1,xlim=c(0,xmax),ylim=c(0,ymax),type='n',xlab='',ylab='',side=1:4,labels=c(tomo>length(binstrings)-3,tomo%%3==1,F,F))
   if (length(binfiles)==0) { next }
@@ -166,11 +210,13 @@ for (tomo in 1:length(binstrings)) {
     setTxtProgressBar(pb,count)
     #read the nz
     #Draw the Nz 
-    lines(nz[[tomo]][[col.count]]$binstart,nz[[tomo]][[col.count]]$density,col=seqinr::col2alpha(col[col.count],a=alpha),lwd=1)
-    means[col.count]<-sum(nz[[tomo]][[col.count]]$binstart*nz[[tomo]][[col.count]]$density)
+    try({
+      lines(nz[[tomo]][[col.count]]$binstart,nz[[tomo]][[col.count]]$density,col=seqinr::col2alpha(col[col.count],a=alpha),lwd=1)
+      means[col.count]<-sum(nz[[tomo]][[col.count]]$binstart*nz[[tomo]][[col.count]]$density)
+    })
   }
   #Get the files in this bin 
-  binfiles<-which(grepl(binstrings[tomo],truth.list,fixed=T))
+  binfiles<-which(grepl(binstrings_truth[tomo],truth.list,fixed=T))
   if (length(binfiles)>0) { 
     col.count<-0
     truth.means<-rep(NA,length(binfiles))
@@ -182,8 +228,10 @@ for (tomo in 1:length(binstrings)) {
       setTxtProgressBar(pb,count)
       #read the nz
       #Draw the Nz 
-      lines(truth[[tomo]][[col.count]]$binstart,truth[[tomo]][[col.count]]$density,col=seqinr::col2alpha('black',a=0.8),lwd=1,lty=3)
-      truth.means[col.count]<-sum(truth[[tomo]][[col.count]]$binstart*truth[[tomo]][[col.count]]$density)
+      try({
+        lines(truth[[tomo]][[col.count]]$binstart,truth[[tomo]][[col.count]]$density,col=seqinr::col2alpha('black',a=0.8),lwd=1,lty=3)
+        truth.means[col.count]<-sum(truth[[tomo]][[col.count]]$binstart*truth[[tomo]][[col.count]]$density)
+      })
     }
     if (length(means)==1) { 
       text(ymax*0.75,xmax*0.75,labels=bquote(delta[z]==.(round(digits=3,means-truth.means))))

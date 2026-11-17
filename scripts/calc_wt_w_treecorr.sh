@@ -141,7 +141,7 @@ do
       bin_slop=@BV:BINSLOPNN@
       if [[ $bin_slop =~ ^[+-]?[0-9]+\.?[0-9]*$ ]]
       then
-        bin_slop=@BV:BINSLOPNN@
+        bin_slop_NN=@BV:BINSLOPNN@
       else
         if [ @BV:NTHETABINWT@ -gt 100 ]
         then
@@ -154,7 +154,7 @@ do
       bin_slop=@BV:BINSLOPNG@
       if [[ $bin_slop =~ ^[+-]?[0-9]+\.?[0-9]*$ ]]
       then
-        bin_slop=@BV:BINSLOPNG@
+        bin_slop_NG=@BV:BINSLOPNG@
       else
         if [ @BV:NTHETABINWT@ -gt 100 ]
         then

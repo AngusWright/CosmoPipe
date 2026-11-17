@@ -1590,6 +1590,7 @@ do
 			
 			red_obs_file="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/IA_hm_data/red_cen_obs_pdf.txt"
 			blue_obs_file="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/IA_hm_data/blue_cen_obs_pdf.txt"
+			fraction_file="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/IA_hm_data/f_red.txt"
 			
 			if [ "$add_intrinsic" == "True" ] && [ "${IAMODEL^^}" == "HALO_MODEL" ]
 			then
@@ -1678,14 +1679,15 @@ do
 				hod_section_name_ia_1 = hod_ia_blue
 				observables_file_ia_1 = ${blue_obs_file}
 				nobs_ia_1 = 200 
-				nz_ia_1 = 50 ; %(nz_def)s
 				output_suffix_ia_1 = ia_blue
 
 				hod_section_name_ia_2 = hod_ia_red
 				observables_file_ia_2 = ${red_obs_file}
 				nobs_ia_2 = 200
-				nz_ia_2 = 50 ; %(nz_def)s
 				output_suffix_ia_2 = ia_red
+
+				fraction_file = ${fraction_file}
+				fraction_model = 2
 				
 				EOF
 			else

@@ -48,15 +48,17 @@ args$features=helpRfuncs::vecsplit(args$features,",")
 args$features=helpRfuncs::vecsplit(args$features," ")
 
 colnames<-helpRfuncs::read.colnames(args$train)
+lower.colnames<-tolower(colnames)
 train.cols<-NULL
 for (f in c(args$features,args$label)) { 
-  train.cols<-c(train.cols,colnames[which(tolower(colnames)==tolower(f))])
+  train.cols<-c(train.cols,colnames[which(lower.colnames==tolower(f))])
 }
 if (length(train.cols)!=length(args$features)+1) stop("missing training columns")
 colnames<-helpRfuncs::read.colnames(args$input)
+lower.colnames<-tolower(colnames)
 test.cols<-NULL
 for (f in args$features) { 
-  test.cols<-c(test.cols,colnames[which(tolower(colnames)==tolower(f))])
+  test.cols<-c(test.cols,colnames[which(lower.colnames==tolower(f))])
 }
 if (length(test.cols)!=length(args$features)) stop("missing training columns")
 
@@ -98,24 +100,33 @@ cat(paste0("There are ",length(which(idx$nn.idx[,1]!=0))," matches (out of ",nro
 if (!args$duplicates) { 
   #Use the best match, keeping only the best-est match for duplicates 
   prediction=rep(NA,nrow(test_data))
+  pred_id=seq_len(nrow(test_data))
+  used=rep(FALSE,nrow(train_data))
+  # Preserve legacy invalidation by predicted label, not matched training row.
+  # Assignment also preserves the original coercion of factor/logical labels.
+  label_index=rep(NA,nrow(train_data))
+  label_index[]=train_data[[args$label]]
+  label_index=match(label_index,seq_len(nrow(train_data)),nomatch=0L)
   for (run_id in 1:ncol(idx$nn.idx)) { 
-    #For everything not yet predicted: 
-    pred_id = which(is.na(prediction))
     if (length(pred_id)==0) break
-    #Best matches 
+    # Invalidate only the current candidates, without rewriting the N x k matrices.
     idx_start = idx$nn.idx[pred_id,run_id]
-    if (any(duplicated(idx_start))) { 
+    unavailable=used[idx_start]
+    idx_start[unavailable]=NA_integer_
+    keep=rep(TRUE,length(pred_id))
+    if (anyDuplicated(idx_start)) {
       #order by separation 
-      sep_order = order(idx$nn.dists[pred_id,run_id])
+      separation=idx$nn.dists[pred_id,run_id]
+      separation[unavailable]=Inf
+      sep_order = order(separation)
       #Identify duplicated ids, keeping best match for each duplicated source 
       dups = sep_order[which(duplicated(idx_start[sep_order]))]
-      #Keep the non-duplicated entries 
-      prediction[pred_id][-dups] = train_data[[args$label]][idx_start][-dups]
-    } else { 
-      prediction[pred_id] = train_data[[args$label]][idx_start]
+      keep[dups]=FALSE
     }
-    idx$nn.dists[which(idx$nn.idx%in%prediction)]<-Inf
-    idx$nn.idx[which(idx$nn.idx%in%prediction)]<-NA
+    matched=idx_start[keep]
+    prediction[pred_id[keep]]=train_data[[args$label]][matched]
+    used[label_index[matched[!is.na(matched)]]]=TRUE
+    pred_id=pred_id[is.na(prediction[pred_id])]
   }
 } else { 
   #Use the best match, regardless of duplication 
@@ -139,4 +150,3 @@ if (length(which(!duplicated(prediction)))>10) {
 cat("writing output data\n")
 test_data[[args$label]] = prediction
 helpRfuncs::write.file(test_data,file=args$output)
-

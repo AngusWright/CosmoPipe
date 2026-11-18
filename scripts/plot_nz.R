@@ -9,6 +9,7 @@
 
 #Get the filelist from input
 inputs<-commandArgs(TRUE) 
+outputfile<-NULL
 
 #Interpret the command line options 
 while (length(inputs)!=0) {
@@ -42,6 +43,12 @@ while (length(inputs)!=0) {
     } 
     truth.list<-helpRfuncs::vecsplit(truth.list,by=' ')
     #/*fold*/}}}
+  } else if (inputs[1]=='--output') {
+    if (length(inputs)<2 || !nzchar(inputs[2]) || grepl("^--",inputs[2])) {
+      stop("--output requires a filename")
+    }
+    outputfile<-inputs[2]
+    inputs<-inputs[-c(1,2)]
   } else if (inputs[1]=='--binstrings') { 
     #Read the input catalogue(s) /*fold*/ {{{
     inputs<-inputs[-1]
@@ -59,6 +66,7 @@ while (length(inputs)!=0) {
 }
 outputbase<-helpRfuncs::vecsplit(filelist[1],by='/')
 outputbase<-paste(outputbase[-length(outputbase)],collapse='/')
+if (is.null(outputfile)) outputfile<-paste0(outputbase,"_Nz.png")
 #Setup the layout image
 npanel<-ceiling(length(binstrings)/3)*3
 cat(paste("using",npanel,"panels\n"))
@@ -127,7 +135,7 @@ if (!found & found_truth) {
 
 #Output the valid Nz plot {{{
 cat("Plotting Nz\n")
-png(file=paste0(outputbase,"_Nz.png"),height=2.5*(npanel/3)*220,width=10*220,res=220)
+png(file=outputfile,height=2.5*(npanel/3)*220,width=10*220,res=220)
 #set up panels 
 layout(matrix(1:npanel,ncol=3,byrow=T))
 par(mar=c(0,0,0,0),oma=c(4,4,1,1))
@@ -252,4 +260,3 @@ mtext(side=1,outer=T,text="redshift",line=3)
 mtext(side=2,outer=T,text="PDF",line=2.5)
 dev.off()
 #}}}
-

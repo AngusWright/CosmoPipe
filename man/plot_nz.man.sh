@@ -17,8 +17,9 @@ function _prompt {
 #Mode description {{{
 function _description { 
   echo "#"
-  echo '# Plot nz contained in the @DB:nz@ block, split by '
+  echo '# Plot nz contained in the @BV:NZ_PLOTBLOCK@ block, split by '
   echo '# tomographic bin'
+  echo '# Publish Nz.png in nz_plots_@BV:NZ_PLOTBLOCK@ without changing DATAHEAD.'
   echo "#"
   echo "# Function takes input data:"
   echo "# `_inp_data`"
@@ -57,7 +58,7 @@ function _inp_data {
 # Output data {{{ 
 function _outputs { 
   #Data outputs (leave blank if none)
-  echo ''
+  echo nz_plots_@BV:NZ_PLOTBLOCK@
 } 
 #}}}
 
@@ -76,4 +77,3 @@ function _unset_functions {
 #}}}
 
 #Additional Functions 
-

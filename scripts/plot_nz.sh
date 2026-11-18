@@ -7,6 +7,8 @@
 #
 #=========================================
 
+set -e
+
 #Construct the tomographic bin catalogue strings {{{
 binstrings=''
 NTOMO=`echo @BV:TOMOLIMS@ | awk '{print NF-1}'`
@@ -48,6 +50,16 @@ do
   inplist="$inplist /@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/@BV:NZ_PLOTBLOCK@/$f"
 done
 
-#Run the R plotting code 
-@P_RSCRIPT@ @RUNROOT@/@SCRIPTPATH@/plot_nz.R -i $inplist --truth "${truth}" --binstrings ${binstrings} 2>&1
+plotblock="nz_plots_@BV:NZ_PLOTBLOCK@"
+outputdir="@RUNROOT@/@STORAGEPATH@/@DATABLOCK@/${plotblock}"
+mkdir -p "${outputdir}"
+output="${outputdir}/Nz.png"
 
+#Run the R plotting code
+@P_RSCRIPT@ "@RUNROOT@/@SCRIPTPATH@/plot_nz.R" -i $inplist \
+  --truth "${truth}" --binstrings ${binstrings} --output "${output}" 2>&1
+if [ ! -s "${output}" ]; then
+  _message "ERROR: plot_nz did not produce ${output}.\n" >&2
+  exit 1
+fi
+_write_datablock "${plotblock}" "Nz.png"

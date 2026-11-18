@@ -3,15 +3,13 @@
 # File Name : compute_2SOM_nz_weights.R
 # Created By : awright
 # Creation Date : 18-07-2025
-# Last Modified : Thu Nov  5 06:02:34 2026
+# Last Modified : Tue Nov 17 20:25:18 2026
 #
 #=========================================
 
 
 
 library(argparser)
-library(doParallel)
-library(foreach)
 
 parser = arg_parser(
     description="Compute the SOM Nz weights from the transfer function, spec, and wide catalogues."
@@ -27,6 +25,10 @@ parser<-add_argument(parser,
 parser<-add_argument(parser,
     short="-o", "--output",
     help="path to the output with added label",
+)
+parser<-add_argument(parser,
+    "--wide.output", default="",
+    help="optional output catalogue with unsupported wide weights set to zero",
 )
 parser<-add_argument(parser,
     short="-ww", "--wide.weight", 
@@ -46,104 +48,130 @@ parser<-add_argument(parser,
 )
 parser<-add_argument(parser,
     "--nthread", default=128,
-    help="Number of parallel threads"
+    help="Retained for CLI compatibility; cell totals now use single-pass grouped sums"
 )
 
 
 #Get the arguments 
-args<-parse_args(parser)
+# argparser otherwise splits the legacy multi-character short options.
+argv<-commandArgs(trailingOnly=TRUE)
+argv[argv=="-sw"]<-"--spec.weight"
+argv[argv=="-ww"]<-"--wide.weight"
+args<-parse_args(parser,argv=argv)
 print(args)
 
-if (args$spec.weight=='') args$spec.weight<-NULL
-if (args$wide.weight=='') args$wide.weight<-NULL
+for (name in c("spec","wide","transfer","output")) {
+  if (is.na(args[[name]]) || !nzchar(args[[name]])) stop(paste(name,"is required"))
+}
+optional_column<-function(name) {
+  if (is.null(name) || is.na(name) || name=="") return(NULL)
+  name
+}
+args$spec.weight<-optional_column(args$spec.weight)
+args$wide.weight<-optional_column(args$wide.weight)
+if (!is.finite(args$nthread) || args$nthread<1 || args$nthread!=floor(args$nthread)) {
+  stop("nthread must be a positive integer")
+}
+write_wide<-nzchar(args$wide.output)
+input_paths<-normalizePath(c(args$spec,args$wide,args$transfer),mustWork=FALSE)
+output_paths<-normalizePath(c(args$output,if (write_wide) args$wide.output),mustWork=FALSE)
+if (any(output_paths %in% input_paths) || anyDuplicated(output_paths)) {
+  stop("output paths must differ from each other and from all input paths")
+}
 
 cat("reading input data\n")
-#Check the spec data for required columns {{{
-cols<-helpRfuncs::read.colnames(args$spec)
-#Check for groupID {{{
-if (!"groupID" %in% cols) { 
-  stop("There is no 'groupID' column in the spec catalogue")
+resolve_weight<-function(file,name,sample) {
+  cols<-helpRfuncs::read.colnames(file,extname=args$extname)
+  if (!"groupID" %in% cols) stop(paste("There is no 'groupID' column in the",sample,"catalogue"))
+  if (is.null(name) || name %in% cols) return(name)
+  matches<-which(tolower(cols)==tolower(name))
+  if (length(matches)!=1L) {
+    stop(paste("There is no column",name,"in the",sample,
+               "catalogue, and no unique case-insensitive match."))
+  }
+  cols[matches]
 }
-#}}}
-#Check for spec.weight if requested {{{
-if (!is.null(args$spec.weight)) { 
-  if (!args$spec.weight %in% cols) { 
-    lowmatch<-which(tolower(args$spec.weight) %in% tolower(cols))
-    if (length(lowmatch==1)) { 
-      args$spec.weight<-cols[lowmatch]
-    } else { 
-      stop(paste("There is no column ",args$spec.weight,"in the spec catalogue, and no unique case-insensitive match."))
-    }
-  } 
-}#}}}
-#}}}
-#Check the wide data for required columns {{{
-cols<-helpRfuncs::read.colnames(args$wide)
-#Check for groupID {{{
-if (!"groupID" %in% cols) { 
-  stop("There is no 'groupID' column in the spec catalogue")
+args$spec.weight<-resolve_weight(args$spec,args$spec.weight,"spec")
+args$wide.weight<-resolve_weight(args$wide,args$wide.weight,"wide")
+read_catalogue<-function(file,...) {
+  if (grepl("\\.(fits|cat)$",file,ignore.case=TRUE)) {
+    helpRfuncs::read.file(file,extname=args$extname,...)
+  } else {
+    helpRfuncs::read.file(file,...)
+  }
 }
-#}}}
-#Check for wide.weight if requested {{{
-if (!is.null(args$wide.weight)) { 
-  if (!args$wide.weight %in% cols) { 
-    lowmatch<-which(tolower(args$wide.weight) %in% tolower(cols))
-    if (length(lowmatch==1)) { 
-      args$wide.weight<-cols[lowmatch]
-    } else { 
-      stop(paste("There is no column ",args$wide.weight,"in the wide catalogue, and no unique case-insensitive match."))
-    }
-  } 
-}#}}}
-#}}}
-spec_data = helpRfuncs::read.file(args$spec,cols=c("groupID",args$spec.weight),ext=args$extname)
-wide_data = helpRfuncs::read.file(args$wide,cols=c("groupID",args$wide.weight),ext=args$extname)
+spec_data = read_catalogue(args$spec,cols=c("groupID",args$spec.weight))
+if (write_wide) {
+  wide_data = read_catalogue(args$wide)
+} else {
+  wide_data = read_catalogue(args$wide,cols=c("groupID",args$wide.weight))
+}
 tfun = as.matrix(helpRfuncs::read.file(args$transfer))
 
-#Compute the wide and spec cell occupation statistics 
-if (is.null(args$spec.weight)) { 
-  spec_ic<-as.numeric(table(factor(spec_data$groupID,levels=1:nrow(tfun))))
-} else { 
-  registerDoParallel(cores=args$nthread)
-  spec_ic<-foreach(i=1:nrow(tfun),.combine=rbind,.inorder=TRUE)%dopar%{ 
-    wt<-sum(spec_data[[args$spec.weight]][which(spec_data$groupID==i)],na.rm=T)
-    return=wt
+if (!is.numeric(tfun) || any(dim(tfun)<1) || any(!is.finite(tfun) | tfun<0)) {
+  stop("transfer function must be a non-empty matrix of finite non-negative counts")
+}
+validate_cells<-function(ids,ncell,sample) {
+  if (!is.numeric(ids) || any(!is.finite(ids) | ids<1 | ids>ncell | ids!=floor(ids))) {
+    stop(paste(sample,"groupID values must be integer cell indices within the transfer dimensions"))
   }
 }
-if (is.null(args$wide.weight)) { 
-  wide_ic<-as.numeric(table(factor(wide_data$groupID,levels=1:ncol(tfun))))
-} else { 
-  registerDoParallel(cores=args$nthread)
-  wide_ic<-foreach(i=1:ncol(tfun),.combine=rbind,.inorder=TRUE)%dopar%{ 
-    wt<-sum(wide_data[[args$wide.weight]][which(wide_data$groupID==i)],na.rm=T)
-    return=wt
+validate_cells(spec_data$groupID,nrow(tfun),"spec")
+validate_cells(wide_data$groupID,ncol(tfun),"wide")
+cell_totals<-function(data,column,ncell,sample) {
+  ids<-data$groupID
+  if (is.null(column)) return(tabulate(ids,nbins=ncell))
+  weights<-data[[column]]
+  if (!is.numeric(weights) || any(is.infinite(weights) | weights<0,na.rm=TRUE)) {
+    stop(paste(sample,"weights must be non-negative and finite (or missing)"))
   }
+  if (anyNA(weights)) {
+    warning(paste("Missing",sample,"weights contribute zero to cell totals"))
+    weights[is.na(weights)]<-0
+  }
+  totals<-numeric(ncell)
+  if (length(ids)) {
+    grouped<-rowsum(as.numeric(weights),ids,reorder=FALSE)
+    totals[as.integer(rownames(grouped))]<-grouped[,1]
+  }
+  if (any(!is.finite(totals))) stop("cell weight totals overflowed")
+  totals
 }
+spec_ic<-cell_totals(spec_data,args$spec.weight,nrow(tfun),"spec")
+wide_ic<-cell_totals(wide_data,args$wide.weight,ncol(tfun),"wide")
 
-if (length(dim(wide_ic))>1) { wide_ic<-as.numeric(wide_ic) } 
-
-print(str(wide_ic))
-print(str(tfun))
-#Normalise the transfer function so columns (wide-cells) sum to the wide occupation 
-tfun<-t(t(tfun)/colSums(tfun,na.rm=T)*wide_ic)
-if (any(!is.finite(tfun))) { 
-  warning("There are non-finite transfer function cells?! a wide cell must be empty?!") 
-  tfun[which(!is.finite(tfun))]<-0
-}
-#Compute the per-deep-cell somweight 
-somweight_mat<-rowSums(tfun)/spec_ic
-if (any(!is.finite(somweight_mat))) { 
-  warning("There are non-finite somweight matrix cells!") 
-  somweight_mat[which(!is.finite(somweight_mat))]<-0
-}
-#Assign the SOM weights to the individual spectra 
+# A wide cell is usable only if a positive transfer links it to usable spectra.
+supported<-as.vector(crossprod(as.numeric(spec_ic>0),tfun))>0
+wide_mask<-supported[wide_data$groupID]
+wide_ic[!supported]<-0
+transfer_totals<-colSums(tfun)
+if (any(!is.finite(transfer_totals))) stop("transfer column totals overflowed")
+scale<-numeric(ncol(tfun))
+nonempty<-transfer_totals>0 & supported
+scale[nonempty]<-wide_ic[nonempty]/transfer_totals[nonempty]
+somweight_mat<-numeric(nrow(tfun))
+represented<-spec_ic>0
+# Apply column normalisation 
+deep_totals<-as.vector(tfun %*% scale)
+somweight_mat[represented]<-deep_totals[represented]/spec_ic[represented]
+if (any(!is.finite(somweight_mat))) stop("SOM weight computation overflowed")
 spec_data$SOMweight<-somweight_mat[spec_data$groupID]
-#set the non-finite weights to zero, with a warning! 
-if (any(!is.finite(spec_data$SOMweight))) { 
-  warning("There are non-finite SOM weights! Some deep cells must be empty!")
-  spec_data$SOMweight[which(!is.finite(spec_data$SOMweight))]<-0
+
+if (write_wide) {
+  if (is.null(args$wide.weight)) {
+    wide_data$SOMweight<-as.numeric(wide_mask)
+  } else {
+    wide_data[[args$wide.weight]][!wide_mask]<-0
+  }
+  cat("Zeroing weights for",sum(!wide_mask),"wide sources in",
+      sum(!supported),"wide cells without usable spec information\n")
 }
-
-helpRfuncs::write.file(file=args$output,spec_data)
-
-
+write_catalogue<-function(data,file) {
+  if (grepl("\\.(fits|cat)$",file,ignore.case=TRUE)) {
+    helpRfuncs::write.file(file=file,data,extname=args$extname)
+  } else {
+    helpRfuncs::write.file(file=file,data)
+  }
+}
+write_catalogue(spec_data,args$output)
+if (write_wide) write_catalogue(wide_data,args$wide.output)

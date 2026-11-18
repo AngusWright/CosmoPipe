@@ -32,6 +32,63 @@ Processing functions exchange products through a persistent **data block**. `DAT
 
 Do not edit or run individual steps from a generated pipeline script independently: their correctness depends on the declared data flow and generated runtime context.
 
+### Weighted 2SOM calibration
+
+`compute_2SOM_nz_weights` retains the spec catalogues with their multiplicative
+`SOMweight` column in `DATAHEAD`. It also publishes new LDAC catalogues in
+`som_weight_wide_masked`, with `BV:WEIGHTNAME` zeroed for wide cells with no
+positive transfer link to a deep cell containing positive total spectroscopic
+weight (`BV:CALIBWEIGHTNAME`). Partially supported wide cells retain their
+original weights and the existing full-column transfer normalisation. Use the
+new block, rather than `som_weight_wide`, for subsequent wide-sample processing.
+The source catalogues are not modified.
+
+The R implementation uses grouped cell totals and matrix-vector multiplication
+instead of per-cell catalogue scans and dense transposes; `--nthread` remains
+accepted for compatibility but no longer starts worker processes. Direct
+callers can request `--wide.output output.cat`; without a wide weight column,
+this adds a binary `SOMweight` coverage mask instead. Outputs use
+`helpRfuncs::write.file`; `.cat` selects its LDAC writer. Wide outputs retain
+all object columns and row order, but are reconstructed catalogues: arbitrary
+input FITS headers and additional extensions are not copied.
+
+Cell IDs must be integer indices within the transfer matrix dimensions.
+Transfer entries and sample weights must be non-negative and finite; missing
+sample weights contribute zero to cell totals with a warning. A missing weight
+column name means unit weights; a misspelled or ambiguous column name is an
+error. The wrapper requires equally sized, non-empty input lists and unique
+spec catalogue basenames.
+
+### Plotting redshift-bias priors
+
+Add `plot_dz_priors` after `compute_dz_priors` in a pipeline or subroutine to
+plot each available patch in `BV:PATCHLIST`, `ALLPATCH`, and `ALLPATCHcomb`.
+The function reads `nzbias_<patch>` and `nzcov_<patch>`, including the adjacent
+`wSig_` files written by `compute_dz_priors`. Keep these companion files with
+the registered products: they contain the joint mean- and width-bias results.
+
+Each `dz_priors_plots_<patch>` output block contains `nzbias.pdf`,
+`width_bias.pdf`, `covariance.pdf`, and `correlation.pdf`. Bias plots show
+calibration minus reference, with one-sigma uncertainties from the covariance
+diagonal; width bias is the **absolute difference of redshift standard
+deviations**, not a fractional change. Matrix plots show all `2N` parameters
+(mean biases in bin order, followed by width biases), including mean-width
+cross-covariances. R plotting uses `magicaxis`, with
+`helpRfuncs::plot_covcor` displaying the explicitly normalised correlation
+matrix. Zero-variance parameters have zero-length error bars and grey,
+undefined correlation cells.
+
+`DATAHEAD` and the input priors are unchanged. Patches with neither input block
+are reported and skipped; incomplete or malformed priors fail explicitly.
+
+### Redshift-distribution plots
+
+`plot_nz` publishes its combined tomographic figure as `Nz.png` in the
+`nz_plots_<BV:NZ_PLOTBLOCK>` data block, without changing `DATAHEAD`. Different
+input blocks therefore retain separate tracked plot products. Direct calls to
+`scripts/plot_nz.R` can use `--output filename.png`; without this option, the
+original output location beside the input directory is retained.
+
 ## Repository layout
 
 | Path | Purpose |

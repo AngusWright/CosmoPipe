@@ -3,7 +3,7 @@
 # File Name : computs_dz_priors.R
 # Created By : awright
 # Creation Date : 29-03-2023
-# Last Modified : Tue Nov 25 10:09:28 2025
+# Last Modified : Tue Nov 17 22:02:57 2026
 #
 #=========================================
 
@@ -192,7 +192,14 @@ for (patch in patchstrings) {
           calib[[redshift.label]][which(calib[[redshift.label]]<0)]<-0
         }
         #Read the reference file 
-        refr<-helpRfuncs::read.file(refr_cats[i],data.table=FALSE,cols=c(redshift.label,gold.label,weight.label))
+        cols<-helpRfuncs::read.colnames(refr_cats[i])
+        if (!gold.label %in% cols) { 
+          cat(paste("WARNING: there is no gold label in the reference catalogue! Assuming that the gold class is already implicitly applied to the weight:",weight.label))
+          refr<-helpRfuncs::read.file(refr_cats[i],data.table=FALSE,cols=c(redshift.label,weight.label))
+          refr[[gold.label]]<-1
+        } else { 
+          refr<-helpRfuncs::read.file(refr_cats[i],data.table=FALSE,cols=c(redshift.label,gold.label,weight.label))
+        }
         if (any(refr[[redshift.label]]<0)) { 
           cat("WARNING: reference sources have negative redshift in file",refr_cats[i],"!\n")
           refr[[redshift.label]][which(refr[[redshift.label]]<0)]<-0

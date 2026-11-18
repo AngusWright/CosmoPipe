@@ -18,6 +18,10 @@ function _prompt {
 function _description { 
   echo "#"
   echo '# compute SOM weights using the 2SOM method'
+  echo '# Write LDAC wide catalogues to som_weight_wide_gold, with'
+  echo '# sample weights zeroed where no transfer link reaches a deep'
+  echo '# cell with positive total spectroscopic weight.'
+  echo '# DATAHEAD continues to contain only the weighted spec catalogues.'
   echo "#"
   echo "# Function takes input data:"
   echo "# `_inp_data`"
@@ -42,7 +46,7 @@ set -e
 # Input variables {{{ 
 function _inp_var { 
   #Variable inputs (leave blank if none)
-  echo BLU DATABLOCK DEF MACHINE P_RSCRIPT RED RUNROOT SCRIPTPATH STORAGEPATH
+  echo BLU BV:CALIBWEIGHTNAME BV:WEIGHTNAME DATABLOCK DEF MACHINE P_RSCRIPT RED RUNROOT SCRIPTPATH STORAGEPATH
 } 
 #}}}
 
@@ -56,7 +60,7 @@ function _inp_data {
 # Output data {{{ 
 function _outputs { 
   #Data outputs (leave blank if none)
-  echo DATAHEAD
+  echo DATAHEAD som_weight_wide_gold
 } 
 #}}}
 
@@ -75,4 +79,3 @@ function _unset_functions {
 #}}}
 
 #Additional Functions 
-

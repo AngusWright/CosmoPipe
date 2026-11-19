@@ -84,6 +84,8 @@ parser.add_argument('-k','--nbins_bp', dest="nbins_bp", type=int,default=8, narg
 # 2pcf options
 parser.add_argument('--nbins_2pcf', dest="nbins_2pcf", type=int,default=9, nargs='?',
     help='number of xipm bins to produce, default is 9')
+parser.add_argument('--no_npair_weighted',dest="no_npair_weighted",nargs='?',default=False,required=False, 
+    help='If set does not looks for n_pair_weighted column. Use this if weights are all equal and your file does not include them. For example for simulations.')
 
 # psi options
 parser.add_argument('--filterfoldername', dest="filterfoldername", 
@@ -114,7 +116,7 @@ cfoldername=args.cfoldername
 outputfile=args.outputfile
 binning=args.binning
 DontCheckBinEdges=str2bool(args.force)
-verbose=args.verbose
+verbose=str2bool(args.verbose)
 # COSEBIs options
 nModes=args.nCOSEBIs
 tfoldername=args.tfoldername
@@ -136,6 +138,7 @@ nbins_bp=args.nbins_bp
 save_kernels=args.save_kernels
 # xipm options
 nbins_2pcf=args.nbins_2pcf
+no_npair_weighted=str2bool(args.no_npair_weighted)
 # psi options
 ufile=args.ufile
 qfile=args.qfile
@@ -438,8 +441,11 @@ elif mode == 'xipm':
     meanlnr = tpcf_data['meanlogr']
     weight = tpcf_data['weight']
     keys = tpcf_data.keys()
-    
-    wgtBlock_keys = ['weight', 'npairs', 'npairs_weighted']
+    if no_npair_weighted:
+        wgtBlock_keys = ['weight', 'npairs']
+        print('no npair_wieghted column')
+    else:
+        wgtBlock_keys = ['weight', 'npairs', 'npairs_weighted']
     valueBlock_keys = [k for k in keys if (k not in wgtBlock_keys) and (k not in ['r_nom','meanr', 'meanlogr'])]
 
     valueBlock = np.array([tpcf_data[key] for key in valueBlock_keys])
@@ -480,7 +486,8 @@ elif mode == 'gt':
     meanlnr = tpcf_data['meanlogr']
     weight = tpcf_data['weight']
     keys = tpcf_data.keys()
-    
+
+    # [MA] check this
     wgtBlock_keys = ['weight', 'npairs_weighted']#, 'npairs_weighted']
     valueBlock_keys = [k for k in keys if (k not in wgtBlock_keys) and (k not in ['r_nom','meanr', 'meanlogr'])]
 
@@ -522,7 +529,8 @@ elif mode == 'wt':
     meanlnr = tpcf_data['meanlogr']
     weight = tpcf_data['weight']
     keys = tpcf_data.keys()
-    
+
+    # [MA] check this
     wgtBlock_keys = ['weight', 'npairs_weighted']#, 'npairs_weighted']
     valueBlock_keys = [k for k in keys if (k not in wgtBlock_keys) and (k not in ['r_nom','meanr', 'meanlogr'])]
 

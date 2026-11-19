@@ -49,6 +49,8 @@ parser.add_argument('-f','--force',dest="force",nargs='?',default=False,required
     help='Do not check if the bin edges match. Default is FALSE.')
 parser.add_argument('--save_kernels',dest="save_kernels",nargs='?',default=False,required=False,
     help='Write kernels to disk. Default is FALSE.')
+parser.add_argument('--verbose',dest="verbose",nargs='?',default=False,required=False,
+    help='If True prints more info out. Use this for debugging. Default is FALSE.')
 
 # COSEBIs options
 parser.add_argument('-n','--nCOSEBIs', dest="nCOSEBIs", type=int, default=10, nargs='?', required=False,
@@ -112,6 +114,7 @@ cfoldername=args.cfoldername
 outputfile=args.outputfile
 binning=args.binning
 DontCheckBinEdges=str2bool(args.force)
+verbose=args.verbose
 # COSEBIs options
 nModes=args.nCOSEBIs
 tfoldername=args.tfoldername
@@ -149,7 +152,7 @@ elif(mode=='psi_gm'):
     filename = qfile
 
 print('Input file is '+inputfile+', making '+str(mode)+' for theta in ['+'%.2f' %thetamin+"'," 
-    +'%.2f' %thetamax+"'], outputfiles are: "+cfoldername+"/En_"+outputfile+'.ascii and '+cfoldername+'/Bn_'+outputfile+'.ascii')
+    +'%.2f' %thetamax+"']")
 
 
 # Load the input 2pt correlation function data
@@ -258,11 +261,13 @@ if mode == 'cosebis':
         TminusFileName= tfoldername+'/'+tminusfile+'_n'+str(n)+'_'+thetaRange+'.table'
 
         if(os.path.isfile(TplusFileName)):
-            print('T_plus file: %s found!'%TplusFileName)
+            if verbose:
+                print('T_plus file: %s found!'%TplusFileName)
             file = open(TplusFileName)
             tp=np.loadtxt(file,comments='#')
         else:
-            print('T_plus file: %s not found! Calculating now!'%TplusFileName)
+            if verbose:
+                print('T_plus file: %s not found! Calculating now!'%TplusFileName)
             file = open(normfile)
             norm_all=np.loadtxt(file,comments='#')
             norm_in=norm_all[n-1]
@@ -276,12 +281,14 @@ if mode == 'cosebis':
             np.savetxt(TplusFileName,tp)
     # 
         if(os.path.isfile(TminusFileName)):
-            print('T_minus file: %s found!'%TminusFileName)
+            if verbose:
+                print('T_minus file: %s found!'%TminusFileName)
             file = open(TminusFileName)
             tm=np.loadtxt(file,comments='#')
         else:
             file = open(normfile)
-            print('T_minus file: %s not found! Calculating now!'%TminusFileName)
+            if verbose:
+                print('T_minus file: %s not found! Calculating now!'%TminusFileName)
             norm_all=np.loadtxt(file,comments='#')
             norm_in=norm_all[n-1]
             norm=norm_in[1]
@@ -310,6 +317,7 @@ if mode == 'cosebis':
     BnfileName=cfoldername+"/Bn_"+outputfile+".asc"
     np.savetxt(EnfileName,En)
     np.savetxt(BnfileName,Bn)
+    print("outputfiles are: "+EnfileName+' and '+BnfileName)
     if save_kernels:
         IntegPlusFileName=cfoldername+"/FilterPlus_"+outputfile+".asc"
         IntegMinusFileName=cfoldername+"/FilterMinus_"+outputfile+".asc"
@@ -349,9 +357,10 @@ elif (mode == 'psi_gg') or (mode == 'psi_gm'):
         Integral=sum(integ*delta_theta)
         psi[n-1] = Integral
 
-
+    
     psifileName=psifoldername+"/psi_"+corr_type+"_"+outputfile+".asc"
     np.savetxt(psifileName,psi,header=" theta_min = " + tmin + ", theta_max = "+ tmax)
+    print("outputfile is: "+psifileName)
 
 elif mode == 'bandpowers_ee':
     CE = np.zeros(nbins_bp)
@@ -373,6 +382,7 @@ elif mode == 'bandpowers_ee':
     CBfileName=cfoldername+"/CBB_"+outputfile+".asc"
     np.savetxt(CEfileName,CE)
     np.savetxt(CBfileName,CB)
+    print("outputfiles are: "+CEfileName+' and '+CBfileName)
     if save_kernels:
         FilterPlusFileName=cfoldername+"/FilterEEPlus_"+outputfile+".asc"
         FilterMinusFileName=cfoldername+"/FilterEEMinus_"+outputfile+".asc"
@@ -397,6 +407,7 @@ elif mode == 'bandpowers_ne':
     CnBfileName=cfoldername+"/CnB_"+outputfile+".asc"
     np.savetxt(CnEfileName,CnE)
     np.savetxt(CnBfileName,CnB)
+    print("outputfiles are: "+CnEfileName+' and '+CnBfileName)
     if save_kernels:
         FilterFileName=cfoldername+"/FilterNE_"+outputfile+".asc"
         np.savetxt(FilterFileName,filter)
@@ -413,6 +424,7 @@ elif mode == 'bandpowers_nn':
         Cnn[i]=Integral*2*np.pi/N*arcmin2rad
     CnnfileName=cfoldername+"/Cnn_"+outputfile+".asc"
     np.savetxt(CnnfileName,Cnn)
+    print("outputfile is: "+CnnfileName)
     if save_kernels:
         FilterFileName=cfoldername+"/FilterNN_"+outputfile+".asc"
         np.savetxt(FilterFileName,filter)
@@ -454,6 +466,7 @@ elif mode == 'xipm':
     print(all_binned_data.shape)
     # Write it out to a file and praise-be for Jarvis and his well documented code
     #treecorr.util.gen_write(xipmfileName, all_keys, all_binned_data, precision=12)
+    print("outputfile is: "+xipmfileName)
     with treecorr.util.make_writer(xipmfileName, precision=12) as writer:
         writer.write(all_keys, all_binned_data)
     
@@ -486,14 +499,16 @@ elif mode == 'gt':
     valueBlock[sigma_idx] = np.sqrt(valueBlock[sigma_idx])
 
     all_keys = np.concatenate((['r_nom','meanr', 'meanlogr'], valueBlock_keys, wgtBlock_keys))
-    print(all_keys)
-    print(ctrBin.shape)
-    print(binned_valueBlock.shape)
-    print(binned_wgtBlock.shape)
     all_binned_data = np.vstack((ctrBin, binned_r, binned_lnr, binned_valueBlock, binned_wgtBlock))
-    print(all_binned_data.shape)
+    if verbose:
+        print(all_keys)
+        print(ctrBin.shape)
+        print(binned_valueBlock.shape)
+        print(binned_wgtBlock.shape)
+        print(all_binned_data.shape)
     # Write it out to a file and praise-be for Jarvis and his well documented code
     #treecorr.util.gen_write(gtfileName, all_keys, all_binned_data, precision=12)
+    print("outputfile is: "+gtfileName)
     with treecorr.util.make_writer(gtfileName, precision=12) as writer:
         writer.write(all_keys, all_binned_data)
     
@@ -526,14 +541,16 @@ elif mode == 'wt':
     valueBlock[sigma_idx] = np.sqrt(valueBlock[sigma_idx])
 
     all_keys = np.concatenate((['r_nom','meanr', 'meanlogr'], valueBlock_keys, wgtBlock_keys))
-    print(all_keys)
-    print(ctrBin.shape)
-    print(binned_valueBlock.shape)
-    print(binned_wgtBlock.shape)
     all_binned_data = np.vstack((ctrBin, binned_r, binned_lnr, binned_valueBlock, binned_wgtBlock))
-    print(all_binned_data.shape)
+    if verbose:
+        print(all_keys)
+        print(ctrBin.shape)
+        print(binned_valueBlock.shape)
+        print(binned_wgtBlock.shape)
+        print(all_binned_data.shape)
     # Write it out to a file and praise-be for Jarvis and his well documented code
     #treecorr.util.gen_write(wtfileName, all_keys, all_binned_data, precision=12)
+    print("outputfile is: "+wtfileName)
     with treecorr.util.make_writer(wtfileName, precision=12) as writer:
         writer.write(all_keys, all_binned_data)
     

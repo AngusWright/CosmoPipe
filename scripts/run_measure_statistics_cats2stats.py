@@ -50,7 +50,7 @@ parser.add_argument('-f','--force',dest="force",nargs='?',default=False,required
 parser.add_argument('--save_kernels',dest="save_kernels",nargs='?',default=False,required=False,
     help='Write kernels to disk. Default is FALSE.')
 parser.add_argument('--verbose',dest="verbose",nargs='?',default=False,required=False,
-    help='If True prints more info out. Use this for debugging. Default is FALSE.')
+    help='If set, just write --verbose, prints more. Use this for debugging.')
 
 # COSEBIs options
 parser.add_argument('-n','--nCOSEBIs', dest="nCOSEBIs", type=int, default=10, nargs='?', required=False,
@@ -458,12 +458,13 @@ elif mode == 'xipm':
     valueBlock[sigma_idx] = np.sqrt(valueBlock[sigma_idx])
 
     all_keys = np.concatenate((['r_nom','meanr', 'meanlogr'], valueBlock_keys, wgtBlock_keys))
-    print(all_keys)
-    print(ctrBin.shape)
-    print(binned_valueBlock.shape)
-    print(binned_wgtBlock.shape)
     all_binned_data = np.vstack((ctrBin, binned_r, binned_lnr, binned_valueBlock, binned_wgtBlock))
-    print(all_binned_data.shape)
+    if verbose:
+        print(all_keys)
+        print(ctrBin.shape)
+        print(binned_valueBlock.shape)
+        print(binned_wgtBlock.shape)
+        print(all_binned_data.shape)
     # Write it out to a file and praise-be for Jarvis and his well documented code
     #treecorr.util.gen_write(xipmfileName, all_keys, all_binned_data, precision=12)
     print("outputfile is: "+xipmfileName)

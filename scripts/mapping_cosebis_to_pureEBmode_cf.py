@@ -1,6 +1,6 @@
 #=========================================
 #
-# Turns COSEBIs measurements and covariance 
+# Turns dimentionless COSEBIs measurements and covariance 
 # into pure E/B-mode correlation functions
 #
 #=========================================

@@ -182,7 +182,7 @@ do
     @PYTHON3BIN@ @RUNROOT@/@SCRIPTPATH@/calc_smf.py \
     --estimator simple \
     --nbins "@BV:NSMFBINS@" --min_mass "${obs_mins}" --max_mass "${obs_maxs}" \
-    --h0 "@BV:H0_IN@" --omegam "@BV:OMEGAM_IN@" --omegav "@BV:OMEGAV_IN@" \
+    --h0 "@BV:H0_IN@" --omegam "@BV:OMEGAM_IN@" --omegaL "@BV:OMEGAV_IN@" \
     --file ${file_lens_one} \
     --output_path @RUNROOT@/@STORAGEPATH@/@DATABLOCK@/ \
     --output_name ${outname1} \

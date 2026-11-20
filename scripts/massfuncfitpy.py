@@ -227,6 +227,4 @@ if __name__ == '__main__':
         ax.set_xlim([0, 0.6])
         pl.savefig('mass_lims.png')
         pl.clf()
-    
-    
-    
+        

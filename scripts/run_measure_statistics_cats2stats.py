@@ -439,13 +439,17 @@ elif mode == 'xipm':
         lin_not_log = False
     meanr = tpcf_data['meanr']
     meanlnr = tpcf_data['meanlogr']
-    weight = tpcf_data['weight']
+    
     keys = tpcf_data.keys()
     if no_npair_weighted:
         wgtBlock_keys = ['weight', 'npairs']
+        # Note weight should be npairs or napirs_weighted
+        weight = tpcf_data['npairs']
         print('no npair_wieghted column')
     else:
         wgtBlock_keys = ['weight', 'npairs', 'npairs_weighted']
+        # Note weight should be npair or napir_weighted
+        weight = tpcf_data['npairs_weighted']
     valueBlock_keys = [k for k in keys if (k not in wgtBlock_keys) and (k not in ['r_nom','meanr', 'meanlogr'])]
 
     valueBlock = np.array([tpcf_data[key] for key in valueBlock_keys])

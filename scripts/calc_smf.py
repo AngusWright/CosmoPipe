@@ -16,14 +16,14 @@ pl.ioff()
 
 if __name__ == '__main__':
 
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser("Calculates stellar mass function, assuming a flat-LCDM model.")
     parser.add_argument('--estimator', type=str, help='Estimator to use: simple or extended', default='simple', required=True)
     parser.add_argument('--h0', type=float, help='h0 from LePhare or other stellar mass code estimation routine', nargs='?', default=1.0, const=1.0)
     parser.add_argument('--omegam', type=float, help='Om_m from LePhare or other stellar mass code estimation routine', nargs='?', default=0.3, const=0.3)
-    parser.add_argument('--omegav', type=float, help='Om_v from LePhare or other stellar mass code estimation routine', nargs='?', default=0.7, const=0.7)
-    parser.add_argument('--area', type=float, help='Effective area of the survey/catalogue', nargs='?', default=777.4, const=777.4)
-    parser.add_argument('--min_mass', type=float, help='Minimum stellar mass bin limit', nargs='?', default=7.0, const=7.0)
-    parser.add_argument('--max_mass', type=float, help='Maximum stellar mass bin limit', nargs='?', default=12.5, const=12.5)
+    parser.add_argument('--omegaL', type=float, help='Om_lambda from LePhare or other stellar mass code estimation routine', nargs='?', default=0.7, const=0.7)
+    parser.add_argument('--area', type=float, help='Effective survey area in deg^2', nargs='?', default=777.4, const=777.4)
+    parser.add_argument('--min_mass', type=float, help='Minimum stellar mass bin limit in log10 M_sun (h^2?)', nargs='?', default=7.0, const=7.0)
+    parser.add_argument('--max_mass', type=float, help='Maximum stellar mass bin limit in log10 M_sun (h^2?)', nargs='?', default=12.5, const=12.5)
     parser.add_argument('--nbins', type=int, help='Number of stellar mass bins', nargs='?', default=30, const=30)
     parser.add_argument('--min_z', type=float, help='Minimum redshift of the bin if not using computed stellar mass limits', nargs='?', default=0.001, const=0.001)
     parser.add_argument('--max_z', type=float, help='Maximum redshift of the bin if not using computed stellar mass limits', nargs='?', default=1.0, const=1.0)
@@ -31,7 +31,7 @@ if __name__ == '__main__':
     parser.add_argument('--z_column', type=str, help='Redshift column', default='z_ANNZ_KV', required=True)
     parser.add_argument('--path', type=str, help='Path to npy files required for mass limit', required=True)
     parser.add_argument('--file', type=str, help='Input catalogue', default='fluxscale_fixed.fits', required=True)
-    parser.add_argument('--compare_to_gama', type=bool, help='Plot comparison figures', nargs='?', default=False, const=True)
+    # parser.add_argument('--compare_to_gama', type=bool, help='Plot comparison figures', nargs='?', default=False, const=True)
     parser.add_argument('--output_path', type=str, help='Output path', required=True)
     parser.add_argument('--output_name', type=str, help='Output name', required=True)
     parser.add_argument('--f_tomo', type=float, help='Fraction of galaxies in this bin', required=False, default=1.0)
@@ -44,13 +44,15 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     estimator = args.estimator
-    compare_to_gama = args.compare_to_gama
+    # compare_to_gama = args.compare_to_gama
     path = args.path
     
     area_kids = args.area
     total_sky_area = (180.0**2.0/np.pi**2.0) * 4.0*np.pi #~41253.0
     frac = (area_kids/total_sky_area)
     area_in_rad = area_kids / (180.0**2.0/np.pi**2.0)
+    # fraction of galaxies in this sample
+    # [FIX] compared to what? 
     f_tomo = args.f_tomo
     
     nz_file = args.nz_file
@@ -91,7 +93,7 @@ if __name__ == '__main__':
     
     h0 = args.h0
     omegam = args.omegam
-    omegav = args.omegav
+    omegaL = args.omegaL
     
     
     out_path = args.output_path
@@ -115,13 +117,13 @@ if __name__ == '__main__':
     
     h0 = 1.0
     omegam = 0.3
-    omegav = 0.7
+    omegaL = 0.7
     
     file_in = fits.open('fluxscale_fixed.fits')
     
     """
 
-    cosmo_model = LambdaCDM(H0=h0*100., Om0=omegam, Ode0=omegav)
+    cosmo_model = LambdaCDM(H0=h0*100., Om0=omegam, Ode0=omegaL)
 
     # TODO: what are these files?
     # M_star_lim(z) the completeness in stellar mass as a function of redshift or our 
@@ -139,6 +141,9 @@ if __name__ == '__main__':
     
     stellar_mass_in = data[stellar_mass_column]
     z_in = data[z_column]
+    # stellar_mass_in = data[stellar_mass_column] + (2 * np.log10(h0))
+    # z_in = data[z_column]
+    # stellar_mass_in = stellar_mass_in[np.logical_and(z_in >= min_z, z_in <= max_z)]
     
     # Check that data covers min_z, max_z
     if not np.any((z_in >= min_z) & (z_in <= max_z)):
@@ -248,38 +253,38 @@ if __name__ == '__main__':
                header='log10 Stellar Mass [M_sun/h^2] Number of galaxies in log10 bin')
     
     
-    if compare_to_gama:
-        baldry = np.genfromtxt('/net/home/fohlen13/dvornik/smf_for_cosmo/gsmf-B12.txt')
-        wright = np.genfromtxt('/net/home/fohlen13/dvornik/smf_for_cosmo/GAMAII_BBD_GSMFs.csv', delimiter=',')
-        kids = np.genfromtxt('/net/home/fohlen13/dvornik/smf_for_cosmo/smf2_final.txt')
-        #kids = np.genfromtxt('/net/home/fohlen13/dvornik/2x2pt/data_final_fix/bin_13_mlf.txt')
+    # if compare_to_gama:
+    #     baldry = np.genfromtxt('/net/home/fohlen13/dvornik/smf_for_cosmo/gsmf-B12.txt')
+    #     wright = np.genfromtxt('/net/home/fohlen13/dvornik/smf_for_cosmo/GAMAII_BBD_GSMFs.csv', delimiter=',')
+    #     kids = np.genfromtxt('/net/home/fohlen13/dvornik/smf_for_cosmo/smf2_final.txt')
+    #     #kids = np.genfromtxt('/net/home/fohlen13/dvornik/2x2pt/data_final_fix/bin_13_mlf.txt')
     
-        mstar_og = 10.819 - 1.0*np.log10(h0/0.7)
-        alpha_1 = -0.646
-        alpha_2 = -1.507
-        phi_1 = -2.39
-        phi_2 = -3.452
+    #     mstar_og = 10.819 - 1.0*np.log10(h0/0.7)
+    #     alpha_1 = -0.646
+    #     alpha_2 = -1.507
+    #     phi_1 = -2.39
+    #     phi_2 = -3.452
         
-        xrange = wright[:,0]
-        phi_angus_og = np.log(10.0) * np.exp(-10.0**(xrange - mstar_og)) * (10.0**phi_1 * (10.0**(xrange - mstar_og))**(alpha_1+1) + 10.0**phi_2 * (10.0**(xrange - mstar_og))**(alpha_2+1))
+    #     xrange = wright[:,0]
+    #     phi_angus_og = np.log(10.0) * np.exp(-10.0**(xrange - mstar_og)) * (10.0**phi_1 * (10.0**(xrange - mstar_og))**(alpha_1+1) + 10.0**phi_2 * (10.0**(xrange - mstar_og))**(alpha_2+1))
 
         
-        pl.rc('text',usetex=True)
-        pl.rcParams.update({'font.size': 20})
-        fig, ax = pl.subplots(1, 1, figsize=(8, 8))
-        ax.errorbar(baldry[:,0], baldry[:,2]*0.001, yerr=baldry[:,3]*0.001, ls='', ms=3, marker='o', label='Baldry et al. 2012')
-        ax.errorbar(wright[:,0], wright[:,4], yerr=[wright[:,5], wright[:,6]], ls='', ms=3, marker='o', label='Wright et al. 2017')
-        ax.errorbar(M_center, phi_bins/delta_log10_M, yerr=0, ls='', ms=3, marker='o', label='This sample')
-        #ax.plot(wright[:,0], phi_angus_og, ls='--', color='red')
-        ax.set_yscale('log')
-        ax.set_ylim([1e-8, 1e-1])
-        ax.set_xlim([7, 13])
-        ax.set_xlabel(r'$\log(M_{\star}/h^{2}M_{\odot})$')
-        ax.set_ylabel(r'$\phi (\mathrm{dex}^{-1}\,h^{3}\,\mathrm{Mpc}^{-3})$')
-        ax.legend()
-        pl.savefig(f"{out_path}/smf/{outname}_smf_comp.png")
-        pl.clf()
-        pl.close()
+    #     pl.rc('text',usetex=True)
+    #     pl.rcParams.update({'font.size': 20})
+    #     fig, ax = pl.subplots(1, 1, figsize=(8, 8))
+    #     ax.errorbar(baldry[:,0], baldry[:,2]*0.001, yerr=baldry[:,3]*0.001, ls='', ms=3, marker='o', label='Baldry et al. 2012')
+    #     ax.errorbar(wright[:,0], wright[:,4], yerr=[wright[:,5], wright[:,6]], ls='', ms=3, marker='o', label='Wright et al. 2017')
+    #     ax.errorbar(M_center, phi_bins/delta_log10_M, yerr=0, ls='', ms=3, marker='o', label='This sample')
+    #     #ax.plot(wright[:,0], phi_angus_og, ls='--', color='red')
+    #     ax.set_yscale('log')
+    #     ax.set_ylim([1e-8, 1e-1])
+    #     ax.set_xlim([7, 13])
+    #     ax.set_xlabel(r'$\log(M_{\star}/h^{2}M_{\odot})$')
+    #     ax.set_ylabel(r'$\phi (\mathrm{dex}^{-1}\,h^{3}\,\mathrm{Mpc}^{-3})$')
+    #     ax.legend()
+    #     pl.savefig(f"{out_path}/smf/{outname}_smf_comp.png")
+    #     pl.clf()
+    #     pl.close()
     
     quit()
     
